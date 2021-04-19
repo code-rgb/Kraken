@@ -5,7 +5,7 @@ from pathlib import Path
 
 import colorlog
 
-level = logging.INFO
+level = logging.DEBUG
 
 
 def setup_log() -> None:
