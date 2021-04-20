@@ -102,16 +102,16 @@ class SystemModule(module.Module):
         except FileNotFoundError as E:
             after = util.time.usec()
             return (
-                f"**In:**\n```{snip}```\n\n"
-                "**Out:**\n"
+                f"**Code:**\n```{snip}```\n\n"
+                "**Output:**\n"
                 f"⚠️ Error executing command:\n```{util.error.format_exception(E)}```\n\n"
                 f"Time: {util.time.format_duration_us(after - before)}"
             )
         except asyncio.TimeoutError:
             after = util.time.usec()
             return (
-                f"**In:**\n```{snip}```\n\n"
-                "**Out:**\n"
+                f"**Code:**\n```{snip}```\n\n"
+                "**Output:**\n"
                 "🕑 Snippet failed to finish within 2 minutes.\n\n"
                 f"Time: {util.time.format_duration_us(after - before)}"
             )
@@ -127,7 +127,7 @@ class SystemModule(module.Module):
             stdout += "\n"
 
         err = f"⚠️ Return code: {ret}" if ret != 0 else ""
-        return f"**In:**\n```{snip}```\n\n**Out:**\n```{stdout}```{err}{el_str}"
+        return f"**Code:**\n```{snip}```\n\n**Output:**\n```{stdout}```{err}{el_str}"
 
     @command.desc("Evaluate code")
     @command.usage("[code snippet]")
@@ -210,9 +210,10 @@ class SystemModule(module.Module):
         prefix, result = await _eval()
         after = util.time.usec()
 
+        # Silence unnecessary output
         # Always write result if no output has been collected thus far
-        if not out_buf.getvalue() or result is not None:
-            print(result, file=out_buf)
+        # if not out_buf.getvalue() or result is not None:
+        #    print(result, file=out_buf)
 
         el_us = after - before
         el_str = util.time.format_duration_us(el_us)
@@ -222,10 +223,10 @@ class SystemModule(module.Module):
         if out.endswith("\n"):
             out = out[:-1]
 
-        return f"""{prefix}**In:**
+        return f"""{prefix}**Code:**
 ```{code}```
 
-**Out:**
+**Output:**
 ```{out}```
 
 Time: {el_str}"""

@@ -93,8 +93,7 @@ class TelegramBot(Base):
                 self.on_command,
                 filters=(
                     self.command_predicate() &
-                    filters.me &
-                    filters.outgoing
+                    self.outgoing_flt()
                 )
             ), 0)
 
