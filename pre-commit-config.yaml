@@ -1,29 +1,34 @@
 repos:
   - repo: local
+
     hooks:
-      - id: autopep8
-        name: autopep8
-        description: "Auto pep8 fixes"
-        stages: [commit]
-        language: system
-        entry: poetry run autopep8
-        args:
-          [
-            "--verbose",
-            "--in-place",
-            "--recursive",
-            "--aggressive",
-            "--aggressive",
-            "--ignore=W605",
-          ]
-        types: [python]
+      #   - id: autopep8
+      #     name: autopep8
+      #     description: "Auto pep8 fixes"
+      #     stages: [commit]
+      #     language: system
+      #     entry: poetry run autopep8 .
+      #     require_serial: true
+      #     always_run: true
+      #     args:
+      #       [
+      #         "--verbose",
+      #         "--in-place",
+      #         "--recursive",
+      #         "--aggressive",
+      #         "--aggressive",
+      #         "--ignore=W605",
+      #       ]
+      #     types: [python]
 
       - id: autoflake
         name: autoflake
         description: "Remove unused imports and variables"
-        stages: [commit]
+        entry: poetry run autoflake .
         language: system
-        entry: poetry run autoflake
+        types: [python]
+        require_serial: true
+        always_run: true
         args:
           [
             "--in-place",
@@ -32,28 +37,33 @@ repos:
             "--remove-unused-variables",
             "--ignore-init-module-imports",
           ]
-        types: [python]
 
       - id: isort
         name: isort
-        description: "Sort imports"
+        description: "Sort python imports"
         stages: [commit]
+        require_serial: true
         language: system
-        entry: poetry run isort
-        types: [python]
+        types_or: [cython, pyi, python]
+        args: ["--filter-files"]
+        always_run: true
+        entry: poetry run isort .
 
-      - id: black
-        name: black
-        description: "Black: Python code formatter"
+      - id: yapf
+        name: yapf
+        description: "Python code formatter"
         stages: [commit]
         language: system
-        entry: poetry run black
         types: [python]
+        entry: poetry run yapf
+        always_run: true
 
-      - id: mypy
-        name: mypy
-        description: "Static type checking"
-        stages: [commit]
-        language: system
-        entry: poetry run mypy
-        types: [python]
+        #require_serial: true
+
+      # - id: mypy
+      #   name: mypy
+      #   description: "Static type checking"
+      #   stages: [commit]
+      #   language: system
+      #   entry: poetry run mypy
+      #   types: [python]
