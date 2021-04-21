@@ -1,12 +1,12 @@
 import asyncio
-import os
 import inspect
-import re
 import io
+import os
+import re
 import sys
 import traceback
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Optional, Union, Tuple
+from typing import Any, ClassVar, Dict, Optional, Tuple, Union
 
 import aiohttp
 import pyrogram

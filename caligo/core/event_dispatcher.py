@@ -7,10 +7,10 @@ from typing import (
     MutableMapping,
     MutableSequence,
     Optional,
-    Pattern
+    Pattern,
 )
 
-from pyrogram.types import Message, CallbackQuery, InlineQuery
+from pyrogram.types import CallbackQuery, InlineQuery, Message
 
 from .. import module, util
 from ..listener import Listener, ListenerFunc

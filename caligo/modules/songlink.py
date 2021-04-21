@@ -1,10 +1,10 @@
 import re
 from html import escape
 from typing import ClassVar, Dict, Optional, Tuple
-from pyrogram.types import Message
 from urllib.parse import quote
 
 import aiohttp
+from pyrogram.types import Message
 
 from .. import command, module
 

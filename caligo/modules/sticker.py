@@ -5,7 +5,7 @@ from typing import ClassVar, Optional, Set, Tuple, Union
 
 import pyrogram
 from aiofile import AIOFile
-from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 from pyrogram.errors import StickersetInvalid
 from pyrogram.raw.functions.messages import GetStickerSet
 from pyrogram.raw.types import InputStickerSetShortName

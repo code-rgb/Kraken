@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import ClassVar
 
 import aiohttp
-from pyrogram.errors import UsernameInvalid, PeerIdInvalid
+from pyrogram.errors import PeerIdInvalid, UsernameInvalid
 
 from .. import command, module, util
 

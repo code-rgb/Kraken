@@ -2,14 +2,15 @@ import asyncio
 from datetime import datetime, timedelta
 from mimetypes import guess_type
 from pathlib import Path
-from urllib import parse
 from typing import Optional, Tuple, Union
+from urllib import parse
 
 from async_property import async_property
 
 from .async_helpers import run_sync
 from .misc import human_readable_bytes as human
-from .time import format_duration_td as time, sec
+from .time import format_duration_td as time
+from .time import sec
 
 
 class File:
