@@ -2,31 +2,13 @@ repos:
   - repo: local
 
     hooks:
-      #   - id: autopep8
-      #     name: autopep8
-      #     description: "Auto pep8 fixes"
-      #     stages: [commit]
-      #     language: system
-      #     entry: poetry run autopep8 .
-      #     require_serial: true
-      #     always_run: true
-      #     args:
-      #       [
-      #         "--verbose",
-      #         "--in-place",
-      #         "--recursive",
-      #         "--aggressive",
-      #         "--aggressive",
-      #         "--ignore=W605",
-      #       ]
-      #     types: [python]
-
       - id: autoflake
         name: autoflake
         description: "Remove unused imports and variables"
-        entry: poetry run autoflake .
+        stages: [commit]
         language: system
         types: [python]
+        entry: poetry run autoflake .
         require_serial: true
         always_run: true
         args:
@@ -42,12 +24,12 @@ repos:
         name: isort
         description: "Sort python imports"
         stages: [commit]
-        require_serial: true
         language: system
         types_or: [cython, pyi, python]
         args: ["--filter-files"]
         always_run: true
         entry: poetry run isort .
+        require_serial: true
 
       - id: yapf
         name: yapf
@@ -55,15 +37,7 @@ repos:
         stages: [commit]
         language: system
         types: [python]
-        entry: poetry run yapf
+        entry: poetry run yapf .
+        args: ["--recursive"]
         always_run: true
-
-        #require_serial: true
-
-      # - id: mypy
-      #   name: mypy
-      #   description: "Static type checking"
-      #   stages: [commit]
-      #   language: system
-      #   entry: poetry run mypy
-      #   types: [python]
+        require_serial: true
