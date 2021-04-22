@@ -104,7 +104,7 @@ class EventDispatcher(Base):
 
                 update = args[0]
                 if isinstance(update, Message):
-                    value = update.text or args[0].caption
+                    value = update.text or update.caption
                 elif isinstance(update, CallbackQuery):
                     value = update.data
                 elif isinstance(update, InlineQuery):
@@ -114,16 +114,15 @@ class EventDispatcher(Base):
                                    f"with {type(update)}")
                     continue
 
-                if value:
-                    update.matches = list(lst.pattern.finditer(value)) or None
-                    if not update.matches:
-                        continue
+                update.matches = (list(lst.pattern.finditer(value)) if value else None) or None
+                if not update.matches:
+                    continue
 
             task = self.loop.create_task(lst.func(*args, **kwargs))
             tasks.add(task)
 
         self.log.debug("Dispatching event '%s' with data %s", event, args)
-        if wait:
+        if wait and tasks:
             await asyncio.wait(tasks)
 
     async def log_stat(self: "Bot", stat: str) -> None:
