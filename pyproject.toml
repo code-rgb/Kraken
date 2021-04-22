@@ -67,13 +67,15 @@ aiofile = "^3.5.0"
 Pillow = "^8.2.0"
 async-property = "^0.2.1"
 tenacity = "^7.0.0"
+toml = "^0.10.2"
+
 
 [tool.poetry.dev-dependencies]
-isort = {version = "^5.7.0", extras = ["pyproject"]}
+isort = {extras = ["pyproject"], version = "^5.8.0"}
 mypy = "^0.812"
-pre-commit = "^2.12.1"
 yapf = "^0.31.0"
 autoflake = "^1.4"
+
 
 [tool.poetry.scripts]
 caligo = "caligo.main:main"

@@ -10,7 +10,6 @@ repos:
         types: [python]
         entry: poetry run autoflake .
         require_serial: true
-        always_run: true
         args:
           [
             "--in-place",
@@ -27,7 +26,6 @@ repos:
         language: system
         types_or: [cython, pyi, python]
         args: ["--filter-files"]
-        always_run: true
         entry: poetry run isort .
         require_serial: true
 
@@ -39,5 +37,4 @@ repos:
         types: [python]
         entry: poetry run yapf .
         args: ["--recursive"]
-        always_run: true
         require_serial: true
