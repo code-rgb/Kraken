@@ -48,6 +48,7 @@ class CoreModule(module.Module):
 
         return buttons
 
+    @listener.pattern(r"help")
     async def on_inline_query(self, query: InlineQuery) -> None:
         repo = self.bot.getConfig.github_repo
         answer = [
