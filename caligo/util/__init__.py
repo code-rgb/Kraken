@@ -13,8 +13,9 @@ from . import (
     tg,
     time,
     version,
+    media_utils
 )
-
+from media_utils import get_file_id, get_media
 BotConfig = config.BotConfig
 File = file.File
 run_sync = async_helpers.run_sync

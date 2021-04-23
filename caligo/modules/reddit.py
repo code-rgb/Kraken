@@ -2,7 +2,7 @@
 #  Author: code-rgb <https://github.com/code-rgb>
 #          TG: [ @DeletedUser420 ]
 #
-#  (c) 2021 - Kraken
+#  Copyright (C) 2021 - Kraken
 
 import re
 from typing import ClassVar, Dict, List, Optional, Pattern

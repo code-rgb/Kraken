@@ -2,7 +2,7 @@
 #  Ported by: code-rgb <https://github.com/code-rgb>
 #          TG: [ @DeletedUser420 ]
 #
-#  (c) 2021 - Kraken
+#  Copyright (C) 2021- Kraken
 
 import os
 from pathlib import Path
