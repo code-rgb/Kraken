@@ -64,10 +64,9 @@ class RedditDl(module.Module):
     @command.desc("get post from reddit")
     async def cmd_reddit(self, ctx: command.Context):
         await ctx.respond("`Processing ...`")
-        r_api = "/".join([self.uri, ctx.input.split()[0]]) if ctx.input else self.uri
-        rjson = await util.aiorequest(session=self.http,
-                                      url=r_api,
-                                      mode="json")
+        r_api = "/".join([self.uri, ctx.input.split()[0]
+                         ]) if ctx.input else self.uri
+        rjson = await util.aiorequest(session=self.http, url=r_api, mode="json")
         if rjson is None:
             return "ERROR : Reddit API is Down !"
         if rjson.get("code"):
@@ -148,6 +147,5 @@ class RedditDl(module.Module):
         await query.answer(results=results,
                            cache_time=5,
                            is_gallery=len(results) > 1,
-                            switch_pm_text=switch_pm_text,
-                            switch_pm_parameter="inline"
-        )
+                           switch_pm_text=switch_pm_text,
+                           switch_pm_parameter="inline")
