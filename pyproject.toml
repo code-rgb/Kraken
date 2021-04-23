@@ -95,7 +95,7 @@ line_length = 88
 
 [tool.yapf]
 based_on_style = "google"
-spaces_before_comment = 4
+spaces_before_comment = 2
 split_before_logical_operator = true
 
 #

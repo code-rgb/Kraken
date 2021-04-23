@@ -20,7 +20,7 @@ jobs:
       - name: linting with isort and yapf
         run: |
           isort .
-          yapf --recursive .
+          yapf -ir .
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "auto: code format"
