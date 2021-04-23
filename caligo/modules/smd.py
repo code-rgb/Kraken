@@ -4,8 +4,10 @@
 #
 #  Copyright (C) 2021 - Kraken
 
-from .. import command, module, util
 from pyrogram.errors import BadRequest
+
+from .. import command, module
+
 
 class Smd(module.Module):
     name: ClassVar[str] = "Smd"
@@ -18,12 +20,13 @@ class Smd(module.Module):
         chat_id = ctx.msg.chat.id
         try:
             async for m in ctx.bot.client.search_messages(
-                -1001356426755, query=ctx.input.strip(), limit=1, filter="audio"
-            ):
+                    -1001356426755,
+                    query=ctx.input.strip(),
+                    limit=1,
+                    filter="audio"):
                 await m.copy(chat_id, caption="")
                 break
             else:
                 return "⚠️ Song Not Found !"
         except BadRequest:
             return "Join [THIS](https://t.me/joinchat/UNluAx4vPQt6kBJl) channel first"
-            
