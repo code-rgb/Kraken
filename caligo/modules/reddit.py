@@ -52,7 +52,7 @@ class RedditDl(module.Module):
     # @command.desc("get post from reddit")
     async def cmd_reddit(self, ctx: command.Context):
         await ctx.respond("`Processing ...`")
-        rjson = await util.aiorequest.get(session=self.http, url=self.uri, mode="json")
+        rjson = await util.aiorequest(session=self.http, url=self.uri, mode="json")
         result = self.parse_rpost(rjson)
         if isinstance(result, str): # Error
             return result 
