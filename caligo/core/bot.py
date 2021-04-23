@@ -13,25 +13,28 @@ from .module_extender import ModuleExtender
 from .telegram_bot import TelegramBot
 
 
+import ujson
+
+
 class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher,
           ConversationDispatcher, ModuleExtender):
     client: pyrogram.Client
-    http: aiohttp.ClientSession
     lock: asyncio.Lock
     log: logging.Logger
     loop: asyncio.AbstractEventLoop
     stop_manual: bool
     stopping: bool
+    
 
     def __init__(self) -> None:
         self.log = logging.getLogger("Bot")
         self.loop = asyncio.get_event_loop()
         self.stop_manual = False
         self.stopping = False
-
         super().__init__()
 
-        self.http = aiohttp.ClientSession()
+        self.__aiosession: Optional[aiohttp.ClientSession] = None
+
 
     @classmethod
     async def create_and_run(cls,
@@ -73,3 +76,12 @@ class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher,
             await self.loop.shutdown_asyncgens()
             await self.dispatch_event("stopped")
         self.loop.stop()
+
+    def __new_aiosession(self) -> aiohttp.ClientSession:
+        return aiohttp.ClientSession(json_serialize=ujson.dumps)
+
+    @property
+    def http(self) -> aiohttp.ClientSession:
+        if self.__aiosession is None or self.__aiosession.closed:
+            self.__aiosession = self.__new_aiosession()
+        return self.__aiosession

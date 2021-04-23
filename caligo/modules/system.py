@@ -102,7 +102,7 @@ class SystemModule(module.Module):
         except FileNotFoundError as E:
             after = util.time.usec()
             return (
-                f"**Code:**\n```{snip}```\n\n"
+                f"**CMD:**\n```{snip}```\n\n"
                 "**Output:**\n"
                 f"⚠️ Error executing command:\n```{util.error.format_exception(E)}```\n\n"
                 f"Time: {util.time.format_duration_us(after - before)}"
@@ -110,16 +110,16 @@ class SystemModule(module.Module):
         except asyncio.TimeoutError:
             after = util.time.usec()
             return (
-                f"**Code:**\n```{snip}```\n\n"
+                f"**CMD:**\n```{snip}```\n\n"
                 "**Output:**\n"
                 "🕑 Snippet failed to finish within 2 minutes.\n\n"
-                f"Time: {util.time.format_duration_us(after - before)}"
+                f"`Time: {util.time.format_duration_us(after - before)}`"
             )
 
         after = util.time.usec()
 
         el_us = after - before
-        el_str = f"\nTime: {util.time.format_duration_us(el_us)}"
+        el_str = f"\n`Time: {util.time.format_duration_us(el_us)}`"
 
         if not stdout:
             stdout = "[no output]"
@@ -127,7 +127,7 @@ class SystemModule(module.Module):
             stdout += "\n"
 
         err = f"⚠️ Return code: {ret}" if ret != 0 else ""
-        return f"**Code:**\n```{snip}```\n\n**Output:**\n```{stdout}```{err}{el_str}"
+        return f"**CMD:**\n```{snip}```\n\n**Output:**\n```{stdout}```{err}{el_str}"
 
     @command.desc("Evaluate code")
     @command.usage("[code snippet]")
@@ -163,6 +163,7 @@ class SystemModule(module.Module):
                 # Convenience aliases
                 "context": ctx,
                 "msg": ctx.msg,
+                "reply": ctx.msg.reply_to_message,
                 "message": ctx.msg,
                 "db": self.bot.db,
                 # Helper functions
@@ -212,8 +213,8 @@ class SystemModule(module.Module):
 
         # Silence unnecessary output
         # Always write result if no output has been collected thus far
-        # if not out_buf.getvalue() or result is not None:
-        #    print(result, file=out_buf)
+        # if result is not None:
+        #     print(result, file=out_buf)
 
         el_us = after - before
         el_str = util.time.format_duration_us(el_us)
@@ -229,7 +230,7 @@ class SystemModule(module.Module):
 **Output:**
 ```{out}```
 
-Time: {el_str}"""
+`Time: {el_str}`"""
 
     @command.desc("Stop this bot")
     async def cmd_stop(self, ctx: command.Context) -> None:
@@ -239,7 +240,7 @@ Time: {el_str}"""
         await self.bot.stop()
 
     @command.desc("Restart this bot")
-    @command.alias("re", "rst")
+    @command.alias("rst", "reboot")
     async def cmd_restart(
         self,
         ctx: command.Context,
