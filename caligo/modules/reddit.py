@@ -1,3 +1,10 @@
+#  Module: Reddit
+#  Author: code-rgb <https://github.com/code-rgb>
+#          TG: [ @DeletedUser420 ]
+#
+#  (c) 2021 - Kraken
+
+
 import logging
 import re
 from typing import ClassVar, Dict, List, Optional, Pattern
@@ -47,7 +54,7 @@ class RedditDl(module.Module):
     @staticmethod
     def parse_rpost(r: Dict) -> Optional[Dict[str, str]]:
         if not r.get('url'):
-            return logging.error()
+            return
         caption = f"""
 <b>{r['title']}</b>
 <code>Posted by u/{r['author']}

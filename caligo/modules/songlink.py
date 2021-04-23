@@ -1,3 +1,10 @@
+#  Module: Songlink
+#  Author: code-rgb <https://github.com/code-rgb>
+#          TG: [ @DeletedUser420 ]
+#
+#  (c) 2021 - Kraken
+
+
 import re
 from html import escape
 from typing import ClassVar, Dict, Optional, Tuple
@@ -48,7 +55,7 @@ class SongLink(module.Module):
                     link = (txt[y.offset:(y.offset + y.length)]
                             if y.type == "url" else y.url)
         if msg_instance and link:
-            return (link, msg_instance)
+            return link, msg_instance
 
     @staticmethod
     def beautify(text: str) -> str:
