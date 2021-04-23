@@ -4,7 +4,6 @@
 #
 #  (c) 2021 - Kraken
 
-
 import re
 from html import escape
 from typing import ClassVar, Dict, Optional, Tuple

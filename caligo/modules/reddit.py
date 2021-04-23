@@ -4,8 +4,6 @@
 #
 #  (c) 2021 - Kraken
 
-
-import logging
 import re
 from typing import ClassVar, Dict, List, Optional, Pattern
 
