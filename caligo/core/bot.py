@@ -4,6 +4,7 @@ from typing import Optional
 
 import aiohttp
 import pyrogram
+import ujson
 
 from .command_dispatcher import CommandDispatcher
 from .conversation_dispatcher import ConversationDispatcher
@@ -11,9 +12,6 @@ from .database import DataBase
 from .event_dispatcher import EventDispatcher
 from .module_extender import ModuleExtender
 from .telegram_bot import TelegramBot
-
-
-import ujson
 
 
 class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher,

@@ -1,12 +1,10 @@
 import re
-from html import escape
-from typing import ClassVar, Dict, Optional, Tuple, Pattern
-from urllib.parse import quote
+from typing import ClassVar, Dict, Optional, Pattern
 
 import aiohttp
-from pyrogram.types import Message, InlineQuery
+from pyrogram.types import InlineQuery
 
-from .. import command, module, util, listener
+from .. import command, listener, module, util
 
 
 class RedditDl(module.Module):

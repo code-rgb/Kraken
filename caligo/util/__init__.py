@@ -1,4 +1,5 @@
 from . import (
+    aiohelper,
     aria2,
     async_helpers,
     config,
@@ -12,7 +13,6 @@ from . import (
     tg,
     time,
     version,
-    aiohelper
 )
 
 BotConfig = config.BotConfig

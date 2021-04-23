@@ -4,10 +4,10 @@ Aiohttp GET request helper
 
 
 import asyncio
-import aiohttp
-from typing import Optional, Union, Dict
 import logging
-import ujson
+from typing import Dict, Optional, Union
+
+import aiohttp
 
 
 class AioHttp:
