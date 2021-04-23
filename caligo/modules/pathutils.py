@@ -24,14 +24,12 @@ class PathLib(module.Module):
                     if str(p_s).endswith((".mp3", ".flac", ".wav", ".m4a")):
                         files += "🎵"
                     elif str(p_s).endswith(
-                        (".mkv", ".mp4", ".webm", ".avi", ".mov", ".flv")
-                    ):
+                        (".mkv", ".mp4", ".webm", ".avi", ".mov", ".flv")):
                         files += "📹"
                     elif str(p_s).endswith((".zip", ".tar", ".tar.gz", ".rar")):
                         files += "🗜"
-                    elif str(p_s).endswith(
-                        (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".ico", ".webp")
-                    ):
+                    elif str(p_s).endswith((".jpg", ".jpeg", ".png", ".gif",
+                                            ".bmp", ".ico", ".webp")):
                         files += "🖼"
                     else:
                         files += "📄"

@@ -81,17 +81,15 @@ class CommandDispatcher(Base):
             return False
 
         return create(func)
-        
+
     @staticmethod
     def outgoing_flt() -> Filter:
         return create(
-            lambda _, __, msg: msg.via_bot is None
-            and not msg.scheduled
-            and not (msg.forward_from or msg.forward_sender_name)
-            and not (msg.from_user and msg.from_user.is_bot)
-            and (msg.outgoing or (msg.from_user and msg.from_user.is_self))
-            and not (msg.chat and msg.chat.type == "channel" and msg.edit_date)
-        )
+            lambda _, __, msg: msg.via_bot is None and not msg.scheduled and
+            not (msg.forward_from or msg.forward_sender_name) and not (
+                msg.from_user and msg.from_user.is_bot) and
+            (msg.outgoing or (msg.from_user and msg.from_user.is_self)) and
+            not (msg.chat and msg.chat.type == "channel" and msg.edit_date))
 
     async def on_command(self: "Bot", _: pyrogram.Client,
                          msg: pyrogram.types.Message) -> None:
@@ -104,7 +102,7 @@ class CommandDispatcher(Base):
                 return
 
             if ((cmd.module.name == "GoogleDrive" and not cmd.module.disabled)
-               and cmd.name not in ["gdreset", "gdclear"]):
+                    and cmd.name not in ["gdreset", "gdclear"]):
                 ret = await cmd.module.authorize(msg)
 
                 if ret is False:
@@ -117,8 +115,8 @@ class CommandDispatcher(Base):
                     cmd.pattern = re.compile(cmd.pattern)
 
                 if msg.reply_to_message:
-                    matches = list(cmd.pattern.finditer(
-                                   msg.reply_to_message.text))
+                    matches = list(
+                        cmd.pattern.finditer(msg.reply_to_message.text))
                 elif msg.text:
                     matches = list(cmd.pattern.finditer(msg.text[cmd_len:]))
 

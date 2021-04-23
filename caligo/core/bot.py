@@ -22,7 +22,6 @@ class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher,
     loop: asyncio.AbstractEventLoop
     stop_manual: bool
     stopping: bool
-    
 
     def __init__(self) -> None:
         self.log = logging.getLogger("Bot")
@@ -33,12 +32,11 @@ class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher,
 
         self.__aiosession: Optional[aiohttp.ClientSession] = None
 
-
     @classmethod
     async def create_and_run(cls,
                              *,
                              loop: Optional[asyncio.AbstractEventLoop] = None
-                             ) -> "Bot":
+                            ) -> "Bot":
         bot = None
 
         if loop:

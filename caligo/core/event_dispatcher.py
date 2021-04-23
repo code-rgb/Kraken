@@ -28,15 +28,13 @@ class EventDispatcher(Base):
 
         super().__init__(**kwargs)
 
-    def register_listener(
-        self: "Bot",
-        mod: module.Module,
-        event: str,
-        func: ListenerFunc,
-        *,
-        priority: Optional[int] = 100,
-        pattern: Optional[Pattern[str]] = None
-    ) -> None:
+    def register_listener(self: "Bot",
+                          mod: module.Module,
+                          event: str,
+                          func: ListenerFunc,
+                          *,
+                          priority: Optional[int] = 100,
+                          pattern: Optional[Pattern[str]] = None) -> None:
         listener = Listener(event, func, mod, priority, pattern)
 
         if event in self.listeners:
@@ -114,7 +112,8 @@ class EventDispatcher(Base):
                                    f"with {type(update)}")
                     continue
 
-                update.matches = (list(lst.pattern.finditer(value)) if value else None) or None
+                update.matches = (list(lst.pattern.finditer(value))
+                                  if value else None) or None
                 if not update.matches:
                     continue
 

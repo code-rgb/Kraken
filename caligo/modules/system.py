@@ -39,16 +39,14 @@ class SystemModule(module.Module):
         await ctx.respond("Collecting system information...")
 
         try:
-            stdout, _, ret = await util.system.run_command(
-                "neofetch", "--stdout", timeout=60
-            )
+            stdout, _, ret = await util.system.run_command("neofetch",
+                                                           "--stdout",
+                                                           timeout=60)
         except asyncio.TimeoutError:
             return "🕑 `neofetch` failed to finish within 1 minute."
         except FileNotFoundError:
-            return (
-                "❌ [neofetch](https://github.com/dylanaraps/neofetch) "
-                "must be installed on the host system."
-            )
+            return ("❌ [neofetch](https://github.com/dylanaraps/neofetch) "
+                    "must be installed on the host system.")
 
         err = f"⚠️ Return code: {ret}" if ret != 0 else ""
         sysinfo = "\n".join(stdout.split("\n")[2:]) if ret == 0 else stdout
@@ -97,7 +95,9 @@ class SystemModule(module.Module):
 
         try:
             stdout, _, ret = await util.system.run_command(
-                snip, shell=True, timeout=120  # skipcq: BAN-B604
+                snip,
+                shell=True,
+                timeout=120  # skipcq: BAN-B604
             )
         except FileNotFoundError as E:
             after = util.time.usec()
@@ -105,16 +105,13 @@ class SystemModule(module.Module):
                 f"**CMD:**\n```{snip}```\n\n"
                 "**Output:**\n"
                 f"⚠️ Error executing command:\n```{util.error.format_exception(E)}```\n\n"
-                f"Time: {util.time.format_duration_us(after - before)}"
-            )
+                f"Time: {util.time.format_duration_us(after - before)}")
         except asyncio.TimeoutError:
             after = util.time.usec()
-            return (
-                f"**CMD:**\n```{snip}```\n\n"
-                "**Output:**\n"
-                "🕑 Snippet failed to finish within 2 minutes.\n\n"
-                f"`Time: {util.time.format_duration_us(after - before)}`"
-            )
+            return (f"**CMD:**\n```{snip}```\n\n"
+                    "**Output:**\n"
+                    "🕑 Snippet failed to finish within 2 minutes.\n\n"
+                    f"`Time: {util.time.format_duration_us(after - before)}`")
 
         after = util.time.usec()
 
@@ -140,6 +137,7 @@ class SystemModule(module.Module):
         out_buf = io.StringIO()
 
         async def _eval() -> Tuple[str, str]:
+
             async def send(*args: Any, **kwargs: Any) -> pyrogram.types.Message:
                 return await ctx.msg.reply(*args, **kwargs)
 
@@ -193,8 +191,7 @@ class SystemModule(module.Module):
                 tb = traceback.extract_tb(e.__traceback__)
                 for i, frame in enumerate(tb):
                     if frame.filename == "<string>" or frame.filename.endswith(
-                        "ast.py"
-                    ):
+                            "ast.py"):
                         first_snip_idx = i
                         break
 
@@ -251,18 +248,15 @@ class SystemModule(module.Module):
         resp_msg = await ctx.respond("Restarting bot...")
 
         # Save time and status message so we can update it after restarting
-        await self.db.find_one_and_update(
-            {"_id": self.name},
-            {
-                "$set": {
-                    "restart.status_chat_id": resp_msg.chat.id,
-                    "restart.status_message_id": resp_msg.message_id,
-                    "restart.time": restart_time or util.time.usec(),
-                    "restart.reason": reason
-                    }
-            },
-            upsert=True
-        )
+        await self.db.find_one_and_update({"_id": self.name}, {
+            "$set": {
+                "restart.status_chat_id": resp_msg.chat.id,
+                "restart.status_message_id": resp_msg.message_id,
+                "restart.time": restart_time or util.time.usec(),
+                "restart.reason": reason
+            }
+        },
+                                          upsert=True)
         # Initiate the restart
         self.restart_pending = True
         self.bot.stop_manual = True
@@ -271,8 +265,8 @@ class SystemModule(module.Module):
 
     async def on_start(self, time_us: int) -> None:  # skipcq: PYL-W0613
         # Update restart status message if applicable
-        data: Optional[Dict[Union[str, int]]
-                       ] = await self.db.find_one({"_id": self.name})
+        data: Optional[Dict[Union[str, int]]] = await self.db.find_one(
+            {"_id": self.name})
         if data is not None:
             restart = data.get("restart")
             # Fetch status message info
@@ -292,9 +286,11 @@ class SystemModule(module.Module):
             updated = "updated and " if rs_reason == "update" else ""
             duration = util.time.format_duration_us(util.time.usec() - rs_time)
             self.log.info(f"Bot {updated}restarted in {duration}")
-            status_msg = await self.bot.client.get_messages(rs_chat_id, rs_message_id)
-            await self.bot.respond(
-                status_msg, f"Bot {updated}restarted in {duration}.", mode="repost")
+            status_msg = await self.bot.client.get_messages(
+                rs_chat_id, rs_message_id)
+            await self.bot.respond(status_msg,
+                                   f"Bot {updated}restarted in {duration}.",
+                                   mode="repost")
 
     async def on_stopped(self) -> None:
         if self.restart_pending:
@@ -313,12 +309,10 @@ class SystemModule(module.Module):
         uri = "https://api.github.com"
         auth = aiohttp.BasicAuth(user, self.bot.getConfig.github_token)
 
-        async with self.bot.http.post(
-            uri + path,
-            auth=auth,
-            headers=headers,
-            json=payload
-        ) as resp:
+        async with self.bot.http.post(uri + path,
+                                      auth=auth,
+                                      headers=headers,
+                                      json=payload) as resp:
             return resp.status
 
     @command.desc("Update this bot from Git and restart")
@@ -349,26 +343,23 @@ class SystemModule(module.Module):
             if not self.bot.getConfig.secret:
                 return "__Deploying only works if your bot is run on container.__"
 
-            if (self.bot.getConfig.github_token and
-                    self.bot.getConfig.github_repo) and (
-                    self.bot.getConfig.heroku_api_key and
-                    self.bot.getConfig.heroku_app_name):
+            if (self.bot.getConfig.github_token
+                    and self.bot.getConfig.github_repo) and (
+                        self.bot.getConfig.heroku_api_key
+                        and self.bot.getConfig.heroku_app_name):
                 ret = await self.run_workflows()
 
                 resp_msg = await ctx.respond("Deploying bot...")
 
-                await self.db.find_one_and_update(
-                    {"_id": self.name},
-                    {
-                       "$set": {
-                           "restart.status_chat_id": resp_msg.chat.id,
-                           "restart.status_message_id": resp_msg.message_id,
-                           "restart.time": update_time,
-                           "restart.reason": "update"
-                       }
-                    },
-                    upsert=True
-                )
+                await self.db.find_one_and_update({"_id": self.name}, {
+                    "$set": {
+                        "restart.status_chat_id": resp_msg.chat.id,
+                        "restart.status_message_id": resp_msg.message_id,
+                        "restart.time": update_time,
+                        "restart.reason": "update"
+                    }
+                },
+                                                  upsert=True)
                 return
 
             return "__Deploying needs Heroku and GitHub credential set properly.__"
@@ -391,8 +382,7 @@ class SystemModule(module.Module):
 
                 await ctx.respond("Updating dependencies...")
                 stdout, _, ret = await util.system.run_command(
-                    pip, "install", repo.working_tree_dir
-                )
+                    pip, "install", repo.working_tree_dir)
                 if ret != 0:
                     return f"""⚠️ Error updating dependencies:
 

@@ -25,12 +25,10 @@ def join_map(
         start = "**"
         end = "**"
 
-    return join_list(
-        (
-            *((f"{start}{heading}:{end}",) if heading else ()),
-            *(f"{start}{key}:{end} {value}" for key, value in items.items()),
-        )
-    )
+    return join_list((
+        *((f"{start}{heading}:{end}",) if heading else ()),
+        *(f"{start}{key}:{end} {value}" for key, value in items.items()),
+    ))
 
 
 def has_emoji(text: str) -> bool:

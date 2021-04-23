@@ -31,7 +31,8 @@ class ModerationModule(module.Module):
         mention_slots = 4096 - len(mention_text)
 
         chat = ctx.msg.chat.id
-        async for member in self.bot.client.iter_chat_members(chat, filter=user_filter):
+        async for member in self.bot.client.iter_chat_members(
+                chat, filter=user_filter):
             mention_text += f"[\u200b](tg://user?id={member.user.id})"
 
             mention_slots -= 1
@@ -45,14 +46,13 @@ class ModerationModule(module.Module):
     @command.usage("[comment?]", optional=True)
     @command.alias("adm", "@admin")
     async def cmd_admin(self, ctx: command.Context) -> Optional[str]:
-        return await self.cmd_everyone(
-            ctx, tag="admin", user_filter="administrators"
-        )
+        return await self.cmd_everyone(ctx,
+                                       tag="admin",
+                                       user_filter="administrators")
 
     @command.desc("Ban user(s) from the current chat by ID or reply")
-    @command.usage(
-        "[ID(s) of the user(s) to ban?, or reply to user's message]", optional=True
-    )
+    @command.usage("[ID(s) of the user(s) to ban?, or reply to user's message]",
+                   optional=True)
     async def cmd_ban(self, ctx: command.Context) -> str:
         input_ids = ctx.args
 
@@ -99,8 +99,9 @@ class ModerationModule(module.Module):
             else:
                 lines.append(user_spec)
 
-            is_administrator = bool((await self.bot.client.get_chat_member(
-                ctx.msg.chat.id, user.id)).status == "administrator")
+            is_administrator = bool(
+                (await self.bot.client.get_chat_member(ctx.msg.chat.id, user.id)
+                ).status == "administrator")
 
             if is_administrator:
                 return "__I'm not gonna ban admin.__"

@@ -31,8 +31,8 @@ class Listener:
     priority: int
     p: Pattern[str]
 
-    def __init__(self, event: str, func: ListenerFunc, mod: Any,
-                 prio: int, p: Pattern[str]) -> None:
+    def __init__(self, event: str, func: ListenerFunc, mod: Any, prio: int,
+                 p: Pattern[str]) -> None:
         self.event = event
         self.func = func
         self.module = mod

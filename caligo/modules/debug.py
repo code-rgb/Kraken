@@ -95,8 +95,7 @@ class DebugModule(module.Module):
                 f_chat = reply_msg.forward_from_chat
 
                 lines.append(
-                    f"Forwarded message {f_chat.type} ID: `{f_chat.id}`"
-                )
+                    f"Forwarded message {f_chat.type} ID: `{f_chat.id}`")
 
             f_msg_id = None
             if reply_msg.forward_from_message_id:
@@ -106,25 +105,20 @@ class DebugModule(module.Module):
             if f_chat is not None and f_msg_id is not None:
                 uname = f_chat.username
                 if uname is not None:
-                    lines.append(
-                        "[Link to forwarded message]"
-                        f"(https://t.me/{uname}/{f_msg_id})"
-                    )
+                    lines.append("[Link to forwarded message]"
+                                 f"(https://t.me/{uname}/{f_msg_id})")
                 else:
-                    lines.append(
-                        "[Link to forwarded message]"
-                        f"(https://t.me/{f_chat.id}/{f_msg_id})"
-                    )
+                    lines.append("[Link to forwarded message]"
+                                 f"(https://t.me/{f_chat.id}/{f_msg_id})")
 
-        text = util.tg.pretty_print_entity(
-            lines).replace("'", "").replace("list", "**List**")
+        text = util.tg.pretty_print_entity(lines).replace("'", "").replace(
+            "list", "**List**")
         await ctx.respond(text, disable_web_page_preview=True)
 
     @command.desc("Paste message text to Dogbin")
     @command.alias("deldog", "dogbin")
-    @command.usage(
-        "[text to paste?, or upload/reply to message or file]", optional=True
-    )
+    @command.usage("[text to paste?, or upload/reply to message or file]",
+                   optional=True)
     async def cmd_dog(self, ctx: command.Context) -> str:
         input_text = ctx.input
 
@@ -137,7 +131,8 @@ class DebugModule(module.Module):
 
         await ctx.respond("Uploading text to [Dogbin](https://del.dog/)...")
 
-        async with self.bot.http.post("https://del.dog/documents", data=text) as resp:
+        async with self.bot.http.post("https://del.dog/documents",
+                                      data=text) as resp:
             try:
                 resp_data = await resp.json()
             except aiohttp.ContentTypeError:

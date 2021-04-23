@@ -29,13 +29,8 @@ class ConversationTimeout(Error):
 
 class Conversation:
 
-    def __init__(
-        self,
-        bot: "Bot",
-        input_chat: Union[str, int],
-        timeout: int,
-        max_messages: int
-    ) -> None:
+    def __init__(self, bot: "Bot", input_chat: Union[str, int], timeout: int,
+                 max_messages: int) -> None:
         self.Exist = ConversationExist
         self.Timeout = ConversationTimeout
 

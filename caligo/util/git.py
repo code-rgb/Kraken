@@ -11,7 +11,6 @@ except ImportError:
     git = None
     have_git = False
 
-
 REPO = os.environ.get("GITHUB_REPO", "adekmaulana/caligo")
 
 

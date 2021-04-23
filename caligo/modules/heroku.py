@@ -30,11 +30,9 @@ class HerokuManager(module.Module):
         self.http = self.bot.http
 
         self.uri = "https://api.heroku.com"
-        self.useragent = (
-            "Mozilla/5.0 (Linux; Android 11; SM-G975F) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/89.0.4389.72 Mobile Safari/537.36"
-        )
+        self.useragent = ("Mozilla/5.0 (Linux; Android 11; SM-G975F) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/89.0.4389.72 Mobile Safari/537.36")
         self.account = await self.get_account()
 
         apps = await self.get_account_apps()
@@ -43,9 +41,9 @@ class HerokuManager(module.Module):
             self.apps[app.get("name")] = app["id"]
 
     async def request(
-        self, path: str,
-        options: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+            self,
+            path: str,
+            options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         headers = {
             "User-Agent": self.useragent,
             "Authorization": f"Bearer {self.api_key}",
@@ -113,17 +111,15 @@ class HerokuManager(module.Module):
 
         head = util.text.join_map(
             {
-                 "Hours": f"{hours}h",
-                 "Minutes": f"{minutes}m"
+                "Hours": f"{hours}h",
+                "Minutes": f"{minutes}m"
             },
-            heading=f"Account remaining ({percentage}%) this month"
-        )
+            heading=f"Account remaining ({percentage}%) this month")
         body = util.text.join_map(
             {
                 "Hours": f"{appHours}h",
                 "Minutes": f"{appMinutes}m",
             },
-            heading=f"App[{self.app_name}] usage ({appPercentage}%) this month"
-        )
+            heading=f"App[{self.app_name}] usage ({appPercentage}%) this month")
 
         return head + "\n\n" + body

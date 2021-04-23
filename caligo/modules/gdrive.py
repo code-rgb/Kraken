@@ -69,8 +69,8 @@ class GoogleDrive(module.Module):
             return "__Credentials already empty.__"
 
         await self.db.delete_one({"_id": self.name})
-        await asyncio.gather(self.on_load(), ctx.respond(
-                             "__Credentials cleared.__"))
+        await asyncio.gather(self.on_load(),
+                             ctx.respond("__Credentials cleared.__"))
 
     async def getAccessToken(self, message: pyrogram.types.Message) -> str:
         flow = InstalledAppFlow.from_client_config(
@@ -127,9 +127,10 @@ class GoogleDrive(module.Module):
                         "creds": credential
                     }})
             else:
-                await asyncio.gather(self.bot.respond(message,
+                await asyncio.gather(
+                    self.bot.respond(message,
                                      "Credential is empty, generating..."),
-                                     asyncio.sleep(2.5))
+                    asyncio.sleep(2.5))
 
                 ret = await self.getAccessToken(message)
 
@@ -294,8 +295,8 @@ class GoogleDrive(module.Module):
             reply_msg = ctx.msg.reply_to_message
 
             if reply_msg.media:
-                task = self.bot.loop.create_task(self.downloadFile(ctx,
-                                                                   reply_msg))
+                task = self.bot.loop.create_task(
+                    self.downloadFile(ctx, reply_msg))
                 self.task.add((ctx.msg.message_id, task))
                 try:
                     await task

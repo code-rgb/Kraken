@@ -2,7 +2,6 @@
 Aiohttp GET request helper
 """
 
-
 import asyncio
 import logging
 from typing import Dict, Optional, Union
@@ -67,10 +66,10 @@ async def aiorequest(
     """
     try:
         async with session.get(
-            url,
-            timeout=timeout,
-            params=params,
-            headers=headers,
+                url,
+                timeout=timeout,
+                params=params,
+                headers=headers,
         ) as resp:
             if mode == "status":
                 return resp.status
@@ -99,8 +98,11 @@ async def aiorequest(
                 elif mode == "read":
                     out = await resp.read()
                 else:
-                    return logging.error(f"{__name__} - ERROR: Invalid Mode - '{mode}'")
+                    return logging.error(
+                        f"{__name__} - ERROR: Invalid Mode - '{mode}'")
     except asyncio.TimeoutError:
-        logging.error(f"{__name__} - Timeout ERROR: '{url}' Failed to Respond in Time ({timeout_} s).")
+        logging.error(
+            f"{__name__} - Timeout ERROR: '{url}' Failed to Respond in Time ({timeout_} s)."
+        )
     else:
         return out

@@ -47,18 +47,24 @@ class RedditDl(module.Module):
             caption += "\n⚠️ Post marked as **SPOILER**"
         if r["nsfw"]:
             caption += "\n🔞 Post marked as **ADULT**"
-        return dict(caption=caption, postlink=r["postLink"],subreddit=r["subreddit"],media_url=r["url"])
+        return dict(caption=caption,
+                    postlink=r["postLink"],
+                    subreddit=r["subreddit"],
+                    media_url=r["url"])
 
     # @command.desc("get post from reddit")
     async def cmd_reddit(self, ctx: command.Context):
         await ctx.respond("`Processing ...`")
-        rjson = await util.aiorequest(session=self.http, url=self.uri, mode="json")
+        rjson = await util.aiorequest(session=self.http,
+                                      url=self.uri,
+                                      mode="json")
         result = self.parse_rpost(rjson)
-        if isinstance(result, str): # Error
-            return result 
+        if isinstance(result, str):  # Error
+            return result
         chat_id = ctx.msg.chat.id
         reply_id = ctx.msg.reply_to_message.message_id if ctx.msg.reply_to_message else None
-        caption = result["caption"] + f"\nSource: [r/{result['subreddit']}]({result['postlink']})"
+        caption = result[
+            "caption"] + f"\nSource: [r/{result['subreddit']}]({result['postlink']})"
         if result["media_url"].endswith(".gif"):
             await self.bot.client.send_animation(
                 chat_id=chat_id,
@@ -74,7 +80,6 @@ class RedditDl(module.Module):
                 reply_to_message_id=reply_id,
             )
         await ctx.msg.delete()
-
 
     @listener.pattern(r"(?i)^reddit\s{0,}(?:(?:r/)?([A-Za-z]+)\.)?$")
     async def on_inline_query(self, query: InlineQuery) -> None:

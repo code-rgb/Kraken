@@ -10,4 +10,5 @@ async def run_sync(func: Callable[..., Result], *args: Any,
     """Runs the given sync function (optionally with arguments) on a separate thread."""
 
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, functools.partial(func, *args, **kwargs))
+    return await loop.run_in_executor(None,
+                                      functools.partial(func, *args, **kwargs))
