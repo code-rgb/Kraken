@@ -156,7 +156,7 @@ class CoreModule(module.Module):
         if self.bot.has_bot and not ctx.input:
             await ctx.msg.delete()
             response = await self.bot.client.get_inline_bot_results(
-                self.bot.bot_user.username)
+                self.bot.bot_user.username, "help")
             res = await self.bot.client.send_inline_bot_result(
                 ctx.msg.chat.id, response.query_id, response.results[1].id)
             self.cache[res.updates[0].id] = ctx.msg.chat.id

@@ -21,7 +21,7 @@ from pyrogram.types import (
 from .. import command, listener, module, util
 
 
-class RedditDl(module.Module):
+class Reddit(module.Module):
     name: ClassVar[str] = "Reddit"
     http: aiohttp.ClientSession
     uri: str
