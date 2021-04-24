@@ -138,7 +138,7 @@ class RedditDl(module.Module):
             results = "Coudn't find any reddit post with image or gif, Please try again"
 
         if isinstance(results, str):
-            switch_pm_text = "⚠️ Error"
+            switch_pm_text = "⚠️ Error getting posts from reddit !"
             results = [
                 InlineQueryResultArticle(
                     title=results,
@@ -147,7 +147,7 @@ class RedditDl(module.Module):
                 )
             ]
         else:
-            switch_pm_text = "Usage: [reddit|reddit subreddit.]"
+            switch_pm_text = f"Posts from r/{p_data['subreddit']}"
 
         await query.answer(results=results,
                            cache_time=5,
