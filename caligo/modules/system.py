@@ -123,6 +123,7 @@ class SystemModule(module.Module):
         elif stdout[-1:] != "\n":
             stdout += "\n"
 
+        stdout = self.bot.redact_message(stdout)
         err = f"⚠️ Return code: {ret}" if ret != 0 else ""
         return f"**CMD:**\n```{snip}```\n\n**Output:**\n```{stdout}```{err}{el_str}"
 
