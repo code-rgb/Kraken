@@ -1,5 +1,3 @@
-from .media_utils import get_file_id, get_media
-
 from . import (
     aiohelper,
     aria2,
@@ -16,6 +14,7 @@ from . import (
     time,
     version,
 )
+from .media_utils import get_file_id, get_media
 
 BotConfig = config.BotConfig
 File = file.File

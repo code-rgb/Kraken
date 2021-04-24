@@ -4,8 +4,10 @@
 #
 #  Copyright (C) 2021 - Kraken
 
-from pyrogram.errors import BadRequest
 from typing import ClassVar
+
+from pyrogram.errors import BadRequest
+
 from .. import command, module
 
 

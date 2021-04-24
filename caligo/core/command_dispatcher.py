@@ -134,7 +134,8 @@ class CommandDispatcher(Base):
             except Exception as e:  # skipcq: PYL-W0703
                 cmd.module.log.error(f"Error in command '{cmd.name}'",
                                      exc_info=e)
-                if input_text := (ctx.input if ctx.input is not None else msg.text) or "":
+                if input_text := (ctx.input
+                                  if ctx.input is not None else msg.text) or "":
                     input_text = f"**Input:**\n{input_text}\n\n"
                 await ctx.respond(
                     f"{input_text}**ERROR**:\n⚠️ Failed to execute command:\n"
