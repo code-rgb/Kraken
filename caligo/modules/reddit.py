@@ -97,9 +97,9 @@ class RedditDl(module.Module):
             )
         await ctx.msg.delete()
 
-    @listener.pattern(r"(?i)^reddit\s{0,}(?:(?:r/)?([A-Za-z]+)\.)?$")
+    @listener.pattern(r"(?i)^reddit(?:\s{0,}(?:r/)?([A-Za-z]+)\.)?$")
     async def on_inline_query(self, query: InlineQuery) -> None:
-        if subreddit := query.matches[0].group(1):
+        if query.matches and (subreddit := query.matches[0].group(1)):
             r_api = "/".join([self.uri, subreddit, self.max_inline_results])
         else:
             r_api = "/".join([self.uri, self.max_inline_results])
@@ -150,7 +150,7 @@ class RedditDl(module.Module):
             switch_pm_text = f"Posts from r/{p_data['subreddit']}"
 
         await query.answer(results=results,
-                           cache_time=5,
+                           cache_time=3,
                            is_gallery=len(results) > 1,
                            switch_pm_text=switch_pm_text,
                            switch_pm_parameter="inline")
