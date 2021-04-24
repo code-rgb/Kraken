@@ -26,7 +26,7 @@ class RedditDl(module.Module):
     http: aiohttp.ClientSession
     uri: str
     thumb_regex: Pattern
-    max_inline_results: int
+    max_inline_results: str
 
     async def on_load(self) -> None:
         self.thumb_regex = re.compile(
@@ -97,9 +97,9 @@ class RedditDl(module.Module):
             )
         await ctx.msg.delete()
 
-    @listener.pattern(r"(?i)^reddit(?:\s{0,}(?:r/)?([A-Za-z]+)\.)?$")
+    @listener.pattern(r"(?i)^reddit(?:\s{0,}(?:r/)?([a-z]+)\.)?$")
     async def on_inline_query(self, query: InlineQuery) -> None:
-        if query.matches and (subreddit := query.matches[0].group(1)):
+        if subreddit := query.matches[0].group(1):
             r_api = "/".join([self.uri, subreddit, self.max_inline_results])
         else:
             r_api = "/".join([self.uri, self.max_inline_results])
