@@ -1,4 +1,4 @@
-from media_utils import get_file_id, get_media
+from .media_utils import get_file_id, get_media
 
 from . import (
     aiohelper,
@@ -9,7 +9,6 @@ from . import (
     file,
     git,
     image,
-    media_utils,
     misc,
     system,
     text,

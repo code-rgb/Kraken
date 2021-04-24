@@ -5,7 +5,7 @@
 #  Copyright (C) 2021 - Kraken
 
 from pyrogram.errors import BadRequest
-
+from typing import ClassVar
 from .. import command, module
 
 
@@ -27,6 +27,7 @@ class Smd(module.Module):
                 await m.copy(chat_id, caption="")
                 break
             else:
-                return "⚠️ Song Not Found !"
+                return "⚠️ __Song Not Found !__"
+            await ctx.msg.delete()
         except BadRequest:
-            return "Join [THIS](https://t.me/joinchat/UNluAx4vPQt6kBJl) channel first"
+            return "Join [THIS](https://t.me/joinchat/UNluAx4vPQt6kBJl) group first"
