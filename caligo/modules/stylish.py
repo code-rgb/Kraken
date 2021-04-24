@@ -96,7 +96,7 @@ class Stylish(module.Module):
     async def on_inline_query(self, query: InlineQuery) -> None:
         text = query.matches[0].group(1).strip()
         results: List = []
-        for f_name in list(self.styles):
+        for f_name in sorted(list(self.styles)[1:]):
             styled_str = self.font_gen(text, f_name)
             results.append(
                 InlineQueryResultArticle(
