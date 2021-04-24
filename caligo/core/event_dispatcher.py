@@ -7,10 +7,10 @@ from typing import (
     MutableMapping,
     MutableSequence,
     Optional,
-    Pattern
+    Pattern,
 )
 
-from pyrogram.types import Message, CallbackQuery, InlineQuery
+from pyrogram.types import CallbackQuery, InlineQuery, Message
 
 from .. import module, util
 from ..listener import Listener, ListenerFunc
@@ -28,15 +28,13 @@ class EventDispatcher(Base):
 
         super().__init__(**kwargs)
 
-    def register_listener(
-        self: "Bot",
-        mod: module.Module,
-        event: str,
-        func: ListenerFunc,
-        *,
-        priority: Optional[int] = 100,
-        pattern: Optional[Pattern[str]] = None
-    ) -> None:
+    def register_listener(self: "Bot",
+                          mod: module.Module,
+                          event: str,
+                          func: ListenerFunc,
+                          *,
+                          priority: Optional[int] = 100,
+                          pattern: Optional[Pattern[str]] = None) -> None:
         listener = Listener(event, func, mod, priority, pattern)
 
         if event in self.listeners:
@@ -96,7 +94,7 @@ class EventDispatcher(Base):
 
         if not listeners:
             return
- 
+
         for lst in listeners:
             if lst.pattern is not None:
                 if isinstance(lst.pattern, str):
@@ -115,9 +113,10 @@ class EventDispatcher(Base):
                         value = arg.query
                         break
                 else:
-                    self.log.error(f"'{event}' can't be used with Regex pattern")
+                    self.log.error(
+                        f"'{event}' can't be used with Regex pattern")
                     continue
-        
+
                 args[i].matches = list(lst.pattern.finditer(value)) or None
                 if not args[i].matches:
                     continue
