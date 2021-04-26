@@ -24,17 +24,14 @@ from .. import command, listener, module, util
 class Reddit(module.Module):
     name: ClassVar[str] = "Reddit"
     http: aiohttp.ClientSession
-    uri: str
-    thumb_regex: Pattern
-    max_inline_results: str
+    uri: str = "https://meme-api.herokuapp.com/gimme"
+    thumb_regex: Pattern = re.compile(
+        r"https?://preview\.redd\.it/\w+\.(?:jpg|jpeg|png)\?width=(?:[2][1-9][0-9]|[3-9][0-9]{2}|[0-9]{4,})"
+    )
+    max_inline_results: str = "30"
 
     async def on_load(self) -> None:
-        self.thumb_regex = re.compile(
-            r"https?://preview\.redd\.it/\w+\.(?:jpg|jpeg|png)\?width=(?:[2][1-9][0-9]|[3-9][0-9]{2}|[0-9]{4,})"
-        )
         self.http = self.bot.http
-        self.uri = "https://meme-api.herokuapp.com/gimme"
-        self.max_inline_results = "30"
 
     def get_rthumb(self, result: Dict) -> str:
         """get thumbnail of size 210 and above"""

@@ -131,7 +131,7 @@ class CommandDispatcher(Base):
                 cmd.module.log.warning(
                     f"Command '{cmd.name}' triggered a message edit with no changes"
                 )
-            except Exception as e:  # skipcq: PYL-W0703
+            except Exception as e:    # skipcq: PYL-W0703
                 cmd.module.log.error(f"Error in command '{cmd.name}'",
                                      exc_info=e)
                 if input_text := (ctx.input
@@ -142,7 +142,7 @@ class CommandDispatcher(Base):
                     f"```{util.error.format_exception(e)}```")
 
             await self.dispatch_event("command", cmd, msg)
-        except Exception as e:  # skipcq: PYL-W0703
+        except Exception as e:    # skipcq: PYL-W0703
             if cmd is not None:
                 cmd.module.log.error("Error in command handler", exc_info=e)
 

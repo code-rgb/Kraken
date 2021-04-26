@@ -100,7 +100,7 @@ class StatsModule(module.Module):
     async def on_command(
             self,
             cmd: command.Command,
-            msg: pyrogram.types.Message  # skipcq: PYL-W0613
+            msg: pyrogram.types.Message    # skipcq: PYL-W0613
     ) -> None:
         await self.bot.log_stat("processed")
 

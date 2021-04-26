@@ -97,7 +97,7 @@ class SystemModule(module.Module):
             stdout, _, ret = await util.system.run_command(
                 snip,
                 shell=True,
-                timeout=120  # skipcq: BAN-B604
+                timeout=120    # skipcq: BAN-B604
             )
         except FileNotFoundError as E:
             after = util.time.usec()
@@ -149,7 +149,7 @@ class SystemModule(module.Module):
                 return print(*args, **kwargs)
 
             eval_vars = {
-                # Contextual info
+            # Contextual info
                 "self": self,
                 "ctx": ctx,
                 "bot": self.bot,
@@ -159,24 +159,24 @@ class SystemModule(module.Module):
                 "listeners": self.bot.listeners,
                 "modules": self.bot.modules,
                 "stdout": out_buf,
-                # Convenience aliases
+            # Convenience aliases
                 "context": ctx,
                 "msg": ctx.msg,
                 "reply": ctx.msg.reply_to_message,
                 "message": ctx.msg,
                 "db": self.bot.db,
-                # Helper functions
+            # Helper functions
                 "send": send,
                 "print": _print,
-                # Built-in modules
+            # Built-in modules
                 "inspect": inspect,
                 "os": os,
                 "re": re,
                 "sys": sys,
                 "traceback": traceback,
-                # Third-party modules
+            # Third-party modules
                 "pyrogram": pyrogram,
-                # Custom modules
+            # Custom modules
                 "aria": self.bot.modules.get("Aria2"),
                 "aria2": self.bot.modules.get("Aria2"),
                 "command": command,
@@ -186,7 +186,7 @@ class SystemModule(module.Module):
 
             try:
                 return "", await meval(code, globals(), **eval_vars)
-            except Exception as e:  # skipcq: PYL-W0703
+            except Exception as e:    # skipcq: PYL-W0703
                 # Find first traceback frame involving the snippet
                 first_snip_idx = -1
                 tb = traceback.extract_tb(e.__traceback__)
@@ -264,7 +264,7 @@ class SystemModule(module.Module):
         self.log.info("Preparing to restart...")
         await self.bot.stop()
 
-    async def on_start(self, time_us: int) -> None:  # skipcq: PYL-W0613
+    async def on_start(self, time_us: int) -> None:    # skipcq: PYL-W0613
         # Update restart status message if applicable
         data: Optional[Dict[Union[str, int]]] = await self.db.find_one(
             {"_id": self.name})

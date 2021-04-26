@@ -78,7 +78,7 @@ class TelegramBot(Base):
         try:
             self.prefix = (await db.find_one({"_id": "Core"}))["prefix"]
         except TypeError:
-            self.prefix = "."  # Default is '.'-dot you can change later
+            self.prefix = "."    # Default is '.'-dot you can change later
 
             await db.find_one_and_update({"_id": "Core"},
                                          {"$set": {
@@ -159,7 +159,7 @@ class TelegramBot(Base):
                 async def update_event(_, event) -> None:
                     await self.dispatch_event(name, event)
 
-                event_info = self.client.add_handler(  # skipcq: PYL-E1111
+                event_info = self.client.add_handler(    # skipcq: PYL-E1111
                     event_type(update_event, flt), group)
                 self._mevent_handlers[name] = event_info
         elif name in self._mevent_handlers:
@@ -177,7 +177,7 @@ class TelegramBot(Base):
                 async def update_event(_, event) -> None:
                     await self.dispatch_event(name, event)
 
-                event_info = self.client.bot.add_handler(  # skipcq: PYL-E1111
+                event_info = self.client.bot.add_handler(    # skipcq: PYL-E1111
                     event_type(update_event, flt), group)
                 self._mevent_handlers[name] = event_info
         elif name in self._mevent_handlers:
