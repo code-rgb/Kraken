@@ -92,7 +92,7 @@ class Stylish(module.Module):
         await ctx.respond("🧙‍♂️ `Doing some magik ...`")
         return self.font_gen(inp_text.strip())
 
-    @listener.pattern(r"(?i)^stylish([\S\s]+)")
+    @listener.pattern(r"(?i)^stylish\s([\S\s]+)")
     async def on_inline_query(self, query: InlineQuery) -> None:
         text = query.matches[0].group(1).strip()
         results: List = []

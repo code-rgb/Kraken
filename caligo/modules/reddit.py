@@ -97,7 +97,7 @@ class Reddit(module.Module):
             )
         await ctx.msg.delete()
 
-    @listener.pattern(r"(?i)^reddit(?:\s{0,}(?:r/)?([a-z]+)\.)?$")
+    @listener.pattern(r"(?i)^reddit(?:\s+(?:r/)?([a-z]+)\.)?$")
     async def on_inline_query(self, query: InlineQuery) -> None:
         if subreddit := query.matches[0].group(1):
             r_api = "/".join([self.uri, subreddit, self.max_inline_results])
