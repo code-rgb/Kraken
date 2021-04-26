@@ -342,7 +342,7 @@ class Aria2WebSocketServer:
 
         try:
             _, stderr, ret = await util.system.run_command(*cmd)
-        except Exception as e:    # skipcq: PYL-W0703
+        except Exception as e:  # skipcq: PYL-W0703
             self.log.warning(e)
             return
 
