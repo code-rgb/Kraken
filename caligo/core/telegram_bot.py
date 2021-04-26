@@ -199,8 +199,8 @@ class TelegramBot(Base):
 
     @property
     def has_bot(self: "Bot") -> bool:
-        return hasattr(self.client, "bot"
-                       ) and isinstance(self.client.bot, Client)
+        return hasattr(self.client, "bot") and isinstance(
+            self.client.bot, Client)
 
     def redact_message(self: "Bot", text: str) -> str:
         redacted = "[REDACTED]"

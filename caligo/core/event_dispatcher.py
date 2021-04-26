@@ -1,12 +1,6 @@
 import asyncio
 import bisect
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    MutableMapping,
-    MutableSequence,
-    Optional,
-)
+from typing import TYPE_CHECKING, Any, MutableMapping, MutableSequence, Optional
 
 from pyrogram.filters import Filter
 from pyrogram.types import CallbackQuery, InlineQuery, Message
@@ -27,15 +21,13 @@ class EventDispatcher(Base):
 
         super().__init__(**kwargs)
 
-    def register_listener(
-        self: "Bot",
-        mod: module.Module,
-        event: str,
-        func: ListenerFunc,
-        *,
-        priority: Optional[int] = 100,
-        regex: Filter = None
-    ) -> None:
+    def register_listener(self: "Bot",
+                          mod: module.Module,
+                          event: str,
+                          func: ListenerFunc,
+                          *,
+                          priority: Optional[int] = 100,
+                          regex: Filter = None) -> None:
         listener = Listener(event, func, mod, priority, regex)
 
         if event in self.listeners:
@@ -62,8 +54,7 @@ class EventDispatcher(Base):
                                        priority=getattr(func,
                                                         "_listener_priority",
                                                         100),
-                                       regex=getattr(func,
-                                                     "_listener_regex",
+                                       regex=getattr(func, "_listener_regex",
                                                      None))
                 done = True
             finally:
