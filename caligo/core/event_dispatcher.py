@@ -1,6 +1,12 @@
 import asyncio
 import bisect
-from typing import TYPE_CHECKING, Any, MutableMapping, MutableSequence, Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+)
 
 from pyrogram.filters import Filter
 from pyrogram.types import CallbackQuery, InlineQuery, Message
@@ -21,13 +27,15 @@ class EventDispatcher(Base):
 
         super().__init__(**kwargs)
 
-    def register_listener(self: "Bot",
-                          mod: module.Module,
-                          event: str,
-                          func: ListenerFunc,
-                          *,
-                          priority: Optional[int] = 100,
-                          regex: Filter = None) -> None:
+    def register_listener(
+        self: "Bot",
+        mod: module.Module,
+        event: str,
+        func: ListenerFunc,
+        *,
+        priority: Optional[int] = 100,
+        regex: Filter = None
+    ) -> None:
         listener = Listener(event, func, mod, priority, regex)
 
         if event in self.listeners:
@@ -54,7 +62,8 @@ class EventDispatcher(Base):
                                        priority=getattr(func,
                                                         "_listener_priority",
                                                         100),
-                                       regex=getattr(func, "_listener_regex",
+                                       regex=getattr(func,
+                                                     "_listener_regex",
                                                      None))
                 done = True
             finally:
@@ -87,17 +96,23 @@ class EventDispatcher(Base):
         if not listeners:
             return
 
+        matches = None
         for lst in listeners:
             if lst.regex is not None:
-                for arg in args:
+                for idx, arg in enumerate(args):
                     if isinstance(arg, (CallbackQuery, InlineQuery, Message)):
                         match = await lst.regex(self.client, arg)
                         if not match:
                             continue
 
+                        # Matches obj will dissapered after loop end
+                        # So save the index and matches object
+                        matches = arg.matches
+                        index = idx
                         break
-                else:
+
                     self.log.error(f"'{event}' can't be used with pattern")
+                else:
                     continue
 
             task = self.loop.create_task(lst.func(*args, **kwargs))
@@ -106,6 +121,8 @@ class EventDispatcher(Base):
         if not tasks:
             return
 
+        if matches:
+            args[index].matches = matches
         self.log.debug("Dispatching event '%s' with data %s", event, args)
         if wait:
             await asyncio.wait(tasks)
