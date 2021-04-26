@@ -105,9 +105,9 @@ class Reddit(module.Module):
             r_api = "/".join([self.uri, self.max_inline_results])
         rjson = await util.aiorequest(session=self.http, url=r_api, mode="json")
         if rjson is None:
-            result = "Coudn't find any reddit post with image or gif, Please try again"
+            results = "Coudn't find any reddit post with image or gif, Please try again"
         elif rjson.get("code"):
-            result = f"**ERROR (code: {rjson['code']})** : `{rjson.get('message')}`"
+            results = f"**ERROR (code: {rjson['code']})** : `{rjson.get('message')}`"
         else:
             results: List = []
             for post in rjson.get("memes"):
