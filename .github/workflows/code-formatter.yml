@@ -21,11 +21,13 @@ jobs:
         run: |
           isort .
           yapf -ir .
-      - name: Write lock file
+      - name: Check lock file
         run: |
-          rm -rf "poetry.lock"
-          pip install poetry
-          poetry install
+          FILE=poetry.lock
+          if ! [[ -f "$FILE" ]]; then
+              pip install poetry
+              poetry install
+          fi
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "auto: code format"
