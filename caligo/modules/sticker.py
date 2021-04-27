@@ -2,16 +2,16 @@ import asyncio
 import io
 from datetime import datetime
 from typing import ClassVar, Optional, Set, Tuple, Union
-
+from cloudscraper import create_scraper
 import pyrogram
 from aiofile import AIOFile
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 from pyrogram.errors import StickersetInvalid
 from pyrogram.raw.functions.messages import GetStickerSet
 from pyrogram.raw.types import InputStickerSetShortName
-
+from urllib.parse import quote
 from .. import command, module, util
-
+from bs4 import BeautifulSoup as soup
 PNG_MAGIC = b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"
 
 # Sticker bot info and return error strings
@@ -361,3 +361,35 @@ class StickerModule(module.Module):
             await ctx.respond(document=file, mode="repost")
 
         return None
+
+    @command.usage("Search Sticker Pack")
+    async def cmd_stickers(self, ctx: command.Context) -> str:
+        reply = ctx.msg.reply_to_message
+        if ctx.input:
+            search_query = ctx.input
+        elif reply and reply.from_user:
+            search_query = reply.from_user.username or reply.from_user.id
+        else:
+            await ctx.respond("reply to a user or provide text to search sticker packs", delete_after=5)
+            return
+
+        if out := "\n".join(
+                list(
+                    map(
+                        lambda x: f"• [{x.find('div', {'class': 'sticker-pack__title'}).text}]({x.a.get('href')})",
+                        filter(
+                            lambda x: x.button is not None,
+                            soup(
+                                create_scraper()
+                                .get(
+                                    f"https://combot.org/telegram/stickers?q={quote(search_query)}"
+                                )
+                                .text,
+                                "lxml",
+                            ).findAll("div", {"class": "sticker-pack__header"}),
+                        ),
+                    )
+                )
+        ):
+            return f"<b>Sticker Packs For:</b> '<u>{search_query}</u>'\n{out}"
+        await ctx.respond("❌  `No Sticker Pack Found !`", delete_after=5)
