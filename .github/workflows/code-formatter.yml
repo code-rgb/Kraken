@@ -23,8 +23,7 @@ jobs:
           yapf -ir .
       - name: Check lock file
         run: |
-          FILE=poetry.lock
-          if ! [[ -f "$FILE" ]]; then
+          if ! [[ -f "poetry.lock" ]]; then
               pip install poetry
               poetry install
           fi
