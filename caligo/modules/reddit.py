@@ -7,7 +7,6 @@
 import re
 from typing import ClassVar, Dict, List, Optional, Pattern, Union
 
-import aiohttp
 from pyrogram.errors import MediaEmpty, WebpageCurlFailed
 from pyrogram.types import (
     InlineKeyboardButton,
