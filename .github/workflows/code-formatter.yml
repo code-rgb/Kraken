@@ -20,13 +20,7 @@ jobs:
       - name: linting with isort and yapf
         run: |
           isort .
-          yapf -ir .
-      - name: Check lock file
-        run: |
-          if ! [[ -f "poetry.lock" ]]; then
-              pip install poetry
-              poetry install
-          fi
+          yapf --style='{based_on_style: google, spaces_before_comment: 2, split_before_logical_operator: true, column_limit=100}' -ir .
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "auto: code format"

@@ -98,8 +98,7 @@ class Stylish(module.Module):
             results.append(
                 InlineQueryResultArticle(
                     title=f_name.title(),
-                    input_message_content=InputTextMessageContent(
-                        f"`{styled_str}`"),
+                    input_message_content=InputTextMessageContent(f"`{styled_str}`"),
                     description=styled_str,
                 ))
         await query.answer(

@@ -79,30 +79,27 @@ async def aiorequest(
                 return resp.headers
             if resp.status != 200:
                 return logging.error(
-                    f"{__name__} - HTTP ERROR: '{url}' Failed with Status Code - {resp.status}"
-                )
-            else:
-                if mode == "json":
+                    f"{__name__} - HTTP ERROR: '{url}' Failed with Status Code - {resp.status}")
+
+            if mode == "json":
+                try:
+                    out = await resp.json()
+                except ValueError:
+                    # catch json.decoder.JSONDecodeErrorr in case content type is not "application/json".
                     try:
-                        out = await resp.json()
-                    except ValueError:
-                        # catch json.decoder.JSONDecodeErrorr in case content type is not "application/json".
-                        try:
-                            out = json.loads(await resp.text())
-                        except Exception as err:
-                            return logging.error(
-                                f"{err.__class__.__name__}: {err}\nUnable to get '{url}', #Headers: {resp.headers['content-type']}"
-                            )
-                elif mode == "text":
-                    out = await resp.text()
-                elif mode == "read":
-                    out = await resp.read()
-                else:
-                    return logging.error(
-                        f"{__name__} - ERROR: Invalid Mode - '{mode}'")
+                        out = json.loads(await resp.text())
+                    except Exception as err:
+                        return logging.error(
+                            f"{err.__class__.__name__}: {err}\nUnable to get '{url}', #Headers: {resp.headers['content-type']}"
+                        )
+            elif mode == "text":
+                out = await resp.text()
+            elif mode == "read":
+                out = await resp.read()
+            else:
+                return logging.error(f"{__name__} - ERROR: Invalid Mode - '{mode}'")
     except asyncio.TimeoutError:
         logging.error(
-            f"{__name__} - Timeout ERROR: '{url}' Failed to Respond in Time ({timeout_} s)."
-        )
+            f"{__name__} - Timeout ERROR: '{url}' Failed to Respond in Time ({timeout_} s).")
     else:
         return out

@@ -40,10 +40,7 @@ class HerokuManager(module.Module):
         for app in apps:
             self.apps[app.get("name")] = app["id"]
 
-    async def request(
-            self,
-            path: str,
-            options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def request(self, path: str, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         headers = {
             "User-Agent": self.useragent,
             "Authorization": f"Bearer {self.api_key}",
@@ -66,9 +63,7 @@ class HerokuManager(module.Module):
         return await self.request(path)
 
     async def get_account_quota(self) -> Dict[str, Any]:
-        options = {
-            "Accept": "application/vnd.heroku+json; version=3.account-quotas"
-        }
+        options = {"Accept": "application/vnd.heroku+json; version=3.account-quotas"}
         path = self.uri + f"/accounts/{self.account['id']}/actions/get-quota"
 
         return await self.request(path, options)
@@ -109,12 +104,11 @@ class HerokuManager(module.Module):
         appHours = math.floor(appQuotaUsed / 60)
         appMinutes = math.floor(appQuotaUsed % 60)
 
-        head = util.text.join_map(
-            {
-                "Hours": f"{hours}h",
-                "Minutes": f"{minutes}m"
-            },
-            heading=f"Account remaining ({percentage}%) this month")
+        head = util.text.join_map({
+            "Hours": f"{hours}h",
+            "Minutes": f"{minutes}m"
+        },
+                                  heading=f"Account remaining ({percentage}%) this month")
         body = util.text.join_map(
             {
                 "Hours": f"{appHours}h",

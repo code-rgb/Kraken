@@ -30,8 +30,7 @@ class SongLink(module.Module):
                 return await resp.json()
 
     @staticmethod
-    async def find_url_from_msg(
-            ctx: command.Context) -> Optional[Tuple[str, Message]]:
+    async def find_url_from_msg(ctx: command.Context) -> Optional[Tuple[str, Message]]:
         reply = ctx.msg.reply_to_message
         msg_instance, link = None, None
         if ctx.input:
@@ -42,8 +41,7 @@ class SongLink(module.Module):
             msg_instance = reply
             try:
                 url_e = [
-                    x for x in (
-                        msg_instance.entities or msg_instance.caption_entities)
+                    x for x in (msg_instance.entities or msg_instance.caption_entities)
                     if x.type in ("url", "text_link")
                 ]
             except TypeError:
@@ -51,8 +49,7 @@ class SongLink(module.Module):
             else:
                 if len(url_e) > 0:
                     y = url_e[0]
-                    link = (txt[y.offset:(y.offset + y.length)]
-                            if y.type == "url" else y.url)
+                    link = (txt[y.offset:(y.offset + y.length)] if y.type == "url" else y.url)
         if msg_instance and link:
             return link, msg_instance
 
@@ -87,8 +84,7 @@ class SongLink(module.Module):
         if artist:
             des += f"\nARTIST(S): __{artist}__"
         des += "\n\n🎧  LISTEN ON:\n<b>" + "  |  ".join([
-            f"{self.htmlink(self.beautify(x), platforms[x].get('url'))}"
-            for x in platforms
+            f"{self.htmlink(self.beautify(x), platforms[x].get('url'))}" for x in platforms
             if x != "itunes"
         ])
         return des + "</b>"

@@ -1,14 +1,17 @@
 import asyncio
+import re
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Coroutine,
+    Dict,
     List,
     Match,
     Optional,
     Pattern,
     Sequence,
+    Tuple,
     Union,
 )
 
@@ -20,6 +23,7 @@ if TYPE_CHECKING:
 CommandFunc = Union[Callable[..., Coroutine[Any, Any, None]],
                     Callable[..., Coroutine[Any, Any, Optional[str]]],]
 Decorator = Callable[[CommandFunc], CommandFunc]
+FLAG_ARGUMENT: Pattern = re.compile(r"(?:\s|^)(-[a-zA-Z_]+)([0-9]+)?")
 
 
 def desc(_desc: str) -> Decorator:
@@ -32,9 +36,7 @@ def desc(_desc: str) -> Decorator:
     return desc_decorator
 
 
-def usage(_usage: str,
-          optional: bool = False,
-          reply: bool = False) -> Decorator:
+def usage(_usage: str, optional: bool = False, reply: bool = False) -> Decorator:
     """Sets argument usage help on a command function."""
 
     def usage_decorator(func: CommandFunc) -> CommandFunc:
@@ -92,6 +94,7 @@ class Command:
 class Context:
     bot: "Bot"
     msg: pyrogram.types.Message
+    client: pyrogram.Client
     segments: Sequence[str]
     cmd_len: int
     invoker: str
@@ -102,13 +105,17 @@ class Context:
     input: Optional[Union[str, None]]
     args: Sequence[str]
     matches: Union[List[Match], None]
+    _filtered: bool
+    _flags: Dict[str, str]
+    _filtered_input = str
 
-    def __init__(self, bot: "Bot", msg: pyrogram.types.Message,
-                 segments: Sequence[str], cmd_len: int,
-                 matches: Union[Match[str], None]) -> None:
+    def __init__(self, bot: "Bot", client: pyrogram.Client, msg: pyrogram.types.Message,
+                 segments: Sequence[str], cmd_len: int, matches: Union[Match[str], None]) -> None:
         self.bot = bot
         self.msg = msg
+        self.client = client
         self.segments = segments
+
         self.cmd_len = cmd_len
         self.invoker = segments[0]
 
@@ -117,13 +124,14 @@ class Context:
 
         self.input = self.msg.text[self.cmd_len:]
         self.matches = matches
+        self._filtered = False
 
     def __getattr__(self, name: str) -> Any:
         if name == "args":
             return self._get_args()
-
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'")
+        if name in ("flags", "filtered_input", "get_user_and_reason"):
+            return getattr(self, name)
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     # Argument segments
     def _get_args(self) -> Sequence[str]:
@@ -148,8 +156,7 @@ class Context:
             input_arg=self.input,
             mode=mode,
             redact=redact,
-            response=self.response
-            if reuse_response and mode == self.response_mode else None,
+            response=self.response if reuse_response and mode == self.response_mode else None,
             **kwargs,
         )
         self.response_mode = mode
@@ -189,3 +196,52 @@ class Context:
                                   msg=msg,
                                   reuse_response=reuse_response,
                                   **kwargs)
+
+    @property
+    def flags(self):
+        self._filter()
+        return self._flags
+
+    @property
+    def filtered_input(self):
+        self._filter()
+        return self._filtered_input
+
+    def _filter(self):
+        if self._filtered:
+            return
+        self._flags = dict(FLAG_ARGUMENT.findall(self.input))
+        self._filtered_input = FLAG_ARGUMENT.sub("", self.input).strip()
+
+    @property
+    def get_user_and_reason(self) -> Tuple[Optional[Union[str, int]], Optional[str]]:
+        user_e: Optional[Union[str, int]] = None
+        reason: Optional[str] = None
+        # NOTE: This method checks for Input first !
+        reply = self.msg.reply_to_message
+        #  If message is forwarded and user is hidden then better
+        #  to check for User in input
+        if self.filtered_input or reply.forward_sender_name:
+            if self.filtered_input:
+                data = self.filtered_input.split(maxsplit=1)
+                if len(data) == 1:
+                    user = data[0]
+                elif len(data) == 2:
+                    user, reason = data
+                if user.isdigit():
+                    # User ID
+                    user_e = int(user)
+                elif self.msg.entities:
+                    # User Mention
+                    for ent in self.msg.entities:
+                        if ent.type == "text_mention":
+                            # Username is preferred to avoid PeerIdInvalid error
+                            user_e = ent.user.username or ent.user.id
+                            break
+                if user.startswith("@"):
+                    # Username
+                    user_e = user
+        elif reply and (user := (reply.forward_from or reply.from_user)):
+            # Either get user from forward tag or from replied message
+            user_e = user.username or user.id
+        return user_e, reason

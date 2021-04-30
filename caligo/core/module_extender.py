@@ -50,8 +50,7 @@ class ModuleExtender(Base):
         for module_mod in submodules:
             for sym in dir(module_mod):
                 cls = getattr(module_mod, sym)
-                if (inspect.isclass(cls) and issubclass(cls, module.Module)
-                        and not cls.disabled):
+                if (inspect.isclass(cls) and issubclass(cls, module.Module) and not cls.disabled):
                     self.load_module(cls, comment=comment)
 
     def load_all_modules(self: "Bot") -> None:

@@ -6,8 +6,8 @@ from pyrogram.types import Message
 
 # https://github.com/pyrogram/pyrogram/blob/master/pyrogram/methods/messages/download_media.py#L103
 def get_media(msg):
-    available_media = ("audio", "document", "photo", "sticker", "animation",
-                       "video", "voice", "video_note", "new_chat_photo")
+    available_media = ("audio", "document", "photo", "sticker", "animation", "video", "voice",
+                       "video_note", "new_chat_photo")
     if isinstance(msg, Message):
         for kind in available_media:
             media = getattr(msg, kind, None)
@@ -15,8 +15,7 @@ def get_media(msg):
                 break
         else:
             return logging.debug(
-                f" {__name__} - This message doesn't contain any downloadable media"
-            )
+                f" {__name__} - This message doesn't contain any downloadable media")
         return media
 
 

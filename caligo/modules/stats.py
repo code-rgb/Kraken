@@ -42,25 +42,20 @@ class StatsModule(module.Module):
 
     async def inc(self, key: str, value: int) -> None:
         async with self.lock:
-            await self.db.find_one_and_update({"_id": self.name},
-                                              {"$inc": {
-                                                  key: value
-                                              }},
+            await self.db.find_one_and_update({"_id": self.name}, {"$inc": {
+                key: value
+            }},
                                               upsert=True)
 
     async def delete(self, key: str) -> None:
         async with self.lock:
-            await self.db.find_one_and_update({"_id": self.name},
-                                              {"$unset": {
-                                                  key: ""
-                                              }})
+            await self.db.find_one_and_update({"_id": self.name}, {"$unset": {key: ""}})
 
     async def put(self, key: str, value: int) -> None:
         async with self.lock:
-            await self.db.find_one_and_update({"_id": self.name},
-                                              {"$set": {{
-                                                  key: value
-                                              }}},
+            await self.db.find_one_and_update({"_id": self.name}, {"$set": {{
+                key: value
+            }}},
                                               upsert=True)
 
     async def on_load(self) -> None:

@@ -48,8 +48,7 @@ class BotConfig:
         self.secret = bool(os.environ.get("CONTAINER") == "True")
 
         # Github
-        self.github_repo = _replace(
-            os.environ.get("GITHUB_REPO")) or "adekmaulana/caligo"
+        self.github_repo = _replace(os.environ.get("GITHUB_REPO")) or "adekmaulana/caligo"
         self.github_token = _replace(os.environ.get("GITHUB_TOKEN"))
 
         # Heroku

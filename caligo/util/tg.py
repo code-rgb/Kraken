@@ -55,9 +55,7 @@ def _bprint_skip_predicate(name: str, value: Any) -> bool:
 def pretty_print_entity(entity) -> str:
     """Pretty-prints the given Telegram entity with recursive details."""
 
-    return bprint.bprint(entity,
-                         stream=str,
-                         skip_predicate=_bprint_skip_predicate)
+    return bprint.bprint(entity, stream=str, skip_predicate=_bprint_skip_predicate)
 
 
 async def download_file(ctx: command.Context,
@@ -120,14 +118,14 @@ async def download_file(ctx: command.Context,
                     f"__{human(current)} of {human(total)} @ "
                     f"{human(speed, postfix='/s')}\neta - {time(eta)}__\n\n")
         # Only edit message once every 5 seconds to avoid ratelimits
-        if last_update_time is None or (now -
-                                        last_update_time).total_seconds() >= 5:
+        if last_update_time is None or (now - last_update_time).total_seconds() >= 5:
             loop.create_task(ctx.respond(progress))
 
             last_update_time = now
 
-    return Path(await ctx.bot.client.download_media(
-        msg, file_name=str(downloadPath) + "/" + file_name, progress=prog_func))
+    return Path(await ctx.bot.client.download_media(msg,
+                                                    file_name=str(downloadPath) + "/" + file_name,
+                                                    progress=prog_func))
 
 
 def truncate(text: str) -> str:
@@ -142,8 +140,7 @@ def truncate(text: str) -> str:
     return text
 
 
-async def send_as_document(content: Union[bytes,
-                                          str], msg: pyrogram.types.Message,
+async def send_as_document(content: Union[bytes, str], msg: pyrogram.types.Message,
                            caption: str) -> pyrogram.types.Message:
     with io.BytesIO(str.encode(content)) as o:
         o.name = str(uuid.uuid4()).split("-")[0].upper() + ".TXT"
@@ -153,9 +150,8 @@ async def send_as_document(content: Union[bytes,
         )
 
 
-async def get_text_input(
-        ctx: command.Context,
-        input_arg: Optional[str]) -> Tuple[bool, Optional[Union[str, bytes]]]:
+async def get_text_input(ctx: command.Context,
+                         input_arg: Optional[str]) -> Tuple[bool, Optional[Union[str, bytes]]]:
     """Returns input text from various sources in the given command context."""
 
     if ctx.msg.document:

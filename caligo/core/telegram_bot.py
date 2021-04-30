@@ -25,6 +25,7 @@ class TelegramBot(Base):
     getConfig: BotConfig
     is_running: bool
     prefix: str
+    sudoprefix: str
     user: pyrogram.types.User
     uid: int
     start_time_us: int
@@ -55,9 +56,7 @@ class TelegramBot(Base):
             mode = string_session
         else:
             mode = ":memory:"
-        self.client = Client(api_id=api_id,
-                             api_hash=api_hash,
-                             session_name=mode)
+        self.client = Client(api_id=api_id, api_hash=api_hash, session_name=mode)
 
         token = self.getConfig.token
         if token is not None:
@@ -75,25 +74,33 @@ class TelegramBot(Base):
 
         # Load prefix
         db = self.get_db("core")
-        try:
-            self.prefix = (await db.find_one({"_id": "Core"}))["prefix"]
-        except TypeError:
-            self.prefix = "."  # Default is '.'-dot you can change later
 
-            await db.find_one_and_update({"_id": "Core"},
-                                         {"$set": {
-                                             "prefix": self.prefix
-                                         }},
-                                         upsert=True)
+        prefix_data = await db.find_one({"_id": "Core"})
+        for p in ["prefix", "sudoprefix"]:
+            try:
+                setattr(self, p, prefix_data[p])
+            except (TypeError, KeyError):
+                # Default prefix we can change later
+                setattr(self, p, ("." if p == "prefix" else "!"))
+                await db.find_one_and_update({"_id": "Core"}, {"$set": {
+                    p: getattr(self, p)
+                }},
+                                             upsert=True)
 
         self.client.add_handler(
             MessageHandler(self.on_command,
-                           filters=(self.command_predicate() &
-                                    self.outgoing_flt())), 0)
+                           filters=(self.command_predicate() & self.outgoing_flt())), 0)
+
+        self.client.bot.add_handler(
+            MessageHandler(
+                self.on_command,
+                filters=(
+                    self.sudo_command_predicate()  # & self.outgoing_flt()
+                )),
+            0)
 
         self.client.add_handler(
-            MessageHandler(self.on_conversation,
-                           filters=self.conversation_predicate()), 0)
+            MessageHandler(self.on_conversation, filters=self.conversation_predicate()), 0)
 
         # Load modules
         self.load_all_modules()
@@ -101,8 +108,10 @@ class TelegramBot(Base):
         self.loaded = True
 
         await self.client.start()
+        setattr(self.client, "is_bot", False)
         if self.has_bot:
             await self.client.bot.start()
+            setattr(self.client.bot, "is_bot", True)
 
         user = await self.client.get_me()
         if not isinstance(user, pyrogram.types.User):
@@ -199,11 +208,10 @@ class TelegramBot(Base):
 
     @property
     def has_bot(self: "Bot") -> bool:
-        return hasattr(self.client, "bot") and isinstance(
-            self.client.bot, Client)
+        return hasattr(self.client, "bot") and isinstance(self.client.bot, Client)
 
     def redact_message(self: "Bot", text: str) -> str:
-        redacted = "[REDACTED]"
+        redacted = "[CONFIDENTIAL]"
 
         api_id = str(self.getConfig.api_id)
         api_hash = self.getConfig.api_hash
@@ -244,13 +252,14 @@ class TelegramBot(Base):
         response: Optional[pyrogram.types.Message] = None,
         **kwargs: Any,
     ) -> pyrogram.types.Message:
+
         if text is not None:
 
             if redact:
                 text = self.redact_message(text)
 
-            # send as file if text > 4096
-            if len(str(text)) > tg.MESSAGE_CHAR_LIMIT:
+            # send as file if text > 4096 or for mode == "force_doc"
+            if (len(str(text)) > tg.MESSAGE_CHAR_LIMIT) or (mode and mode == "force_doc"):
                 await msg.edit("Sending output as a file.")
                 response = await tg.send_as_document(text, msg, input_arg)
 
@@ -267,6 +276,8 @@ class TelegramBot(Base):
 
         if mode == "edit":
             return await msg.edit(text=text, **kwargs)
+        if mode == "error":
+            return await msg.edit(text=f"**ERROR**: ```{text}```", **kwargs)
 
         if mode == "reply":
             if response is not None:
@@ -286,9 +297,7 @@ class TelegramBot(Base):
                 del kwargs["disable_web_page_preview"]
                 response = await msg.reply_document(**kwargs)
             else:
-                response = await msg.reply(text,
-                                           reply_to_message_id=msg.message_id,
-                                           **kwargs)
+                response = await msg.reply(text, reply_to_message_id=msg.message_id, **kwargs)
             await msg.delete()
             return response
 

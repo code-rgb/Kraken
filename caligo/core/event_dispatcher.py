@@ -51,11 +51,8 @@ class EventDispatcher(Base):
                 self.register_listener(mod,
                                        event,
                                        func,
-                                       priority=getattr(func,
-                                                        "_listener_priority",
-                                                        100),
-                                       regex=getattr(func, "_listener_regex",
-                                                     None))
+                                       priority=getattr(func, "_listener_priority", 100),
+                                       regex=getattr(func, "_listener_regex", None))
                 done = True
             finally:
                 if not done:
