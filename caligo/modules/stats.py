@@ -42,26 +42,15 @@ class StatsModule(module.Module):
 
     async def inc(self, key: str, value: int) -> None:
         async with self.lock:
-            await self.db.find_one_and_update({"_id": self.name},
-                                              {"$inc": {
-                                                  key: value
-                                              }},
-                                              upsert=True)
+            await self.db.find_one_and_update({"_id": self.name}, {"$inc": {key: value}}, upsert=True)
 
     async def delete(self, key: str) -> None:
         async with self.lock:
-            await self.db.find_one_and_update({"_id": self.name},
-                                              {"$unset": {
-                                                  key: ""
-                                              }})
+            await self.db.find_one_and_update({"_id": self.name}, {"$unset": {key: ""}})
 
     async def put(self, key: str, value: int) -> None:
         async with self.lock:
-            await self.db.find_one_and_update({"_id": self.name},
-                                              {"$set": {{
-                                                  key: value
-                                              }}},
-                                              upsert=True)
+            await self.db.find_one_and_update({"_id": self.name}, {"$set": {{key: value}}}, upsert=True)
 
     async def on_load(self) -> None:
         self.db = self.bot.get_db("stats")
@@ -100,7 +89,7 @@ class StatsModule(module.Module):
     async def on_command(
             self,
             cmd: command.Command,
-            msg: pyrogram.types.Message    # skipcq: PYL-W0613
+            msg: pyrogram.types.Message  # skipcq: PYL-W0613
     ) -> None:
         await self.bot.log_stat("processed")
 

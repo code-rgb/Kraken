@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Any, MutableMapping, Tuple, Union
+from typing import TYPE_CHECKING, Any, MutableMapping, Tuple
 
 import pyrogram
 from pyrogram.filters import Filter, create
@@ -20,8 +20,7 @@ class CommandDispatcher(Base):
 
         super().__init__(**kwargs)
 
-    def register_command(self: "Bot", mod: module.Module, name: str,
-                         func: command.CommandFunc) -> None:
+    def register_command(self: "Bot", mod: module.Module, name: str, func: command.CommandFunc) -> None:
         cmd = command.Command(name, mod, func)
 
         if name in self.commands:
@@ -98,15 +97,12 @@ class CommandDispatcher(Base):
 
     @staticmethod
     def outgoing_flt() -> Filter:
-        return create(
-            lambda _, __, msg: msg.via_bot is None and not msg.scheduled and
-            not (msg.forward_from or msg.forward_sender_name) and not (
-                msg.from_user and msg.from_user.is_bot) and
-            (msg.outgoing or (msg.from_user and msg.from_user.is_self)) and
-            not (msg.chat and msg.chat.type == "channel" and msg.edit_date))
+        return create(lambda _, __, msg: msg.via_bot is None and not msg.scheduled and not (
+            msg.forward_from or msg.forward_sender_name) and not (msg.from_user and msg.from_user.is_bot) and
+                      (msg.outgoing or (msg.from_user and msg.from_user.is_self)) and not (msg.chat and msg.chat.type ==
+                                                                                           "channel" and msg.edit_date))
 
-    async def on_command(self: "Bot", client: pyrogram.Client,
-                         msg: pyrogram.types.Message) -> None:
+    async def on_command(self: "Bot", client: pyrogram.Client, msg: pyrogram.types.Message) -> None:
         cmd = None
         msg = Message._parse(msg)
 
@@ -130,13 +126,11 @@ class CommandDispatcher(Base):
                     cmd.pattern = re.compile(cmd.pattern)
 
                 if msg.reply_to_message:
-                    matches = list(
-                        cmd.pattern.finditer(msg.reply_to_message.text))
+                    matches = list(cmd.pattern.finditer(msg.reply_to_message.text))
                 elif msg.text:
                     matches = list(cmd.pattern.finditer(msg.text[cmd_len:]))
 
-            ctx = command.Context(self, client, msg, msg.segments, cmd_len,
-                                  matches)
+            ctx = command.Context(self, client, msg, msg.segments, cmd_len, matches)
 
             try:
                 ret = await cmd.func(ctx)
@@ -147,21 +141,16 @@ class CommandDispatcher(Base):
                     else:
                         await ctx.respond(ret)
             except pyrogram.errors.MessageNotModified:
-                cmd.module.log.warning(
-                    f"Command '{cmd.name}' triggered a message edit with no changes"
-                )
-            except Exception as e:    # skipcq: PYL-W0703
-                cmd.module.log.error(f"Error in command '{cmd.name}'",
-                                     exc_info=e)
-                if input_text := (ctx.input
-                                  if ctx.input is not None else msg.text) or "":
+                cmd.module.log.warning(f"Command '{cmd.name}' triggered a message edit with no changes")
+            except Exception as e:  # skipcq: PYL-W0703
+                cmd.module.log.error(f"Error in command '{cmd.name}'", exc_info=e)
+                if input_text := (ctx.input if ctx.input is not None else msg.text) or "":
                     input_text = f"**Input:**\n{input_text}\n\n"
-                await ctx.respond(
-                    f"{input_text}**ERROR**:\n⚠️ Failed to execute command:\n"
-                    f"```{util.error.format_exception(e)}```")
+                await ctx.respond(f"{input_text}**ERROR**:\n⚠️ Failed to execute command:\n"
+                                  f"```{util.error.format_exception(e)}```")
 
             await self.dispatch_event("command", cmd, msg)
-        except Exception as e:    # skipcq: PYL-W0703
+        except Exception as e:  # skipcq: PYL-W0703
             if cmd is not None:
                 cmd.module.log.error("Error in command handler", exc_info=e)
 

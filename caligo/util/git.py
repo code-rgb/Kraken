@@ -1,7 +1,7 @@
 import os
 import sys
 from pathlib import Path
-from typing import Optional    # skipcq: PYL-W0611
+from typing import Optional  # skipcq: PYL-W0611
 
 try:
     import git

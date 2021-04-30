@@ -32,8 +32,7 @@ class ModerationModule(module.Module):
         mention_slots = 4096 - len(mention_text)
 
         chat = ctx.msg.chat.id
-        async for member in self.bot.client.iter_chat_members(
-                chat, filter=user_filter):
+        async for member in self.bot.client.iter_chat_members(chat, filter=user_filter):
             mention_text += f"[\u200b](tg://user?id={member.user.id})"
 
             mention_slots -= 1
@@ -47,13 +46,10 @@ class ModerationModule(module.Module):
     @command.usage("[comment?]", optional=True)
     @command.alias("adm", "@admin")
     async def cmd_admin(self, ctx: command.Context) -> Optional[str]:
-        return await self.cmd_everyone(ctx,
-                                       tag="admin",
-                                       user_filter="administrators")
+        return await self.cmd_everyone(ctx, tag="admin", user_filter="administrators")
 
     @command.desc("Ban user(s) from the current chat by ID or reply")
-    @command.usage("[ID(s) of the user(s) to ban?, or reply to user's message]",
-                   optional=True)
+    @command.usage("[ID(s) of the user(s) to ban?, or reply to user's message]", optional=True)
     async def cmd_ban(self, ctx: command.Context) -> str:
         input_ids = ctx.args
 
@@ -101,8 +97,7 @@ class ModerationModule(module.Module):
                 lines.append(user_spec)
 
             is_administrator = bool(
-                (await self.bot.client.get_chat_member(ctx.msg.chat.id, user.id)
-                ).status == "administrator")
+                (await self.bot.client.get_chat_member(ctx.msg.chat.id, user.id)).status == "administrator")
 
             if is_administrator:
                 return "__I'm not gonna ban admin.__"
@@ -177,9 +172,7 @@ class ModerationModule(module.Module):
             return "__Reply to a message.__"
 
         if ctx.msg.chat.type in ["group", "supergroup"]:
-            perm = (await
-                    ctx.bot.client.get_chat_member(ctx.msg.chat.id,
-                                                   "me")).can_delete_messages
+            perm = (await ctx.bot.client.get_chat_member(ctx.msg.chat.id, "me")).can_delete_messages
             if perm is not True:
                 return "__You can't delete message in this chat.__"
 
@@ -188,8 +181,7 @@ class ModerationModule(module.Module):
         msg_ids = []
         purged = 0
         before = datetime.now()
-        for msg_id in range(ctx.msg.reply_to_message.message_id,
-                            ctx.msg.message_id):
+        for msg_id in range(ctx.msg.reply_to_message.message_id, ctx.msg.message_id):
             msg_ids.append(msg_id)
             if len(msg_ids) == 100:
                 await ctx.bot.client.delete_messages(
@@ -213,8 +205,7 @@ class ModerationModule(module.Module):
         time = "second" if run_time <= 1 else "seconds"
         msg = "message" if purged <= 1 else "messages"
 
-        await ctx.respond(f"__Purged {purged} {msg} in {run_time} {time}...__",
-                          delete_after=5)
+        await ctx.respond(f"__Purged {purged} {msg} in {run_time} {time}...__", delete_after=5)
 
     @command.desc("Delete the replied message.")
     @command.usage("del", reply=True)

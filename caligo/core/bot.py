@@ -14,8 +14,7 @@ from .module_extender import ModuleExtender
 from .telegram_bot import TelegramBot
 
 
-class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher,
-          ConversationDispatcher, ModuleExtender):
+class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher, ConversationDispatcher, ModuleExtender):
     client: pyrogram.Client
     lock: asyncio.Lock
     log: logging.Logger
@@ -33,10 +32,7 @@ class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher,
         self.__aiosession: Optional[aiohttp.ClientSession] = None
 
     @classmethod
-    async def create_and_run(cls,
-                             *,
-                             loop: Optional[asyncio.AbstractEventLoop] = None
-                            ) -> "Bot":
+    async def create_and_run(cls, *, loop: Optional[asyncio.AbstractEventLoop] = None) -> "Bot":
         bot = None
 
         if loop:

@@ -27,8 +27,7 @@ class Reddit(module.Module):
     http: aiohttp.ClientSession
     uri: str = "https://meme-api.herokuapp.com/gimme"
     thumb_regex: Pattern = re.compile(
-        r"https?://preview\.redd\.it/\w+\.(?:jpg|jpeg|png)\?width=(?:[2][1-9][0-9]|[3-9][0-9]{2}|[0-9]{4,})"
-    )
+        r"https?://preview\.redd\.it/\w+\.(?:jpg|jpeg|png)\?width=(?:[2][1-9][0-9]|[3-9][0-9]{2}|[0-9]{4,})")
     max_inline_results: str = "30"
 
     def get_rthumb(self, result: Dict) -> str:
@@ -56,19 +55,13 @@ class Reddit(module.Module):
             caption += "\n⚠️ Post marked as **SPOILER**"
         if r["nsfw"]:
             caption += "\n🔞 Post marked as **ADULT**"
-        return dict(caption=caption,
-                    postlink=r["postLink"],
-                    subreddit=r["subreddit"],
-                    media_url=r["url"])
+        return dict(caption=caption, postlink=r["postLink"], subreddit=r["subreddit"], media_url=r["url"])
 
     @command.desc("get post from reddit")
     async def cmd_reddit(self, ctx: command.Context):
         await ctx.respond("`Processing ...`")
-        r_api = "/".join([self.uri, ctx.input.split()[0], "5"
-                         ]) if ctx.input else f"{self.uri}/5"
-        rjson = await util.aiorequest(session=self.bot.http,
-                                      url=r_api,
-                                      mode="json")
+        r_api = "/".join([self.uri, ctx.input.split()[0], "5"]) if ctx.input else f"{self.uri}/5"
+        rjson = await util.aiorequest(session=self.bot.http, url=r_api, mode="json")
         if rjson is None:
             return "ERROR : Reddit API is Down !", 5
         if rjson.get("code"):
@@ -87,15 +80,12 @@ class Reddit(module.Module):
             return "__Failed to Get Post from reddit__", 5
         await ctx.msg.delete()
 
-    async def send_rpost(self, ctx: command.Context, rjson: Dict, chat_id: int,
-                         reply_id: Optional[int]):
+    async def send_rpost(self, ctx: command.Context, rjson: Dict, chat_id: int, reply_id: Optional[int]):
         if (res := self.parse_rpost(rjson)) is None:
             return False
         if ctx.client.is_bot:
-            buttons = InlineKeyboardMarkup([[
-                InlineKeyboardButton(f"Source: r/{res['subreddit']}",
-                                     url=res['postlink'])
-            ]])
+            buttons = InlineKeyboardMarkup(
+                [[InlineKeyboardButton(f"Source: r/{res['subreddit']}", url=res['postlink'])]])
             caption = res['caption']
         else:
             caption = f"{res['caption']}\nSource: [r/{res['subreddit']}]({res['postlink']})"
@@ -120,23 +110,18 @@ class Reddit(module.Module):
             r_api = "/".join([self.uri, subreddit, self.max_inline_results])
         else:
             r_api = "/".join([self.uri, self.max_inline_results])
-        rjson = await util.aiorequest(session=self.bot.http,
-                                      url=r_api,
-                                      mode="json")
+        rjson = await util.aiorequest(session=self.bot.http, url=r_api, mode="json")
         if rjson is None:
             results = "Coudn't find any reddit post with image or gif, Please try again"
         elif rjson.get("code"):
             results = f"**ERROR (code: {rjson['code']})** : `{rjson.get('message')}`"
         else:
-            results: List[Union[InlineQueryResultAnimation,
-                                InlineQueryResultPhoto]] = []
+            results: List[Union[InlineQueryResultAnimation, InlineQueryResultPhoto]] = []
             for post in rjson.get("memes"):
                 if p_data := self.parse_rpost(post):
                     thumbnail = self.get_rthumb(p_data)
-                    buttons = InlineKeyboardMarkup([[
-                        InlineKeyboardButton(f"Source: r/{p_data['subreddit']}",
-                                             url=p_data['postlink'])
-                    ]])
+                    buttons = InlineKeyboardMarkup(
+                        [[InlineKeyboardButton(f"Source: r/{p_data['subreddit']}", url=p_data['postlink'])]])
                     if p_data['media_url'].endswith(".gif"):
                         results.append(
                             InlineQueryResultAnimation(

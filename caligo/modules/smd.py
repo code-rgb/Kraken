@@ -21,11 +21,10 @@ class Smd(module.Module):
         await ctx.respond(f"🔎 __Searching for__ **{ctx.input}**")
         chat_id = ctx.msg.chat.id
         try:
-            async for m in ctx.bot.client.search_messages(
-                    -1001356426755,
-                    query=ctx.input.strip(),
-                    limit=1,
-                    filter="audio"):
+            async for m in ctx.bot.client.search_messages(-1001356426755,
+                                                          query=ctx.input.strip(),
+                                                          limit=1,
+                                                          filter="audio"):
                 await m.copy(chat_id, caption="")
                 break
             else:

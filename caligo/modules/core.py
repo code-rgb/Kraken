@@ -31,16 +31,9 @@ class CoreModule(module.Module):
         modules = list(self.bot.modules.keys())
         button: List[InlineKeyboardButton] = []
         for mod in modules:
-            button.append(
-                InlineKeyboardButton(mod,
-                                     callback_data=f"menu({mod})".encode()))
-        buttons = [
-            button[i * 3:(i + 1) * 3] for i in range((len(button) + 3 - 1) // 3)
-        ]
-        buttons.append([
-            InlineKeyboardButton("✗ Close",
-                                 callback_data="menu(Close)".encode())
-        ])
+            button.append(InlineKeyboardButton(mod, callback_data=f"menu({mod})".encode()))
+        buttons = [button[i * 3:(i + 1) * 3] for i in range((len(button) + 3 - 1) // 3)]
+        buttons.append([InlineKeyboardButton("✗ Close", callback_data="menu(Close)".encode())])
 
         return buttons
 
@@ -51,31 +44,25 @@ class CoreModule(module.Module):
             InlineQueryResultArticle(
                 id=uuid.uuid4(),
                 title="About Caligo",
-                input_message_content=InputTextMessageContent(
-                    "__Caligo is SelfBot based on Pyrogram library.__"),
+                input_message_content=InputTextMessageContent("__Caligo is SelfBot based on Pyrogram library.__"),
                 url=f"https://github.com/{repo}",
                 description="A Selfbot Telegram.",
                 thumb_url=None,
                 reply_markup=InlineKeyboardMarkup([[
-                    InlineKeyboardButton("⚡️ Repo",
-                                         url=f"https://github.com/{repo}"),
-                    InlineKeyboardButton(
-                        "📖️ How To",
-                        url=f"https://github.com/{repo}#Installation"),
+                    InlineKeyboardButton("⚡️ Repo", url=f"https://github.com/{repo}"),
+                    InlineKeyboardButton("📖️ How To", url=f"https://github.com/{repo}#Installation"),
                 ]]))
         ]
         if query.from_user and (query.from_user.id == self.bot.uid):
             button = await util.run_sync(self.build_button)
             answer.append(
-                InlineQueryResultArticle(
-                    id=uuid.uuid4(),
-                    title="Menu",
-                    input_message_content=InputTextMessageContent(
-                        "**Caligo Menu Helper**"),
-                    url=f"https://github.com/{repo}",
-                    description="Menu Helper.",
-                    thumb_url=None,
-                    reply_markup=InlineKeyboardMarkup(button)))
+                InlineQueryResultArticle(id=uuid.uuid4(),
+                                         title="Menu",
+                                         input_message_content=InputTextMessageContent("**Caligo Menu Helper**"),
+                                         url=f"https://github.com/{repo}",
+                                         description="Menu Helper.",
+                                         thumb_url=None,
+                                         reply_markup=InlineKeyboardMarkup(button)))
 
         await query.answer(results=answer, cache_time=3)
         return
@@ -83,16 +70,13 @@ class CoreModule(module.Module):
     @listener.pattern(r"menu\((\w+)\)$")
     async def on_callback_query(self, query: CallbackQuery) -> None:
         if query.from_user and query.from_user.id != self.bot.uid:
-            await query.answer("Sorry, you don't have permission to access.",
-                               show_alert=True)
+            await query.answer("Sorry, you don't have permission to access.", show_alert=True)
             return
 
         mod = query.matches[0].group(1)
         if mod == "Back":
             button = await util.run_sync(self.build_button)
-            await query.edit_message_text(
-                "**Caligo Menu Helper**",
-                reply_markup=InlineKeyboardMarkup(button))
+            await query.edit_message_text("**Caligo Menu Helper**", reply_markup=InlineKeyboardMarkup(button))
             return
         if mod == "Close":
             button = await util.run_sync(self.build_button)
@@ -113,14 +97,11 @@ class CoreModule(module.Module):
                         break
             else:
                 await query.answer("😿️ Couldn't close expired message")
-                await query.edit_message_text("**Caligo Menu Helper**",
-                                              reply_markup=InlineKeyboardMarkup(
-                                                  button[:-1]))
+                await query.edit_message_text("**Caligo Menu Helper**", reply_markup=InlineKeyboardMarkup(button[:-1]))
 
             return
 
-        modules: MutableMapping[str, MutableMapping[str,
-                                                    str]] = defaultdict(dict)
+        modules: MutableMapping[str, MutableMapping[str, str]] = defaultdict(dict)
         for _, cmd in self.bot.commands.items():
             if cmd.module.name != mod:
                 continue
@@ -138,12 +119,8 @@ class CoreModule(module.Module):
             response = util.text.join_map(commands, heading=mod_name)
 
         if response is not None:
-            button = [[
-                InlineKeyboardButton("⇠ Back",
-                                     callback_data="menu(Back)".encode())
-            ]]
-            await query.edit_message_text(
-                response, reply_markup=InlineKeyboardMarkup(button))
+            button = [[InlineKeyboardButton("⇠ Back", callback_data="menu(Back)".encode())]]
+            await query.edit_message_text(response, reply_markup=InlineKeyboardMarkup(button))
 
             return
 
@@ -155,17 +132,15 @@ class CoreModule(module.Module):
     async def cmd_help(self, ctx: command.Context):
         if self.bot.has_bot and not ctx.input:
             await ctx.msg.delete()
-            response = await self.bot.client.get_inline_bot_results(
-                self.bot.bot_user.username, "help")
-            res = await self.bot.client.send_inline_bot_result(
-                ctx.msg.chat.id, response.query_id, response.results[1].id)
+            response = await self.bot.client.get_inline_bot_results(self.bot.bot_user.username, "help")
+            res = await self.bot.client.send_inline_bot_result(ctx.msg.chat.id, response.query_id,
+                                                               response.results[1].id)
             self.cache[res.updates[0].id] = ctx.msg.chat.id
 
             return
 
         filt = ctx.input
-        modules: MutableMapping[str, MutableMapping[str,
-                                                    str]] = defaultdict(dict)
+        modules: MutableMapping[str, MutableMapping[str, str]] = defaultdict(dict)
         if filt and filt not in self.bot.modules:
             if filt in self.bot.commands:
                 cmd = self.bot.commands[filt]
@@ -210,8 +185,7 @@ Expected parameters: {args_desc}"""
         for mod_name, commands in sorted(modules.items()):
             section = util.text.join_map(commands, heading=mod_name)
             add_len = len(section) + 2
-            if response and (len(response) + add_len >
-                             util.tg.MESSAGE_CHAR_LIMIT):
+            if response and (len(response) + add_len > util.tg.MESSAGE_CHAR_LIMIT):
                 await ctx.respond_multi(response)
                 response = None
 
@@ -233,10 +207,7 @@ Expected parameters: {args_desc}"""
             return f"The prefix is `{self.bot.prefix}`"
 
         self.bot.prefix = new_prefix
-        await self.db.find_one_and_update({"_id": self.name},
-                                          {"$set": {
-                                              "prefix": new_prefix
-                                          }})
+        await self.db.find_one_and_update({"_id": self.name}, {"$set": {"prefix": new_prefix}})
 
         return f"Prefix set to `{self.bot.prefix}`"
 
@@ -249,10 +220,7 @@ Expected parameters: {args_desc}"""
             return f"The Sudo prefix is `{self.bot.sudoprefix}`"
 
         self.bot.sudoprefix = new_prefix
-        await self.db.find_one_and_update({"_id": self.name},
-                                          {"$set": {
-                                              "sudoprefix": sudoprefix
-                                          }})
+        await self.db.find_one_and_update({"_id": self.name}, {"$set": {"sudoprefix": sudoprefix}})
 
         return f"Sudo Prefix set to `{self.bot.sudoprefix}`"
 
@@ -262,10 +230,8 @@ Expected parameters: {args_desc}"""
         # Get tagged version and optionally the Git commit
         commit = await util.run_sync(util.version.get_commit)
         dirty = ", dirty" if await util.run_sync(util.git.is_dirty) else ""
-        unofficial = (", unofficial"
-                      if not await util.run_sync(util.git.is_official) else "")
-        version = (f"{__version__} (<code>{commit}</code>{dirty}{unofficial})"
-                   if commit else __version__)
+        unofficial = (", unofficial" if not await util.run_sync(util.git.is_official) else "")
+        version = (f"{__version__} (<code>{commit}</code>{dirty}{unofficial})" if commit else __version__)
 
         # Clean system version
         sys_ver = platform.release()
@@ -284,8 +250,7 @@ Expected parameters: {args_desc}"""
         total_uptime = None
         if stats_module is not None and callable(get_start_time):
             stats_start_time = await get_start_time()
-            total_uptime = util.time.format_duration_us(now -
-                                                        stats_start_time) + "\n"
+            total_uptime = util.time.format_duration_us(now - stats_start_time) + "\n"
         else:
             uptime += "\n"
 
@@ -294,32 +259,21 @@ Expected parameters: {args_desc}"""
 
         response = util.text.join_map(
             {
-                "Version":
-                    version,
-                "Python":
-                    f"{platform.python_implementation()} {platform.python_version()}",
-                "Pyrogram":
-                    f"{pyrogram.__version__}",
-                "System":
-                    f"{platform.system()} {sys_ver}",
-                "Uptime":
-                    uptime,
+                "Version": version,
+                "Python": f"{platform.python_implementation()} {platform.python_version()}",
+                "Pyrogram": f"{pyrogram.__version__}",
+                "System": f"{platform.system()} {sys_ver}",
+                "Uptime": uptime,
                 **({
                     "Total uptime": total_uptime
                 } if total_uptime else {}),
-                "Commands loaded":
-                    len(self.bot.commands),
-                "Modules loaded":
-                    len(self.bot.modules),
-                "Listeners loaded":
-                    sum(len(evt) for evt in self.bot.listeners.values()),
-                "Events activated":
-                    f"{self.bot.events_activated}\n",
-                "Chats":
-                    num_chats,
+                "Commands loaded": len(self.bot.commands),
+                "Modules loaded": len(self.bot.modules),
+                "Listeners loaded": sum(len(evt) for evt in self.bot.listeners.values()),
+                "Events activated": f"{self.bot.events_activated}\n",
+                "Chats": num_chats,
             },
-            heading=
-            '<a href="https://github.com/adekmaulana/caligo">Caligo</a> info',
+            heading='<a href="https://github.com/adekmaulana/caligo">Caligo</a> info',
             parse_mode="html",
         )
 

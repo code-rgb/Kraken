@@ -103,20 +103,18 @@ class File:
                 bullets = bullets.replace("○", "")
 
             space = '    ' * (10 - len(bullets))
-            progress = (
-                f"`{self.name}`\n"
-                f"Status: **Uploading**\n"
-                f"Progress: [{bullets + space}] {round(percent * 100)}%\n"
-                f"__{human(current)} of {human(size)} @ "
-                f"{human(speed, postfix='/s')}\neta - {time(eta)}__\n\n")
+            progress = (f"`{self.name}`\n"
+                        f"Status: **Uploading**\n"
+                        f"Progress: [{bullets + space}] {round(percent * 100)}%\n"
+                        f"__{human(current)} of {human(size)} @ "
+                        f"{human(speed, postfix='/s')}\neta - {time(eta)}__\n\n")
 
         if response is None:
             return progress, False, None
 
         size = response.get("size")
         mirrorLink = response.get("webContentLink")
-        text = (f"**GoogleDrive Link**: [{self.name}]({mirrorLink}) "
-                f"(__{human(int(size))}__)")
+        text = (f"**GoogleDrive Link**: [{self.name}]({mirrorLink}) " f"(__{human(int(size))}__)")
         if self._index_link is not None:
             text += f"\n\n__Shareable link__: [Here]({self._index_link})."
 
@@ -130,9 +128,8 @@ class File:
         while not done:
             progress, done, link = await self.progress_string
             now = datetime.now()
-            if invoker is not None and progress is not None and (
-                    last_update_time is None or
-                (now - last_update_time).total_seconds() >= 5):
+            if invoker is not None and progress is not None and (last_update_time is None or
+                                                                 (now - last_update_time).total_seconds() >= 5):
                 await invoker.edit(progress)
 
                 last_update_time = now

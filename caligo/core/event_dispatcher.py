@@ -51,11 +51,8 @@ class EventDispatcher(Base):
                 self.register_listener(mod,
                                        event,
                                        func,
-                                       priority=getattr(func,
-                                                        "_listener_priority",
-                                                        100),
-                                       regex=getattr(func, "_listener_regex",
-                                                     None))
+                                       priority=getattr(func, "_listener_priority", 100),
+                                       regex=getattr(func, "_listener_regex", None))
                 done = True
             finally:
                 if not done:
@@ -72,11 +69,7 @@ class EventDispatcher(Base):
         for listener in to_unreg:
             self.unregister_listener(listener)
 
-    async def dispatch_event(self: "Bot",
-                             event: str,
-                             *args: Any,
-                             wait: bool = True,
-                             **kwargs: Any) -> None:
+    async def dispatch_event(self: "Bot", event: str, *args: Any, wait: bool = True, **kwargs: Any) -> None:
         tasks = set()
 
         try:

@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import pyrogram
 from pyrogram import Client, filters
-from pyrogram.errors import MessageAuthorRequired
 from pyrogram.handlers import (
     CallbackQueryHandler,
     DeletedMessagesHandler,
@@ -57,19 +56,14 @@ class TelegramBot(Base):
             mode = string_session
         else:
             mode = ":memory:"
-        self.client = Client(api_id=api_id,
-                             api_hash=api_hash,
-                             session_name=mode)
+        self.client = Client(api_id=api_id, api_hash=api_hash, session_name=mode)
 
         token = self.getConfig.token
         if token is not None:
             if not isinstance(token, str):
                 raise TypeError("BOT TOKEN must be a string")
 
-            self.client.bot = Client(api_id=api_id,
-                                     api_hash=api_hash,
-                                     bot_token=token,
-                                     session_name=":memory:")
+            self.client.bot = Client(api_id=api_id, api_hash=api_hash, bot_token=token, session_name=":memory:")
 
     async def start(self: "Bot") -> None:
         self.log.info("Starting")
@@ -77,36 +71,28 @@ class TelegramBot(Base):
 
         # Load prefix
         db = self.get_db("core")
-        
+
         prefix_data = await db.find_one({"_id": "Core"})
         for p in ["prefix", "sudoprefix"]:
             try:
                 setattr(self, p, prefix_data[p])
             except (TypeError, KeyError):
                 # Default prefix we can change later
-                setattr(self, p, ("." if p == "prefix" else "!")) 
-                await db.find_one_and_update({"_id": "Core"},
-                                            {"$set": {
-                                                p: getattr(self, p)
-                                            }},
-                                            upsert=True)
+                setattr(self, p, ("." if p == "prefix" else "!"))
+                await db.find_one_and_update({"_id": "Core"}, {"$set": {p: getattr(self, p)}}, upsert=True)
 
         self.client.add_handler(
-            MessageHandler(self.on_command,
-                           filters=(self.command_predicate() &
-                                    self.outgoing_flt())), 0)
+            MessageHandler(self.on_command, filters=(self.command_predicate() & self.outgoing_flt())), 0)
 
         self.client.bot.add_handler(
             MessageHandler(
                 self.on_command,
                 filters=(
-                    self.sudo_command_predicate()    # & self.outgoing_flt()
+                    self.sudo_command_predicate()  # & self.outgoing_flt()
                 )),
             0)
 
-        self.client.add_handler(
-            MessageHandler(self.on_conversation,
-                           filters=self.conversation_predicate()), 0)
+        self.client.add_handler(MessageHandler(self.on_conversation, filters=self.conversation_predicate()), 0)
 
         # Load modules
         self.load_all_modules()
@@ -174,7 +160,7 @@ class TelegramBot(Base):
                 async def update_event(_, event) -> None:
                     await self.dispatch_event(name, event)
 
-                event_info = self.client.add_handler(    # skipcq: PYL-E1111
+                event_info = self.client.add_handler(  # skipcq: PYL-E1111
                     event_type(update_event, flt), group)
                 self._mevent_handlers[name] = event_info
         elif name in self._mevent_handlers:
@@ -192,7 +178,7 @@ class TelegramBot(Base):
                 async def update_event(_, event) -> None:
                     await self.dispatch_event(name, event)
 
-                event_info = self.client.bot.add_handler(    # skipcq: PYL-E1111
+                event_info = self.client.bot.add_handler(  # skipcq: PYL-E1111
                     event_type(update_event, flt), group)
                 self._mevent_handlers[name] = event_info
         elif name in self._mevent_handlers:
@@ -214,8 +200,7 @@ class TelegramBot(Base):
 
     @property
     def has_bot(self: "Bot") -> bool:
-        return hasattr(self.client, "bot") and isinstance(
-            self.client.bot, Client)
+        return hasattr(self.client, "bot") and isinstance(self.client.bot, Client)
 
     def redact_message(self: "Bot", text: str) -> str:
         redacted = "[CONFIDENTIAL]"
@@ -266,8 +251,7 @@ class TelegramBot(Base):
                 text = self.redact_message(text)
 
             # send as file if text > 4096 or for mode == "force_doc"
-            if (len(str(text)) > tg.MESSAGE_CHAR_LIMIT) or (mode and mode
-                                                            == "force_doc"):
+            if (len(str(text)) > tg.MESSAGE_CHAR_LIMIT) or (mode and mode == "force_doc"):
                 await msg.edit("Sending output as a file.")
                 response = await tg.send_as_document(text, msg, input_arg)
 
@@ -305,9 +289,7 @@ class TelegramBot(Base):
                 del kwargs["disable_web_page_preview"]
                 response = await msg.reply_document(**kwargs)
             else:
-                response = await msg.reply(text,
-                                           reply_to_message_id=msg.message_id,
-                                           **kwargs)
+                response = await msg.reply(text, reply_to_message_id=msg.message_id, **kwargs)
             await msg.delete()
             return response
 

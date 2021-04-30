@@ -11,19 +11,16 @@ from typing import (
     Optional,
     Pattern,
     Sequence,
+    Tuple,
     Union,
-    Tuple
 )
 
 import pyrogram
 
-from .core.raw import Message
-
 if TYPE_CHECKING:
     from .core import Bot
 
-CommandFunc = Union[Callable[..., Coroutine[Any, Any, None]],
-                    Callable[..., Coroutine[Any, Any, Optional[str]]],]
+CommandFunc = Union[Callable[..., Coroutine[Any, Any, None]], Callable[..., Coroutine[Any, Any, Optional[str]]],]
 Decorator = Callable[[CommandFunc], CommandFunc]
 FLAG_ARGUMENT: Pattern = re.compile(r"(?:\s|^)(-[a-zA-Z_]+)([0-9]+)?")
 
@@ -38,9 +35,7 @@ def desc(_desc: str) -> Decorator:
     return desc_decorator
 
 
-def usage(_usage: str,
-          optional: bool = False,
-          reply: bool = False) -> Decorator:
+def usage(_usage: str, optional: bool = False, reply: bool = False) -> Decorator:
     """Sets argument usage help on a command function."""
 
     def usage_decorator(func: CommandFunc) -> CommandFunc:
@@ -113,8 +108,7 @@ class Context:
     _flags: Dict[str, str]
     _filtered_input = str
 
-    def __init__(self, bot: "Bot", client: pyrogram.Client,
-                 msg: pyrogram.types.Message, segments: Sequence[str],
+    def __init__(self, bot: "Bot", client: pyrogram.Client, msg: pyrogram.types.Message, segments: Sequence[str],
                  cmd_len: int, matches: Union[Match[str], None]) -> None:
         self.bot = bot
         self.msg = msg
@@ -136,8 +130,7 @@ class Context:
             return self._get_args()
         if name in ("flags", "filtered_input", "get_user_and_reason"):
             return getattr(self, name)
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     # Argument segments
     def _get_args(self) -> Sequence[str]:
@@ -162,8 +155,7 @@ class Context:
             input_arg=self.input,
             mode=mode,
             redact=redact,
-            response=self.response
-            if reuse_response and mode == self.response_mode else None,
+            response=self.response if reuse_response and mode == self.response_mode else None,
             **kwargs,
         )
         self.response_mode = mode
@@ -198,11 +190,7 @@ class Context:
             if reuse_response is None:
                 reuse_response = False
 
-        return await self.respond(*args,
-                                  mode=mode,
-                                  msg=msg,
-                                  reuse_response=reuse_response,
-                                  **kwargs)
+        return await self.respond(*args, mode=mode, msg=msg, reuse_response=reuse_response, **kwargs)
 
     @property
     def flags(self):
@@ -221,8 +209,7 @@ class Context:
         self._filtered_input = FLAG_ARGUMENT.sub("", self.input).strip()
 
     @property
-    def get_user_and_reason(
-            self) -> Tuple[Optional[Union[str, int]], Optional[str]]:
+    def get_user_and_reason(self) -> Tuple[Optional[Union[str, int]], Optional[str]]:
         user_e: Optional[Union[str, int]] = None
         reason: Optional[str] = None
         # NOTE: This method checks for Input first !

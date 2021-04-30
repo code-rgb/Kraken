@@ -77,8 +77,7 @@ class StickerModule(module.Module):
                     try:
                         done: Set[asyncio.Future]
                         resp_task = self.bot.loop.create_task(reply_and_ack())
-                        done, _ = await asyncio.wait(
-                            (resp_task, asyncio.sleep(0.25)))
+                        done, _ = await asyncio.wait((resp_task, asyncio.sleep(0.25)))
                         # Raise exceptions encountered in coroutines
                         for fut in done:
                             fut.result()
@@ -111,12 +110,9 @@ class StickerModule(module.Module):
         *,
         target: str = STICKER_BOT_USERNAME,
     ) -> Tuple[bool, str]:
-        commands = [("text", "/cancel", None), ("text", "/newpack", "Yay!"),
-                    ("text", pack_name, "send me the sticker"),
-                    ("file", sticker_data, "send me an emoji"),
-                    ("text", emoji, "/publish"), ("text", "/publish", "/skip"),
-                    ("text", "/skip", "Animals"),
-                    ("text", pack_name, "Kaboom!")]
+        commands = [("text", "/cancel", None), ("text", "/newpack", "Yay!"), ("text", pack_name, "send me the sticker"),
+                    ("file", sticker_data, "send me an emoji"), ("text", emoji, "/publish"),
+                    ("text", "/publish", "/skip"), ("text", "/skip", "Animals"), ("text", pack_name, "Kaboom!")]
 
         success = False
         before = datetime.now()
@@ -144,8 +140,7 @@ class StickerModule(module.Module):
                     try:
                         done: Set[asyncio.Future]
                         resp_task = self.bot.loop.create_task(reply_and_ack())
-                        done, _ = await asyncio.wait(
-                            (resp_task, asyncio.sleep(0.25)))
+                        done, _ = await asyncio.wait((resp_task, asyncio.sleep(0.25)))
                         # Raise exceptions encountered in coroutines
                         for fut in done:
                             fut.result()
@@ -172,8 +167,7 @@ class StickerModule(module.Module):
 
     @command.desc("Copy a sticker into another pack")
     @command.alias("stickercopy", "kang")
-    @command.usage("[sticker pack VOL number? if not set] [emoji?]",
-                   optional=True)
+    @command.usage("[sticker pack VOL number? if not set] [emoji?]", optional=True)
     async def cmd_copysticker(self, ctx: command.Context) -> str:
         if not ctx.msg.reply_to_message:
             return "__Reply to a sticker to copy it.__"
@@ -190,11 +184,9 @@ class StickerModule(module.Module):
                 pack_VOL = arg
 
         if not pack_VOL:
-            pack_name = self.kang_db.get(
-                "1") if self.kang_db is not None else None
+            pack_name = self.kang_db.get("1") if self.kang_db is not None else None
         else:
-            pack_name = self.kang_db.get(
-                pack_VOL) if self.kang_db is not None else None
+            pack_name = self.kang_db.get(pack_VOL) if self.kang_db is not None else None
 
         if not pack_name:
             ret = await self.cmd_createpack(ctx)
@@ -203,9 +195,7 @@ class StickerModule(module.Module):
             return ret
 
         try:
-            await self.bot.client.send(
-                GetStickerSet(stickerset=InputStickerSetShortName(
-                    short_name=pack_name)))
+            await self.bot.client.send(GetStickerSet(stickerset=InputStickerSetShortName(short_name=pack_name)))
         except StickersetInvalid:
             ret = await self.cmd_createpack(ctx)
 
@@ -223,10 +213,7 @@ class StickerModule(module.Module):
 
         sticker_buf.seek(0)
         sticker_buf.name = "sticker.png"
-        status, result = await self.add_sticker(sticker_buf,
-                                                pack_name,
-                                                emoji=emoji
-                                                or reply_msg.sticker.emoji)
+        status, result = await self.add_sticker(sticker_buf, pack_name, emoji=emoji or reply_msg.sticker.emoji)
         if status:
             await self.bot.log_stat("stickers_created")
             return f"[Sticker copied]({result})."
@@ -247,9 +234,7 @@ class StickerModule(module.Module):
         check = self.kang_db.get(num) if self.kang_db is not None else None
         if check:
             try:
-                await self.bot.client.send(
-                    GetStickerSet(stickerset=InputStickerSetShortName(
-                        short_name=check)))
+                await self.bot.client.send(GetStickerSet(stickerset=InputStickerSetShortName(short_name=check)))
             except StickersetInvalid:
                 pass
             else:
@@ -257,16 +242,10 @@ class StickerModule(module.Module):
 
         emoji = ctx.args[1] if len(ctx.args) > 1 else "❓"
         pack_name = self.bot.user.username + f"_kangPack_VOL{num}"
-        await self.db.update_one({"_id": self.name},
-                                 {"$set": {
-                                     f"pack_name.{num}": pack_name
-                                 }},
-                                 upsert=True)
+        await self.db.update_one({"_id": self.name}, {"$set": {f"pack_name.{num}": pack_name}}, upsert=True)
 
         try:
-            await self.bot.client.send(
-                GetStickerSet(stickerset=InputStickerSetShortName(
-                    short_name=pack_name)))
+            await self.bot.client.send(GetStickerSet(stickerset=InputStickerSetShortName(short_name=pack_name)))
         except StickersetInvalid:
             pass
         else:
@@ -283,10 +262,7 @@ class StickerModule(module.Module):
 
         sticker_buf.seek(0)
         sticker_buf.name = "sticker.png"
-        status, result = await self.create_pack(sticker_buf,
-                                                pack_name,
-                                                emoji=reply_msg.sticker.emoji
-                                                or emoji)
+        status, result = await self.create_pack(sticker_buf, pack_name, emoji=reply_msg.sticker.emoji or emoji)
         if status:
             await self.bot.log_stat("stickers_created")
 
@@ -346,9 +322,7 @@ class StickerModule(module.Module):
             return "❌ The `corrupter` [program](https://github.com/r00tman/corrupter) must be installed on the host system."
 
         if ret != 0:
-            return (
-                f"⚠️ `corrupter` failed with return code {ret}. Error: ```{stderr}```"
-            )
+            return (f"⚠️ `corrupter` failed with return code {ret}. Error: ```{stderr}```")
 
         with io.BytesIO(stdout) as file:
             if reply_msg.sticker:
