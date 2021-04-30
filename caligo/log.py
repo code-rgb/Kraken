@@ -15,8 +15,9 @@ def setup_log() -> None:
     if container is True:
         formatter = logging.Formatter("  %(levelname)-7s  |  %(name)-11s  |  %(message)s")
     else:
-        formatter = colorlog.ColoredFormatter("  %(log_color)s%(levelname)-7s%(reset)s  |  "
-                                              "%(blue)s%(name)-11s%(reset)s  |  %(log_color)s%(message)s%(reset)s")
+        formatter = colorlog.ColoredFormatter(
+            "  %(log_color)s%(levelname)-7s%(reset)s  |  "
+            "%(blue)s%(name)-11s%(reset)s  |  %(log_color)s%(message)s%(reset)s")
     stream = logging.StreamHandler()
     stream.setLevel(level)
     stream.setFormatter(formatter)

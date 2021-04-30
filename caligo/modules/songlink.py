@@ -83,8 +83,10 @@ class SongLink(module.Module):
             des += f"{self.htmlink(title, platforms[data_['platforms'][0]].get('url'))}"
         if artist:
             des += f"\nARTIST(S): __{artist}__"
-        des += "\n\n🎧  LISTEN ON:\n<b>" + "  |  ".join(
-            [f"{self.htmlink(self.beautify(x), platforms[x].get('url'))}" for x in platforms if x != "itunes"])
+        des += "\n\n🎧  LISTEN ON:\n<b>" + "  |  ".join([
+            f"{self.htmlink(self.beautify(x), platforms[x].get('url'))}" for x in platforms
+            if x != "itunes"
+        ])
         return des + "</b>"
 
     @command.desc("link to a song on any supported music streaming platform")

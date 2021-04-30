@@ -104,7 +104,8 @@ class DebugModule(module.Module):
                 if uname is not None:
                     lines.append("[Link to forwarded message]" f"(https://t.me/{uname}/{f_msg_id})")
                 else:
-                    lines.append("[Link to forwarded message]" f"(https://t.me/{f_chat.id}/{f_msg_id})")
+                    lines.append("[Link to forwarded message]"
+                                 f"(https://t.me/{f_chat.id}/{f_msg_id})")
 
         text = util.tg.pretty_print_entity(lines).replace("'", "").replace("list", "**List**")
         await ctx.respond(text, disable_web_page_preview=True)

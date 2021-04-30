@@ -19,7 +19,8 @@ async def Session(mode: str) -> None:
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description='Generate Session Telegram', formatter_class=RawTextHelpFormatter)
+    parser = ArgumentParser(description='Generate Session Telegram',
+                            formatter_class=RawTextHelpFormatter)
     parser.add_argument("-m",
                         "--mode",
                         metavar="STDOUT",

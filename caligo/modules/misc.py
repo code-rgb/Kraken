@@ -74,7 +74,10 @@ class Misc(module.Module):
                 last_update_time = now
 
         task = self.bot.loop.create_task(
-            self.bot.client.send_document(ctx.msg.chat.id, file_path, force_document=True, progress=prog_func))
+            self.bot.client.send_document(ctx.msg.chat.id,
+                                          file_path,
+                                          force_document=True,
+                                          progress=prog_func))
         self.task.add((ctx.msg.message_id, task))
         try:
             await task

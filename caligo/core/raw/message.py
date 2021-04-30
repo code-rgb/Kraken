@@ -30,13 +30,14 @@ class Message(types.Message):
                    reply_markup: "types.InlineKeyboardMarkup" = None,
                    sudo: bool = True) -> "Message":
         try:
-            return await self._client.edit_message_text(chat_id=self.chat.id,
-                                                        message_id=self.message_id,
-                                                        text=text,
-                                                        parse_mode=parse_mode,
-                                                        entities=entities,
-                                                        disable_web_page_preview=disable_web_page_preview,
-                                                        reply_markup=reply_markup)
+            return await self._client.edit_message_text(
+                chat_id=self.chat.id,
+                message_id=self.message_id,
+                text=text,
+                parse_mode=parse_mode,
+                entities=entities,
+                disable_web_page_preview=disable_web_page_preview,
+                reply_markup=reply_markup)
         except errors.MessageNotModified:
             return self
         except (errors.MessageAuthorRequired, errors.MessageIdInvalid):

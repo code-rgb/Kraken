@@ -20,7 +20,8 @@ import pyrogram
 if TYPE_CHECKING:
     from .core import Bot
 
-CommandFunc = Union[Callable[..., Coroutine[Any, Any, None]], Callable[..., Coroutine[Any, Any, Optional[str]]],]
+CommandFunc = Union[Callable[..., Coroutine[Any, Any, None]],
+                    Callable[..., Coroutine[Any, Any, Optional[str]]],]
 Decorator = Callable[[CommandFunc], CommandFunc]
 FLAG_ARGUMENT: Pattern = re.compile(r"(?:\s|^)(-[a-zA-Z_]+)([0-9]+)?")
 
@@ -108,8 +109,8 @@ class Context:
     _flags: Dict[str, str]
     _filtered_input = str
 
-    def __init__(self, bot: "Bot", client: pyrogram.Client, msg: pyrogram.types.Message, segments: Sequence[str],
-                 cmd_len: int, matches: Union[Match[str], None]) -> None:
+    def __init__(self, bot: "Bot", client: pyrogram.Client, msg: pyrogram.types.Message,
+                 segments: Sequence[str], cmd_len: int, matches: Union[Match[str], None]) -> None:
         self.bot = bot
         self.msg = msg
         self.client = client
@@ -190,7 +191,11 @@ class Context:
             if reuse_response is None:
                 reuse_response = False
 
-        return await self.respond(*args, mode=mode, msg=msg, reuse_response=reuse_response, **kwargs)
+        return await self.respond(*args,
+                                  mode=mode,
+                                  msg=msg,
+                                  reuse_response=reuse_response,
+                                  **kwargs)
 
     @property
     def flags(self):

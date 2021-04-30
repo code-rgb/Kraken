@@ -128,8 +128,8 @@ class File:
         while not done:
             progress, done, link = await self.progress_string
             now = datetime.now()
-            if invoker is not None and progress is not None and (last_update_time is None or
-                                                                 (now - last_update_time).total_seconds() >= 5):
+            if invoker is not None and progress is not None and (
+                    last_update_time is None or (now - last_update_time).total_seconds() >= 5):
                 await invoker.edit(progress)
 
                 last_update_time = now

@@ -69,7 +69,11 @@ class EventDispatcher(Base):
         for listener in to_unreg:
             self.unregister_listener(listener)
 
-    async def dispatch_event(self: "Bot", event: str, *args: Any, wait: bool = True, **kwargs: Any) -> None:
+    async def dispatch_event(self: "Bot",
+                             event: str,
+                             *args: Any,
+                             wait: bool = True,
+                             **kwargs: Any) -> None:
         tasks = set()
 
         try:

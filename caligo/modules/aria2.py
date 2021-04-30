@@ -66,9 +66,10 @@ class Aria2WebSocketServer:
             trackers: str = "[" + trackers_list.replace("\n\n", ",") + "]"
 
         cmd = [
-            "aria2c", f"--dir={str(path)}", "--enable-rpc", "--rpc-listen-all=false", "--max-connection-per-server=10",
-            "--rpc-max-request-size=1024M", "--seed-time=0.01", "--seed-ratio=0.1", "--max-concurrent-downloads=5",
-            "--min-split-size=10M", "--follow-torrent=mem", "--split=10", "--bt-save-metadata=true",
+            "aria2c", f"--dir={str(path)}", "--enable-rpc", "--rpc-listen-all=false",
+            "--max-connection-per-server=10", "--rpc-max-request-size=1024M", "--seed-time=0.01",
+            "--seed-ratio=0.1", "--max-concurrent-downloads=5", "--min-split-size=10M",
+            "--follow-torrent=mem", "--split=10", "--bt-save-metadata=true",
             f"--bt-tracker={trackers}", "--daemon=true", "--allow-overwrite=true"
         ]
         key_path = Path.home() / ".cache" / "caligo" / ".certs"
@@ -91,8 +92,10 @@ class Aria2WebSocketServer:
     async def start(self) -> Aria2WebsocketClient:
         client = await Aria2WebsocketClient.new(url=self._protocol)
 
-        trigger = [(self.onDownloadStart, "onDownloadStart"), (self.onDownloadComplete, "onDownloadComplete"),
-                   (self.onDownloadPause, "onDownloadPause"), (self.onDownloadStop, "onDownloadStop"),
+        trigger = [(self.onDownloadStart, "onDownloadStart"),
+                   (self.onDownloadComplete, "onDownloadComplete"),
+                   (self.onDownloadPause, "onDownloadPause"),
+                   (self.onDownloadStop, "onDownloadStop"),
                    (self.onDownloadError, "onDownloadError")]
         for handler, name in trigger:
             client.register(handler, f"aria2.{name}")
@@ -113,13 +116,15 @@ class Aria2WebSocketServer:
         res = await client.tellStatus(gid)
         return util.aria2.Download(client, res)
 
-    async def onDownloadStart(self, client: Aria2WebsocketClient, data: Union[Dict[str, Any], Any]) -> None:
+    async def onDownloadStart(self, client: Aria2WebsocketClient, data: Union[Dict[str, Any],
+                                                                              Any]) -> None:
         gid = data["params"][0]["gid"]
         async with self.lock:
             self.downloads[gid] = await self.getDownload(client, gid)
         self.log.info(f"Starting download: [gid: '{gid}']")
 
-    async def onDownloadComplete(self, client: Aria2WebsocketClient, data: Union[Dict[str, Any], Any]) -> None:
+    async def onDownloadComplete(self, client: Aria2WebsocketClient, data: Union[Dict[str, Any],
+                                                                                 Any]) -> None:
         gid = data["params"][0]["gid"]
 
         async with self.lock:
@@ -167,8 +172,9 @@ class Aria2WebSocketServer:
 
                 async with self.lock:
                     if self.count == 0:
-                        await asyncio.gather(self.bot.respond(self.invoker, folderLink, mode="reply"),
-                                             self.invoker.delete())
+                        await asyncio.gather(
+                            self.bot.respond(self.invoker, folderLink, mode="reply"),
+                            self.invoker.delete())
                         self.invoker = None
                     else:
                         await self.bot.respond(self.invoker, folderLink, mode="reply")
@@ -176,24 +182,28 @@ class Aria2WebSocketServer:
         else:
             async with self.lock:
                 del self.downloads[gid]
-            self.log.warning(f"Can't upload '{file.name}', " f"due to '{file.dir}' is not accessible")
+            self.log.warning(f"Can't upload '{file.name}', "
+                             f"due to '{file.dir}' is not accessible")
 
         self.log.info(f"Complete download: [gid: '{gid}']")
 
         if file.bittorrent:
             asyncio.create_task(self.seedFile(file), name=f"Seed-{file.gid}")
 
-    async def onDownloadPause(self, _: Aria2WebsocketClient, data: Union[Dict[str, Any], Any]) -> None:
+    async def onDownloadPause(self, _: Aria2WebsocketClient, data: Union[Dict[str, Any],
+                                                                         Any]) -> None:
         gid = data["params"][0]["gid"]
 
         self.log.info(f"Paused download: [gid '{gid}']")
 
-    async def onDownloadStop(self, _: Aria2WebsocketClient, data: Union[Dict[str, Any], Any]) -> None:
+    async def onDownloadStop(self, _: Aria2WebsocketClient, data: Union[Dict[str, Any],
+                                                                        Any]) -> None:
         gid = data["params"][0]["gid"]
 
         self.log.info(f"Stopped download: [gid '{gid}']")
 
-    async def onDownloadError(self, client: Aria2WebsocketClient, data: Union[Dict[str, Any], Any]) -> None:
+    async def onDownloadError(self, client: Aria2WebsocketClient, data: Union[Dict[str, Any],
+                                                                              Any]) -> None:
         gid = data["params"][0]["gid"]
 
         file = await self.getDownload(client, gid)
@@ -286,7 +296,8 @@ class Aria2WebSocketServer:
             progress = await self.checkProgress()
             now = datetime.now()
 
-            if last_update_time is None or (now - last_update_time).total_seconds() >= 5 and (progress != ""):
+            if last_update_time is None or (now - last_update_time).total_seconds() >= 5 and (
+                    progress != ""):
                 try:
                     async with self.lock:
                         if self.invoker is not None:
@@ -351,7 +362,8 @@ class Aria2WebSocketServer:
 
         file_size = response.get("size")
         mirrorLink = response.get("webContentLink")
-        fileLink = (f"**GoogleDrive Link**: [{file.name}]({mirrorLink}) " f"(__{human(int(file_size))}__)")
+        fileLink = (f"**GoogleDrive Link**: [{file.name}]({mirrorLink}) "
+                    f"(__{human(int(file_size))}__)")
         if self.index_link is not None:
             if self.index_link.endswith("/"):
                 link = self.index_link + parse.quote(file.name)
@@ -406,7 +418,8 @@ class Aria2(module.Module):
         res = await util.run_sync(ast.literal_eval, str(err).split(":", 2)[-1].strip())
         return "__" + res["error"]["message"] + "__"
 
-    async def addDownload(self, types: Union[str, bytes], msg: pyrogram.types.Message) -> Optional[str]:
+    async def addDownload(self, types: Union[str, bytes],
+                          msg: pyrogram.types.Message) -> Optional[str]:
         if isinstance(types, str):
             try:
                 await self.client.addUri([types])

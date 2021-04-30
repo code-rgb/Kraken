@@ -58,7 +58,9 @@ def pretty_print_entity(entity) -> str:
     return bprint.bprint(entity, stream=str, skip_predicate=_bprint_skip_predicate)
 
 
-async def download_file(ctx: command.Context, msg: pyrogram.types.Message, text: Optional[bool] = False) -> Path:
+async def download_file(ctx: command.Context,
+                        msg: pyrogram.types.Message,
+                        text: Optional[bool] = False) -> Path:
     """Downloads the file embedded in the given message."""
     downloadPath = ctx.bot.getConfig.downloadPath
 
@@ -148,7 +150,8 @@ async def send_as_document(content: Union[bytes, str], msg: pyrogram.types.Messa
         )
 
 
-async def get_text_input(ctx: command.Context, input_arg: Optional[str]) -> Tuple[bool, Optional[Union[str, bytes]]]:
+async def get_text_input(ctx: command.Context,
+                         input_arg: Optional[str]) -> Tuple[bool, Optional[Union[str, bytes]]]:
     """Returns input text from various sources in the given command context."""
 
     if ctx.msg.document:

@@ -27,7 +27,8 @@ class Reddit(module.Module):
     http: aiohttp.ClientSession
     uri: str = "https://meme-api.herokuapp.com/gimme"
     thumb_regex: Pattern = re.compile(
-        r"https?://preview\.redd\.it/\w+\.(?:jpg|jpeg|png)\?width=(?:[2][1-9][0-9]|[3-9][0-9]{2}|[0-9]{4,})")
+        r"https?://preview\.redd\.it/\w+\.(?:jpg|jpeg|png)\?width=(?:[2][1-9][0-9]|[3-9][0-9]{2}|[0-9]{4,})"
+    )
     max_inline_results: str = "30"
 
     def get_rthumb(self, result: Dict) -> str:
@@ -55,7 +56,10 @@ class Reddit(module.Module):
             caption += "\n⚠️ Post marked as **SPOILER**"
         if r["nsfw"]:
             caption += "\n🔞 Post marked as **ADULT**"
-        return dict(caption=caption, postlink=r["postLink"], subreddit=r["subreddit"], media_url=r["url"])
+        return dict(caption=caption,
+                    postlink=r["postLink"],
+                    subreddit=r["subreddit"],
+                    media_url=r["url"])
 
     @command.desc("get post from reddit")
     async def cmd_reddit(self, ctx: command.Context):
@@ -80,7 +84,8 @@ class Reddit(module.Module):
             return "__Failed to Get Post from reddit__", 5
         await ctx.msg.delete()
 
-    async def send_rpost(self, ctx: command.Context, rjson: Dict, chat_id: int, reply_id: Optional[int]):
+    async def send_rpost(self, ctx: command.Context, rjson: Dict, chat_id: int,
+                         reply_id: Optional[int]):
         if (res := self.parse_rpost(rjson)) is None:
             return False
         if ctx.client.is_bot:
@@ -120,8 +125,10 @@ class Reddit(module.Module):
             for post in rjson.get("memes"):
                 if p_data := self.parse_rpost(post):
                     thumbnail = self.get_rthumb(p_data)
-                    buttons = InlineKeyboardMarkup(
-                        [[InlineKeyboardButton(f"Source: r/{p_data['subreddit']}", url=p_data['postlink'])]])
+                    buttons = InlineKeyboardMarkup([[
+                        InlineKeyboardButton(f"Source: r/{p_data['subreddit']}",
+                                             url=p_data['postlink'])
+                    ]])
                     if p_data['media_url'].endswith(".gif"):
                         results.append(
                             InlineQueryResultAnimation(

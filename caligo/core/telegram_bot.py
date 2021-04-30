@@ -63,7 +63,10 @@ class TelegramBot(Base):
             if not isinstance(token, str):
                 raise TypeError("BOT TOKEN must be a string")
 
-            self.client.bot = Client(api_id=api_id, api_hash=api_hash, bot_token=token, session_name=":memory:")
+            self.client.bot = Client(api_id=api_id,
+                                     api_hash=api_hash,
+                                     bot_token=token,
+                                     session_name=":memory:")
 
     async def start(self: "Bot") -> None:
         self.log.info("Starting")
@@ -79,10 +82,14 @@ class TelegramBot(Base):
             except (TypeError, KeyError):
                 # Default prefix we can change later
                 setattr(self, p, ("." if p == "prefix" else "!"))
-                await db.find_one_and_update({"_id": "Core"}, {"$set": {p: getattr(self, p)}}, upsert=True)
+                await db.find_one_and_update({"_id": "Core"}, {"$set": {
+                    p: getattr(self, p)
+                }},
+                                             upsert=True)
 
         self.client.add_handler(
-            MessageHandler(self.on_command, filters=(self.command_predicate() & self.outgoing_flt())), 0)
+            MessageHandler(self.on_command,
+                           filters=(self.command_predicate() & self.outgoing_flt())), 0)
 
         self.client.bot.add_handler(
             MessageHandler(
@@ -92,7 +99,8 @@ class TelegramBot(Base):
                 )),
             0)
 
-        self.client.add_handler(MessageHandler(self.on_conversation, filters=self.conversation_predicate()), 0)
+        self.client.add_handler(
+            MessageHandler(self.on_conversation, filters=self.conversation_predicate()), 0)
 
         # Load modules
         self.load_all_modules()

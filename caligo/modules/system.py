@@ -43,7 +43,8 @@ class SystemModule(module.Module):
         except asyncio.TimeoutError:
             return "🕑 `neofetch` failed to finish within 1 minute."
         except FileNotFoundError:
-            return ("❌ [neofetch](https://github.com/dylanaraps/neofetch) " "must be installed on the host system.")
+            return ("❌ [neofetch](https://github.com/dylanaraps/neofetch) "
+                    "must be installed on the host system.")
 
         err = f"⚠️ Return code: {ret}" if ret != 0 else ""
         sysinfo = "\n".join(stdout.split("\n")[2:]) if ret == 0 else stdout
@@ -281,7 +282,9 @@ class SystemModule(module.Module):
             duration = util.time.format_duration_us(util.time.usec() - rs_time)
             self.log.info(f"Bot {updated}restarted in {duration}")
             status_msg = await self.bot.client.get_messages(rs_chat_id, rs_message_id)
-            await self.bot.respond(status_msg, f"Bot {updated}restarted in {duration}.", mode="repost")
+            await self.bot.respond(status_msg,
+                                   f"Bot {updated}restarted in {duration}.",
+                                   mode="repost")
 
     async def on_stopped(self) -> None:
         if self.restart_pending:
@@ -331,9 +334,8 @@ class SystemModule(module.Module):
             if not self.bot.getConfig.secret:
                 return "__Deploying only works if your bot is run on container.__"
 
-            if (self.bot.getConfig.github_token
-                    and self.bot.getConfig.github_repo) and (self.bot.getConfig.heroku_api_key
-                                                             and self.bot.getConfig.heroku_app_name):
+            if (self.bot.getConfig.github_token and self.bot.getConfig.github_repo) and (
+                    self.bot.getConfig.heroku_api_key and self.bot.getConfig.heroku_app_name):
                 ret = await self.run_workflows()
 
                 resp_msg = await ctx.respond("Deploying bot...")
@@ -368,7 +370,8 @@ class SystemModule(module.Module):
                 pip = str(Path(prefix) / "bin" / "pip")
 
                 await ctx.respond("Updating dependencies...")
-                stdout, _, ret = await util.system.run_command(pip, "install", repo.working_tree_dir)
+                stdout, _, ret = await util.system.run_command(pip, "install",
+                                                               repo.working_tree_dir)
                 if ret != 0:
                     return f"""⚠️ Error updating dependencies:
 

@@ -78,7 +78,8 @@ async def aiorequest(
             if mode == "headers":
                 return resp.headers
             if resp.status != 200:
-                return logging.error(f"{__name__} - HTTP ERROR: '{url}' Failed with Status Code - {resp.status}")
+                return logging.error(
+                    f"{__name__} - HTTP ERROR: '{url}' Failed with Status Code - {resp.status}")
             else:
                 if mode == "json":
                     try:
@@ -98,6 +99,7 @@ async def aiorequest(
                 else:
                     return logging.error(f"{__name__} - ERROR: Invalid Mode - '{mode}'")
     except asyncio.TimeoutError:
-        logging.error(f"{__name__} - Timeout ERROR: '{url}' Failed to Respond in Time ({timeout_} s).")
+        logging.error(
+            f"{__name__} - Timeout ERROR: '{url}' Failed to Respond in Time ({timeout_} s).")
     else:
         return out

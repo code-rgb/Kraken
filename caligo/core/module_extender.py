@@ -19,7 +19,10 @@ class ModuleExtender(Base):
 
         super().__init__(**kwargs)
 
-    def load_module(self: "Bot", cls: Type[module.Module], *, comment: Optional[str] = None) -> None:
+    def load_module(self: "Bot",
+                    cls: Type[module.Module],
+                    *,
+                    comment: Optional[str] = None) -> None:
         self.log.info(f"Loading {cls.format_desc(comment)}")
 
         if cls.name in self.modules:
@@ -40,7 +43,10 @@ class ModuleExtender(Base):
         self.unregister_commands(mod)
         del self.modules[cls.name]
 
-    def _load_all_from_metamod(self: "Bot", submodules: Iterable[ModuleType], *, comment: str = None) -> None:
+    def _load_all_from_metamod(self: "Bot",
+                               submodules: Iterable[ModuleType],
+                               *,
+                               comment: str = None) -> None:
         for module_mod in submodules:
             for sym in dir(module_mod):
                 cls = getattr(module_mod, sym)

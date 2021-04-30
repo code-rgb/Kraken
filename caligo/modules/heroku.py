@@ -109,10 +109,11 @@ class HerokuManager(module.Module):
             "Minutes": f"{minutes}m"
         },
                                   heading=f"Account remaining ({percentage}%) this month")
-        body = util.text.join_map({
-            "Hours": f"{appHours}h",
-            "Minutes": f"{appMinutes}m",
-        },
-                                  heading=f"App[{self.app_name}] usage ({appPercentage}%) this month")
+        body = util.text.join_map(
+            {
+                "Hours": f"{appHours}h",
+                "Minutes": f"{appMinutes}m",
+            },
+            heading=f"App[{self.app_name}] usage ({appPercentage}%) this month")
 
         return head + "\n\n" + body

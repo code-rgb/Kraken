@@ -14,7 +14,8 @@ from .module_extender import ModuleExtender
 from .telegram_bot import TelegramBot
 
 
-class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher, ConversationDispatcher, ModuleExtender):
+class Bot(TelegramBot, CommandDispatcher, DataBase, EventDispatcher, ConversationDispatcher,
+          ModuleExtender):
     client: pyrogram.Client
     lock: asyncio.Lock
     log: logging.Logger

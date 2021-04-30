@@ -97,7 +97,8 @@ class ModerationModule(module.Module):
                 lines.append(user_spec)
 
             is_administrator = bool(
-                (await self.bot.client.get_chat_member(ctx.msg.chat.id, user.id)).status == "administrator")
+                (await self.bot.client.get_chat_member(ctx.msg.chat.id, user.id)
+                ).status == "administrator")
 
             if is_administrator:
                 return "__I'm not gonna ban admin.__"

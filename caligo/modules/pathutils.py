@@ -33,7 +33,8 @@ class PathLib(module.Module):
                         files += "📹"
                     elif str(p_s).endswith((".zip", ".tar", ".tar.gz", ".rar")):
                         files += "🗜"
-                    elif str(p_s).endswith((".jpg", ".jpeg", ".png", ".gif", ".bmp", ".ico", ".webp")):
+                    elif str(p_s).endswith(
+                        (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".ico", ".webp")):
                         files += "🖼"
                     else:
                         files += "📄"
