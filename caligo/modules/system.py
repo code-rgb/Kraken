@@ -244,15 +244,18 @@ class SystemModule(module.Module):
         resp_msg = await ctx.respond("Restarting bot...")
 
         # Save time and status message so we can update it after restarting
-        await self.db.find_one_and_update({"_id": self.name}, {
-            "$set": {
-                "restart.status_chat_id": resp_msg.chat.id,
-                "restart.status_message_id": resp_msg.message_id,
-                "restart.time": restart_time or util.time.usec(),
-                "restart.reason": reason
-            }
-        },
-                                          upsert=True)
+        await self.db.find_one_and_update(
+            {"_id": self.name},
+            {
+                "$set": {
+                    "restart.status_chat_id": resp_msg.chat.id,
+                    "restart.status_message_id": resp_msg.message_id,
+                    "restart.time": restart_time or util.time.usec(),
+                    "restart.reason": reason,
+                }
+            },
+            upsert=True,
+        )
         # Initiate the restart
         self.restart_pending = True
         self.bot.stop_manual = True
@@ -289,7 +292,8 @@ class SystemModule(module.Module):
     async def on_stopped(self) -> None:
         if self.restart_pending:
             self.log.info("Starting new bot instance...\n")
-            # This is safe because original arguments are reused. skipcq: BAN-B606
+            # This is safe because original arguments are reused. skipcq:
+            # BAN-B606
             os.execv(sys.executable, (sys.executable, "-m", "caligo"))
             sys.exit()
 
@@ -340,15 +344,18 @@ class SystemModule(module.Module):
 
                 resp_msg = await ctx.respond("Deploying bot...")
 
-                await self.db.find_one_and_update({"_id": self.name}, {
-                    "$set": {
-                        "restart.status_chat_id": resp_msg.chat.id,
-                        "restart.status_message_id": resp_msg.message_id,
-                        "restart.time": update_time,
-                        "restart.reason": "update"
-                    }
-                },
-                                                  upsert=True)
+                await self.db.find_one_and_update(
+                    {"_id": self.name},
+                    {
+                        "$set": {
+                            "restart.status_chat_id": resp_msg.chat.id,
+                            "restart.status_message_id": resp_msg.message_id,
+                            "restart.time": update_time,
+                            "restart.reason": "update",
+                        }
+                    },
+                    upsert=True,
+                )
                 return
 
             return "__Deploying needs Heroku and GitHub credential set properly.__"

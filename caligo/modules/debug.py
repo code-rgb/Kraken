@@ -107,7 +107,7 @@ class DebugModule(module.Module):
                     lines.append("[Link to forwarded message]"
                                  f"(https://t.me/{f_chat.id}/{f_msg_id})")
 
-        text = util.tg.pretty_print_entity(lines).replace("'", "").replace("list", "**List**")
+        text = (util.tg.pretty_print_entity(lines).replace("'", "").replace("list", "**List**"))
         await ctx.respond(text, disable_web_page_preview=True)
 
     @command.desc("Paste message text to Dogbin")

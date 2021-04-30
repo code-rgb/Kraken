@@ -168,7 +168,7 @@ class ModerationModule(module.Module):
     @command.desc("reply to a message, mark as start until your purge command.")
     @command.usage("purge", reply=True)
     async def cmd_purge(self, ctx: command.Context):
-        """ This function need permission to delete messages. """
+        """This function need permission to delete messages."""
         if not ctx.msg.reply_to_message:
             return "__Reply to a message.__"
 
@@ -211,7 +211,7 @@ class ModerationModule(module.Module):
     @command.desc("Delete the replied message.")
     @command.usage("del", reply=True)
     async def cmd_del(self, ctx: command.Context):
-        """ reply to message as target, this function will delete that. """
+        """reply to message as target, this function will delete that."""
         if not ctx.msg.reply_to_message:
             return "__Reply to a message.__"
 

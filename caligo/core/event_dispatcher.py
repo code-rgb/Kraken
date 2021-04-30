@@ -21,13 +21,15 @@ class EventDispatcher(Base):
 
         super().__init__(**kwargs)
 
-    def register_listener(self: "Bot",
-                          mod: module.Module,
-                          event: str,
-                          func: ListenerFunc,
-                          *,
-                          priority: Optional[int] = 100,
-                          regex: Filter = None) -> None:
+    def register_listener(
+        self: "Bot",
+        mod: module.Module,
+        event: str,
+        func: ListenerFunc,
+        *,
+        priority: Optional[int] = 100,
+        regex: Filter = None,
+    ) -> None:
         listener = Listener(event, func, mod, priority, regex)
 
         if event in self.listeners:
@@ -48,11 +50,13 @@ class EventDispatcher(Base):
         for event, func in util.misc.find_prefixed_funcs(mod, "on_"):
             done = True
             try:
-                self.register_listener(mod,
-                                       event,
-                                       func,
-                                       priority=getattr(func, "_listener_priority", 100),
-                                       regex=getattr(func, "_listener_regex", None))
+                self.register_listener(
+                    mod,
+                    event,
+                    func,
+                    priority=getattr(func, "_listener_priority", 100),
+                    regex=getattr(func, "_listener_regex", None),
+                )
                 done = True
             finally:
                 if not done:

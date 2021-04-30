@@ -29,11 +29,13 @@ class ConversationDispatcher(Base):
         return create(func)
 
     @asynccontextmanager
-    async def conversation(self: "Bot",
-                           chat_id: Union[str, int],
-                           *,
-                           timeout: Optional[int] = 7,
-                           max_messages: Optional[int] = 7) -> None:
+    async def conversation(
+        self: "Bot",
+        chat_id: Union[str, int],
+        *,
+        timeout: Optional[int] = 7,
+        max_messages: Optional[int] = 7,
+    ) -> None:
         conv = Conversation(self, chat_id, timeout, max_messages)
         await conv.chat
 

@@ -85,7 +85,8 @@ async def aiorequest(
                 try:
                     out = await resp.json()
                 except ValueError:
-                    # catch json.decoder.JSONDecodeErrorr in case content type is not "application/json".
+                    # catch json.decoder.JSONDecodeErrorr in case content type
+                    # is not "application/json".
                     try:
                         out = json.loads(await resp.text())
                     except Exception as err:

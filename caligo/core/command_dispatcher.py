@@ -86,8 +86,8 @@ class CommandDispatcher(Base):
     def sudo_command_predicate(self: "Bot") -> Filter:
 
         async def func(_, __, msg: pyrogram.types.Message):
-            if msg.text is not None and msg.text.startswith(
-                    self.sudoprefix) and msg.from_user.id == self.uid:
+            if (msg.text is not None and msg.text.startswith(self.sudoprefix)
+                    and msg.from_user.id == self.uid):
                 parts = msg.text.split()
                 parts[0] = parts[0][len(self.sudoprefix):]
                 msg.segments = parts
@@ -115,8 +115,8 @@ class CommandDispatcher(Base):
             except KeyError:
                 return
 
-            if ((cmd.module.name == "GoogleDrive" and not cmd.module.disabled)
-                    and cmd.name not in ["gdreset", "gdclear"]):
+            if (cmd.module.name == "GoogleDrive"
+                    and not cmd.module.disabled) and cmd.name not in ["gdreset", "gdclear"]:
                 ret = await cmd.module.authorize(msg)
 
                 if ret is False:
@@ -148,7 +148,7 @@ class CommandDispatcher(Base):
                     f"Command '{cmd.name}' triggered a message edit with no changes")
             except Exception as e:  # skipcq: PYL-W0703
                 cmd.module.log.error(f"Error in command '{cmd.name}'", exc_info=e)
-                if input_text := (ctx.input if ctx.input is not None else msg.text) or "":
+                if (input_text := (ctx.input if ctx.input is not None else msg.text) or ""):
                     input_text = f"**Input:**\n{input_text}\n\n"
                 await ctx.respond(f"{input_text}**ERROR**:\n⚠️ Failed to execute command:\n"
                                   f"```{util.error.format_exception(e)}```")

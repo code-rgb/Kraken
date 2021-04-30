@@ -10,7 +10,7 @@ from async_property import async_property
 
 def get_free_port():
     sock = socket.socket()
-    sock.bind(('', 0))
+    sock.bind(("", 0))
     port = sock.getsockname()[1]
     sock.close()
     return port

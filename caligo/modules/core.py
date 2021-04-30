@@ -41,20 +41,22 @@ class CoreModule(module.Module):
     async def on_inline_query(self, query: InlineQuery) -> None:
         repo = self.bot.getConfig.github_repo
         answer = [
-            InlineQueryResultArticle(id=uuid.uuid4(),
-                                     title="About Caligo",
-                                     input_message_content=InputTextMessageContent(
-                                         "__Caligo is SelfBot based on Pyrogram library.__"),
-                                     url=f"https://github.com/{repo}",
-                                     description="A Selfbot Telegram.",
-                                     thumb_url=None,
-                                     reply_markup=InlineKeyboardMarkup([[
-                                         InlineKeyboardButton("⚡️ Repo",
-                                                              url=f"https://github.com/{repo}"),
-                                         InlineKeyboardButton(
-                                             "📖️ How To",
-                                             url=f"https://github.com/{repo}#Installation"),
-                                     ]]))
+            InlineQueryResultArticle(
+                id=uuid.uuid4(),
+                title="About Caligo",
+                input_message_content=InputTextMessageContent(
+                    "__Caligo is SelfBot based on Pyrogram library.__"),
+                url=f"https://github.com/{repo}",
+                description="A Selfbot Telegram.",
+                thumb_url=None,
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("⚡️ Repo", url=f"https://github.com/{repo}"),
+                    InlineKeyboardButton(
+                        "📖️ How To",
+                        url=f"https://github.com/{repo}#Installation",
+                    ),
+                ]]),
+            )
         ]
         if query.from_user and (query.from_user.id == self.bot.uid):
             button = await util.run_sync(self.build_button)
@@ -66,7 +68,8 @@ class CoreModule(module.Module):
                     url=f"https://github.com/{repo}",
                     description="Menu Helper.",
                     thumb_url=None,
-                    reply_markup=InlineKeyboardMarkup(button)))
+                    reply_markup=InlineKeyboardMarkup(button),
+                ))
 
         await query.answer(results=answer, cache_time=3)
         return
@@ -102,8 +105,10 @@ class CoreModule(module.Module):
                         break
             else:
                 await query.answer("😿️ Couldn't close expired message")
-                await query.edit_message_text("**Caligo Menu Helper**",
-                                              reply_markup=InlineKeyboardMarkup(button[:-1]))
+                await query.edit_message_text(
+                    "**Caligo Menu Helper**",
+                    reply_markup=InlineKeyboardMarkup(button[:-1]),
+                )
 
             return
 

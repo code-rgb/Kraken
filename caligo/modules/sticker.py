@@ -113,11 +113,16 @@ class StickerModule(module.Module):
         *,
         target: str = STICKER_BOT_USERNAME,
     ) -> Tuple[bool, str]:
-        commands = [("text", "/cancel", None), ("text", "/newpack", "Yay!"),
-                    ("text", pack_name, "send me the sticker"),
-                    ("file", sticker_data, "send me an emoji"), ("text", emoji, "/publish"),
-                    ("text", "/publish", "/skip"), ("text", "/skip", "Animals"),
-                    ("text", pack_name, "Kaboom!")]
+        commands = [
+            ("text", "/cancel", None),
+            ("text", "/newpack", "Yay!"),
+            ("text", pack_name, "send me the sticker"),
+            ("file", sticker_data, "send me an emoji"),
+            ("text", emoji, "/publish"),
+            ("text", "/publish", "/skip"),
+            ("text", "/skip", "Animals"),
+            ("text", pack_name, "Kaboom!"),
+        ]
 
         success = False
         before = datetime.now()
@@ -359,8 +364,10 @@ class StickerModule(module.Module):
         elif reply and reply.from_user:
             search_query = reply.from_user.username or reply.from_user.id
         else:
-            await ctx.respond("reply to a user or provide text to search sticker packs",
-                              delete_after=5)
+            await ctx.respond(
+                "reply to a user or provide text to search sticker packs",
+                delete_after=5,
+            )
             return
 
         if out := "\n".join(

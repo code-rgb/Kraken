@@ -66,11 +66,22 @@ class Aria2WebSocketServer:
             trackers: str = "[" + trackers_list.replace("\n\n", ",") + "]"
 
         cmd = [
-            "aria2c", f"--dir={str(path)}", "--enable-rpc", "--rpc-listen-all=false",
-            "--max-connection-per-server=10", "--rpc-max-request-size=1024M", "--seed-time=0.01",
-            "--seed-ratio=0.1", "--max-concurrent-downloads=5", "--min-split-size=10M",
-            "--follow-torrent=mem", "--split=10", "--bt-save-metadata=true",
-            f"--bt-tracker={trackers}", "--daemon=true", "--allow-overwrite=true"
+            "aria2c",
+            f"--dir={str(path)}",
+            "--enable-rpc",
+            "--rpc-listen-all=false",
+            "--max-connection-per-server=10",
+            "--rpc-max-request-size=1024M",
+            "--seed-time=0.01",
+            "--seed-ratio=0.1",
+            "--max-concurrent-downloads=5",
+            "--min-split-size=10M",
+            "--follow-torrent=mem",
+            "--split=10",
+            "--bt-save-metadata=true",
+            f"--bt-tracker={trackers}",
+            "--daemon=true",
+            "--allow-overwrite=true",
         ]
         key_path = Path.home() / ".cache" / "caligo" / ".certs"
         if (key_path / "cert.pem").is_file() and (key_path / "key.pem").is_file():
@@ -92,11 +103,13 @@ class Aria2WebSocketServer:
     async def start(self) -> Aria2WebsocketClient:
         client = await Aria2WebsocketClient.new(url=self._protocol)
 
-        trigger = [(self.onDownloadStart, "onDownloadStart"),
-                   (self.onDownloadComplete, "onDownloadComplete"),
-                   (self.onDownloadPause, "onDownloadPause"),
-                   (self.onDownloadStop, "onDownloadStop"),
-                   (self.onDownloadError, "onDownloadError")]
+        trigger = [
+            (self.onDownloadStart, "onDownloadStart"),
+            (self.onDownloadComplete, "onDownloadComplete"),
+            (self.onDownloadPause, "onDownloadPause"),
+            (self.onDownloadStop, "onDownloadStop"),
+            (self.onDownloadError, "onDownloadError"),
+        ]
         for handler, name in trigger:
             client.register(handler, f"aria2.{name}")
 
@@ -174,7 +187,8 @@ class Aria2WebSocketServer:
                     if self.count == 0:
                         await asyncio.gather(
                             self.bot.respond(self.invoker, folderLink, mode="reply"),
-                            self.invoker.delete())
+                            self.invoker.delete(),
+                        )
                         self.invoker = None
                     else:
                         await self.bot.respond(self.invoker, folderLink, mode="reply")
@@ -207,20 +221,25 @@ class Aria2WebSocketServer:
         gid = data["params"][0]["gid"]
 
         file = await self.getDownload(client, gid)
-        await self.bot.respond(self.invoker, f"`{file.name}`\n"
-                               f"Status: **{file.status.capitalize()}**\n"
-                               f"Error: __{file.error_message}__\n"
-                               f"Code: **{file.error_code}**",
-                               mode="reply")
+        await self.bot.respond(
+            self.invoker,
+            f"`{file.name}`\n"
+            f"Status: **{file.status.capitalize()}**\n"
+            f"Error: __{file.error_message}__\n"
+            f"Code: **{file.error_code}**",
+            mode="reply",
+        )
 
         self.log.warning(f"[gid: '{gid}']: {file.error_message}")
         async with self.lock:
             del self.downloads[file.gid]
             await self.checkDelete()
 
-    @retry(wait=wait_random_exponential(multiplier=2, min=3, max=6),
-           stop=stop_after_attempt(5),
-           retry=retry_if_exception_type(KeyError))
+    @retry(
+        wait=wait_random_exponential(multiplier=2, min=3, max=6),
+        stop=stop_after_attempt(5),
+        retry=retry_if_exception_type(KeyError),
+    )
     async def checkProgress(self) -> str:
         progress_string = ""
         time = util.time.format_duration_td
@@ -265,7 +284,7 @@ class Aria2WebSocketServer:
             if len(bullets) > 10:
                 bullets = bullets.replace("○", "")
 
-            space = '    ' * (10 - len(bullets))
+            space = "    " * (10 - len(bullets))
             progress_string += (f"`{file.name}`\nGID: `{file.gid}`\n"
                                 f"Status: **{file.status.capitalize()}**\n"
                                 f"Progress: [{bullets + space}] {round(percent * 100)}%\n"
@@ -296,8 +315,8 @@ class Aria2WebSocketServer:
             progress = await self.checkProgress()
             now = datetime.now()
 
-            if last_update_time is None or (now - last_update_time).total_seconds() >= 5 and (
-                    progress != ""):
+            if (last_update_time is None
+                    or (now - last_update_time).total_seconds() >= 5 and (progress != "")):
                 try:
                     async with self.lock:
                         if self.invoker is not None:
@@ -317,8 +336,13 @@ class Aria2WebSocketServer:
         self.log.info(f"Seeding: [gid: '{file.gid}']")
         port = util.aria2.get_free_port()
         cmd = [
-            "aria2c", "--enable-rpc", "--rpc-listen-all=false", f"--rpc-listen-port={port}",
-            "--bt-seed-unverified=true", "--seed-ratio=1", f"-i {str(file_path)}"
+            "aria2c",
+            "--enable-rpc",
+            "--rpc-listen-all=false",
+            f"--rpc-listen-port={port}",
+            "--bt-seed-unverified=true",
+            "--seed-ratio=1",
+            f"-i {str(file_path)}",
         ]
 
         try:
@@ -350,7 +374,7 @@ class Aria2WebSocketServer:
             if len(bullets) > 10:
                 bullets = bullets.replace("○", "")
 
-            space = '    ' * (10 - len(bullets))
+            space = "    " * (10 - len(bullets))
             progress = (f"`{file.name}`\nGID: `{file.gid}`\n"
                         f"Status: **Uploading**\n"
                         f"Progress: [{bullets + space}] {round(percent * 100)}%\n"
@@ -387,10 +411,12 @@ class Aria2(module.Module):
 
     _ws: Aria2WebSocketServer
 
-    @retry(wait=wait_random_exponential(multiplier=2, min=3, max=12),
-           stop=stop_after_attempt(10),
-           retry=retry_if_exception_type(Aria2rpcException),
-           before=before_log(Aria2WebSocketServer.log, logging.DEBUG))
+    @retry(
+        wait=wait_random_exponential(multiplier=2, min=3, max=12),
+        stop=stop_after_attempt(10),
+        retry=retry_if_exception_type(Aria2rpcException),
+        before=before_log(Aria2WebSocketServer.log, logging.DEBUG),
+    )
     async def on_started(self) -> None:
         drive = self.bot.modules.get("GoogleDrive")
         if drive is None:
@@ -431,7 +457,8 @@ class Aria2(module.Module):
             self.log.error(f"Unknown types of {type(types)}")
             return f"__Unknown types of {type(types)}__"
 
-        # Save the message but delete first so we don't spam chat with new download
+        # Save the message but delete first so we don't spam chat with new
+        # download
         async with self._ws.lock:
             if self._ws.invoker is not None:
                 await self._ws.invoker.delete()

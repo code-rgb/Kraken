@@ -63,10 +63,12 @@ class TelegramBot(Base):
             if not isinstance(token, str):
                 raise TypeError("BOT TOKEN must be a string")
 
-            self.client.bot = Client(api_id=api_id,
-                                     api_hash=api_hash,
-                                     bot_token=token,
-                                     session_name=":memory:")
+            self.client.bot = Client(
+                api_id=api_id,
+                api_hash=api_hash,
+                bot_token=token,
+                session_name=":memory:",
+            )
 
     async def start(self: "Bot") -> None:
         self.log.info("Starting")
@@ -88,19 +90,25 @@ class TelegramBot(Base):
                                              upsert=True)
 
         self.client.add_handler(
-            MessageHandler(self.on_command,
-                           filters=(self.command_predicate() & self.outgoing_flt())), 0)
+            MessageHandler(
+                self.on_command,
+                filters=(self.command_predicate() & self.outgoing_flt()),
+            ),
+            0,
+        )
 
         self.client.bot.add_handler(
             MessageHandler(
                 self.on_command,
-                filters=(
-                    self.sudo_command_predicate()  # & self.outgoing_flt()
-                )),
-            0)
+                filters=(self.sudo_command_predicate()),  # & self.outgoing_flt()
+            ),
+            0,
+        )
 
         self.client.add_handler(
-            MessageHandler(self.on_conversation, filters=self.conversation_predicate()), 0)
+            MessageHandler(self.on_conversation, filters=self.conversation_predicate()),
+            0,
+        )
 
         # Load modules
         self.load_all_modules()
@@ -157,11 +165,13 @@ class TelegramBot(Base):
             if not self.stop_manual:
                 await self.stop()
 
-    def update_module_event(self: "Bot",
-                            name: str,
-                            event_type: Handler,
-                            flt: Optional[filters.Filter] = None,
-                            group: int = 0) -> None:
+    def update_module_event(
+        self: "Bot",
+        name: str,
+        event_type: Handler,
+        flt: Optional[filters.Filter] = None,
+        group: int = 0,
+    ) -> None:
         if name in self.listeners:
             if name not in self._mevent_handlers:
 
@@ -175,11 +185,13 @@ class TelegramBot(Base):
             self.client.remove_handler(*self._mevent_handlers[name])
             del self._mevent_handlers[name]
 
-    def update_bot_module_event(self: "Bot",
-                                name: str,
-                                event_type: Handler,
-                                flt: Optional[filters.Filter] = None,
-                                group: int = 0) -> None:
+    def update_bot_module_event(
+        self: "Bot",
+        name: str,
+        event_type: Handler,
+        flt: Optional[filters.Filter] = None,
+        group: int = 0,
+    ) -> None:
         if name in self.listeners:
             if name not in self._mevent_handlers:
 
@@ -281,7 +293,8 @@ class TelegramBot(Base):
 
         if mode == "reply":
             if response is not None:
-                # Already replied, so just edit the existing reply to reduce spam
+                # Already replied, so just edit the existing reply to reduce
+                # spam
                 return await response.edit(text=text, **kwargs)
 
             # Reply since we haven't done so yet
@@ -289,7 +302,8 @@ class TelegramBot(Base):
 
         if mode == "repost":
             if response is not None:
-                # Already reposted, so just edit the existing reply to reduce spam
+                # Already reposted, so just edit the existing reply to reduce
+                # spam
                 return await response.edit(text=text, **kwargs)
 
             # Repost since we haven't done so yet

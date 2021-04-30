@@ -109,8 +109,15 @@ class Context:
     _flags: Dict[str, str]
     _filtered_input = str
 
-    def __init__(self, bot: "Bot", client: pyrogram.Client, msg: pyrogram.types.Message,
-                 segments: Sequence[str], cmd_len: int, matches: Union[Match[str], None]) -> None:
+    def __init__(
+        self,
+        bot: "Bot",
+        client: pyrogram.Client,
+        msg: pyrogram.types.Message,
+        segments: Sequence[str],
+        cmd_len: int,
+        matches: Union[Match[str], None],
+    ) -> None:
         self.bot = bot
         self.msg = msg
         self.client = client
@@ -235,7 +242,8 @@ class Context:
                     # User Mention
                     for ent in self.msg.entities:
                         if ent.type == "text_mention":
-                            # Username is preferred to avoid PeerIdInvalid error
+                            # Username is preferred to avoid PeerIdInvalid
+                            # error
                             user_e = ent.user.username or ent.user.id
                             break
                 if user.startswith("@"):

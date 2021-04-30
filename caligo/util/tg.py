@@ -49,7 +49,7 @@ def filter_code_block(inp: str) -> str:
 
 
 def _bprint_skip_predicate(name: str, value: Any) -> bool:
-    return (name.startswith("_") or value is None or callable(value))
+    return name.startswith("_") or value is None or callable(value)
 
 
 def pretty_print_entity(entity) -> str:
@@ -111,7 +111,7 @@ async def download_file(ctx: command.Context,
         if len(bullets) > 10:
             bullets = bullets.replace("○", "")
 
-        space = '    ' * (10 - len(bullets))
+        space = "    " * (10 - len(bullets))
         progress = (f"`{file_name}`\n"
                     f"Status: **Downloading**\n"
                     f"Progress: [{bullets + space}] {round(percent * 100)}%\n"
