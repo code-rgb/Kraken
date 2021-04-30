@@ -24,7 +24,6 @@ from .. import command, listener, module, util
 
 class Reddit(module.Module):
     name: ClassVar[str] = "Reddit"
-    http: aiohttp.ClientSession
     uri: str = "https://meme-api.herokuapp.com/gimme"
     thumb_regex: Pattern = re.compile(
         r"https?://preview\.redd\.it/\w+\.(?:jpg|jpeg|png)\?width=(?:[2][1-9][0-9]|[3-9][0-9]{2}|[0-9]{4,})"
