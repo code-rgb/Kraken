@@ -5,9 +5,10 @@
 #  Copyright (C) 2021 - Kraken
 
 import re
-from typing import ClassVar, Dict, List, Optional, Pattern
+from typing import ClassVar, Dict, List, Optional, Pattern, Union
 
 import aiohttp
+from pyrogram.errors import MediaEmpty, WebpageCurlFailed
 from pyrogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -29,9 +30,6 @@ class Reddit(module.Module):
         r"https?://preview\.redd\.it/\w+\.(?:jpg|jpeg|png)\?width=(?:[2][1-9][0-9]|[3-9][0-9]{2}|[0-9]{4,})"
     )
     max_inline_results: str = "30"
-
-    async def on_load(self) -> None:
-        self.http = self.bot.http
 
     def get_rthumb(self, result: Dict) -> str:
         """get thumbnail of size 210 and above"""
@@ -66,33 +64,55 @@ class Reddit(module.Module):
     @command.desc("get post from reddit")
     async def cmd_reddit(self, ctx: command.Context):
         await ctx.respond("`Processing ...`")
-        r_api = "/".join([self.uri, ctx.input.split()[0]
-                         ]) if ctx.input else self.uri
-        rjson = await util.aiorequest(session=self.http, url=r_api, mode="json")
+        r_api = "/".join([self.uri, ctx.input.split()[0], "5"
+                         ]) if ctx.input else f"{self.uri}/5"
+        rjson = await util.aiorequest(session=self.bot.http,
+                                      url=r_api,
+                                      mode="json")
         if rjson is None:
-            return "ERROR : Reddit API is Down !"
+            return "ERROR : Reddit API is Down !", 5
         if rjson.get("code"):
-            return f"**ERROR (code: {res['code']})** : `{res.get('message')}`"
-        if (res := self.parse_rpost(rjson)) is None:
-            return "Coudn't find any reddit post with image or gif, Please try again"
+            return f"**ERROR (code: {res['code']})** : `{res.get('message')}`", 5
+        if not rjson.get("memes"):
+            return "Coudn't find any reddit post with image or gif, Please try again", 5
         chat_id = ctx.msg.chat.id
         reply_id = ctx.msg.reply_to_message.message_id if ctx.msg.reply_to_message else None
-        caption = f"{res['caption']}\nSource: [r/{res['subreddit']}]({res['postlink']})"
-        if res["media_url"].endswith(".gif"):
-            await self.bot.client.send_animation(
-                chat_id=chat_id,
-                animation=res["media_url"],
-                caption=caption,
-                reply_to_message_id=reply_id,
-            )
+        for post in rjson["memes"]:
+            try:
+                if await self.send_rpost(ctx, post, chat_id, reply_id):
+                    break
+            except (MediaEmpty, WebpageCurlFailed):
+                continue
         else:
-            await self.bot.client.send_photo(
-                chat_id=chat_id,
-                photo=res["media_url"],
-                caption=caption,
-                reply_to_message_id=reply_id,
-            )
+            return "__Failed to Get Post from reddit__", 5
         await ctx.msg.delete()
+
+    async def send_rpost(self, ctx: command.Context, rjson: Dict, chat_id: int,
+                         reply_id: Optional[int]):
+        if (res := self.parse_rpost(rjson)) is None:
+            return False
+        if ctx.client.is_bot:
+            buttons = InlineKeyboardMarkup([[
+                InlineKeyboardButton(f"Source: r/{res['subreddit']}",
+                                     url=res['postlink'])
+            ]])
+            caption = res['caption']
+        else:
+            caption = f"{res['caption']}\nSource: [r/{res['subreddit']}]({res['postlink']})"
+            buttons = None
+        if res["media_url"].endswith(".gif"):
+            await ctx.client.send_animation(chat_id=chat_id,
+                                            animation=res["media_url"],
+                                            caption=caption,
+                                            reply_to_message_id=reply_id,
+                                            reply_markup=buttons)
+        else:
+            await ctx.client.send_photo(chat_id=chat_id,
+                                        photo=res["media_url"],
+                                        caption=caption,
+                                        reply_to_message_id=reply_id,
+                                        reply_markup=buttons)
+        return True
 
     @listener.pattern(r"(?i)^reddit(?:\s+(?:r/)?([a-z]+)\.)?$")
     async def on_inline_query(self, query: InlineQuery) -> None:
@@ -100,13 +120,16 @@ class Reddit(module.Module):
             r_api = "/".join([self.uri, subreddit, self.max_inline_results])
         else:
             r_api = "/".join([self.uri, self.max_inline_results])
-        rjson = await util.aiorequest(session=self.http, url=r_api, mode="json")
+        rjson = await util.aiorequest(session=self.bot.http,
+                                      url=r_api,
+                                      mode="json")
         if rjson is None:
             results = "Coudn't find any reddit post with image or gif, Please try again"
         elif rjson.get("code"):
             results = f"**ERROR (code: {rjson['code']})** : `{rjson.get('message')}`"
         else:
-            results: List = []
+            results: List[Union[InlineQueryResultAnimation,
+                                InlineQueryResultPhoto]] = []
             for post in rjson.get("memes"):
                 if p_data := self.parse_rpost(post):
                     thumbnail = self.get_rthumb(p_data)

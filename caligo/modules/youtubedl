@@ -1,0 +1,41 @@
+from youtubesearchpython.__future__ import VideosSearch
+import asyncio
+from typing import List, Dict
+
+
+async def result_formatter(results: List):
+    output : Dict[str, str] = {}
+    for index, r in enumerate(results, start=1):
+        thumb = r.get("thumbnails").pop().get("url")
+        upld = r.get("channel")
+        title = f'<a href={r.get("link")}><b>{r.get("title")}</b></a>\n'
+        out = title
+        if r.get("descriptionSnippet"):
+            out += "<code>{}</code>\n\n".format(
+                "".join(x.get("text") for x in r.get("descriptionSnippet"))
+            )
+        out += f'<b>❯  Duration:</b> {r.get("accessibility").get("duration")}\n'
+        views = f'<b>❯  Views:</b> {r.get("viewCount").get("short")}\n'
+        out += views
+        out += f'<b>❯  Upload date:</b> {r.get("publishedTime")}\n'
+        if upld:
+            out += "<b>❯  Uploader:</b> "
+            out += f'<a href={upld.get("link")}>{upld.get("name")}</a>'
+        v_deo_id = r.get("id")
+        output[index] = dict(
+            message=out,
+            thumb=thumb,
+            video_id=v_deo_id,
+            list_view=f'<img src={thumb}><b><a href={r.get("link")}>{index}. {r.get("accessibility").get("title")}</a></b><br>',
+        )
+    return output
+
+
+async def main():
+    videosSearch = VideosSearch("Shakira", limit=15)
+    videosResult = await videosSearch.next()
+    print(await result_formatter(videosResult.get("result")))
+
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())

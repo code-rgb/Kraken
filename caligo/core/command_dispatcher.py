@@ -1,11 +1,12 @@
 import re
-from typing import TYPE_CHECKING, Any, MutableMapping
+from typing import TYPE_CHECKING, Any, MutableMapping, Tuple, Union
 
 import pyrogram
 from pyrogram.filters import Filter, create
 
 from .. import command, module, util
 from .base import Base
+from .raw import Message
 
 if TYPE_CHECKING:
     from .bot import Bot
@@ -82,6 +83,19 @@ class CommandDispatcher(Base):
 
         return create(func)
 
+    def sudo_command_predicate(self: "Bot") -> Filter:
+
+        async def func(_, __, msg: pyrogram.types.Message):
+            if msg.text is not None and msg.text.startswith(self.sudoprefix) and msg.from_user.id == self.uid:
+                parts = msg.text.split()
+                parts[0] = parts[0][len(self.sudoprefix):]
+                msg.segments = parts
+                return True
+
+            return False
+
+        return create(func)
+
     @staticmethod
     def outgoing_flt() -> Filter:
         return create(
@@ -91,9 +105,10 @@ class CommandDispatcher(Base):
             (msg.outgoing or (msg.from_user and msg.from_user.is_self)) and
             not (msg.chat and msg.chat.type == "channel" and msg.edit_date))
 
-    async def on_command(self: "Bot", _: pyrogram.Client,
+    async def on_command(self: "Bot", client: pyrogram.Client,
                          msg: pyrogram.types.Message) -> None:
         cmd = None
+        msg = Message._parse(msg)
 
         try:
             try:
@@ -120,18 +135,22 @@ class CommandDispatcher(Base):
                 elif msg.text:
                     matches = list(cmd.pattern.finditer(msg.text[cmd_len:]))
 
-            ctx = command.Context(self, msg, msg.segments, cmd_len, matches)
+            ctx = command.Context(self, client, msg, msg.segments, cmd_len,
+                                  matches)
 
             try:
                 ret = await cmd.func(ctx)
 
                 if ret is not None:
-                    await ctx.respond(ret)
+                    if isinstance(ret, Tuple):
+                        await ctx.respond(ret[0], delete_after=int(ret[1]))
+                    else:
+                        await ctx.respond(ret)
             except pyrogram.errors.MessageNotModified:
                 cmd.module.log.warning(
                     f"Command '{cmd.name}' triggered a message edit with no changes"
                 )
-            except Exception as e:  # skipcq: PYL-W0703
+            except Exception as e:    # skipcq: PYL-W0703
                 cmd.module.log.error(f"Error in command '{cmd.name}'",
                                      exc_info=e)
                 if input_text := (ctx.input
@@ -142,7 +161,7 @@ class CommandDispatcher(Base):
                     f"```{util.error.format_exception(e)}```")
 
             await self.dispatch_event("command", cmd, msg)
-        except Exception as e:  # skipcq: PYL-W0703
+        except Exception as e:    # skipcq: PYL-W0703
             if cmd is not None:
                 cmd.module.log.error("Error in command handler", exc_info=e)
 

@@ -175,7 +175,7 @@ class GoogleDrive(module.Module):
             elif content.is_file():
                 file = util.File(content)
                 files = await self.uploadFile(file, parent_id)
-                if isinstance(files, str):  # Skip because file size is 0
+                if isinstance(files, str):    # Skip because file size is 0
                     continue
 
                 file.content, file.start_time = files, util.time.sec()

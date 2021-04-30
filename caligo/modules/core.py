@@ -240,6 +240,22 @@ Expected parameters: {args_desc}"""
 
         return f"Prefix set to `{self.bot.prefix}`"
 
+    @command.desc("Get or change Sudo prefix")
+    @command.usage("[new sudo prefix?]", optional=True)
+    async def cmd_sudoprefix(self, ctx: command.Context) -> str:
+        new_prefix = ctx.input
+
+        if not new_prefix:
+            return f"The Sudo prefix is `{self.bot.sudoprefix}`"
+
+        self.bot.sudoprefix = new_prefix
+        await self.db.find_one_and_update({"_id": self.name},
+                                          {"$set": {
+                                              "sudoprefix": sudoprefix
+                                          }})
+
+        return f"Sudo Prefix set to `{self.bot.sudoprefix}`"
+
     @command.desc("Get information about this bot instance")
     @command.alias("botinfo")
     async def cmd_info(self, ctx: command.Context) -> None:
