@@ -359,9 +359,8 @@ class StickerModule(module.Module):
         elif reply and reply.from_user:
             search_query = reply.from_user.username or reply.from_user.id
         else:
-            await ctx.respond(
-                "reply to a user or provide text to search sticker packs",
-                delete_after=5)
+            await ctx.respond("reply to a user or provide text to search sticker packs",
+                              delete_after=5)
             return
 
         if out := "\n".join(
