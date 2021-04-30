@@ -80,7 +80,7 @@ async def aiorequest(
             if resp.status != 200:
                 return logging.error(
                     f"{__name__} - HTTP ERROR: '{url}' Failed with Status Code - {resp.status}")
-            
+
             if mode == "json":
                 try:
                     out = await resp.json()
