@@ -23,6 +23,7 @@ jobs:
           --remove-unused-variables --ignore-init-module-imports .
       - name: linting with isort and yapf
         run: |
+          black .
           isort .
           yapf --style='{based_on_style: google, spaces_before_comment: 2, split_before_logical_operator: true, column_limit=100}' -ir .
       - name: Check lock file
