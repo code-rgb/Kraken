@@ -17,7 +17,7 @@ yt_result_vid = Optional[Dict[str, str]]
 def loop_safe(func):
     @wraps(func)
     async def wrapper(self, *args: Any, **kwargs: Any) -> Any:
-        return await utils.run_sync(func, self, *args: Any, **kwargs: Any)
+        return await utils.run_sync(func, self, *args, **kwargs)
     return wrapper
 
 class YouTube(module.Module):
