@@ -6,7 +6,12 @@ from uuid import uuid4
 
 import ujson
 import youtube_dl
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InlineQuery, InlineQueryResultPhoto
+from pyrogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InlineQuery,
+    InlineQueryResultPhoto,
+)
 from youtube_dl.utils import (
     DownloadError,
     ExtractorError,
@@ -15,7 +20,7 @@ from youtube_dl.utils import (
 )
 from youtubesearchpython.__future__ import VideosSearch
 
-from .. import command, module, util, listener
+from .. import command, listener, module, util
 
 yt_result_vid = Optional[Dict[str, str]]
 
@@ -42,7 +47,9 @@ class YouTube(module.Module):
         self.yt_link_regex = re.compile(
             r"(?:youtube\.com|youtu\.be)/(?:[\w-]+\?v=|embed/|v/|shorts/)?([\w-]{11})"
         )
-        self.url_regex = re.compile(r"(?:https?://)?(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+        self.url_regex = re.compile(
+            r"(?:https?://)?(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+        )
         self.base_yt_url = "https://www.youtube.com/watch?v="
         self.default_thumb = "https://i.imgur.com/4LwPLai.png"
 
@@ -154,8 +161,8 @@ class YouTube(module.Module):
         self,
         yt_id: str,
         body: bool = False
-    ) -> Union[InlineKeyboardMarkup, Dict[str,
-                                           Union[str, InlineKeyboardMarkup, None]]]:
+    ) -> Union[InlineKeyboardMarkup, Dict[str, Union[str, InlineKeyboardMarkup,
+                                                     None]]]:
         buttons = [[
             InlineKeyboardButton("⭐️ BEST - 📹 MKV",
                                  callback_data=f"ytdl_download_{yt_id}_mkv_v"),
@@ -225,7 +232,7 @@ class YouTube(module.Module):
             vid_body = (
                 f"<b>[{vid_data.get('title')}]({vid_data.get('webpage_url')})</b>"
                 if vid_data else None)
-            return {"msg":vid_body, "buttons":InlineKeyboardMarkup(buttons)}
+            return {"msg": vid_body, "buttons": InlineKeyboardMarkup(buttons)}
         return InlineKeyboardMarkup(buttons)
 
     async def video_downloader(self, url: str, uid: str = None):
@@ -333,33 +340,30 @@ class YouTube(module.Module):
         if formats := resp.get("formats"):
             humanbytes = util.misc.human_readable_bytes
             best_format += util.sublists(
-                                    list(
-                                        map(
-                                            lambda x: InlineKeyboardButton(
-                                                " | ".join(
-                                                    list(
-                                                        filter(
-                                                            None,
-                                                            (
-                                                                x.get("format"),
-                                                                x.get("ext"),
-                                                                humanbytes(x["filesize"]) if
-                                                                x.get("filesize") else None,
-                                                            ),
-                                                        ))),
-                                                callback_data=
-                                                f"generic_down_{x.get('format_id')}",
-                                            ),
-                                            sorted(formats,
-                                                key=lambda x: int(x.get("tbr") or 0)),
-                                        )),
-                                    width=2,
-                                )
+                list(
+                    map(
+                        lambda x: InlineKeyboardButton(
+                            " | ".join(
+                                list(
+                                    filter(
+                                        None,
+                                        (
+                                            x.get("format"),
+                                            x.get("ext"),
+                                            humanbytes(x["filesize"])
+                                            if x.get("filesize") else None,
+                                        ),
+                                    ))),
+                            callback_data=f"generic_down_{x.get('format_id')}",
+                        ),
+                        sorted(formats, key=lambda x: int(x.get("tbr") or 0)),
+                    )),
+                width=2,
+            )
             return dict(
                 msg=msg,
                 thumb=resp.get("thumbnail", self.default_thumb),
-                buttons=InlineKeyboardMarkup(best_format)
-                    
+                buttons=InlineKeyboardMarkup(best_format),
             )
 
     @listener.pattern(r"^ytdl\s+(.+)")
@@ -392,7 +396,3 @@ class YouTube(module.Module):
                 switch_pm_text="⬇️  Click To Download",
                 switch_pm_parameter="inline",
             )
-
-              
-
-        
