@@ -312,7 +312,6 @@ class YouTube(module.Module):
             resp = youtube_dl.YoutubeDL({
                 "no-playlist": True
             }).extract_info(url, download=False)
-            print(resp)
         except UnsupportedError:
             return self.log.error(f"[URL -> {url}] - is not NOT SUPPORTED")
         except DownloadError as d_e:
