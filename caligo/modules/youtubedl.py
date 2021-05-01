@@ -13,16 +13,15 @@ from youtube_dl.utils import (
     GeoRestrictedError,
     UnsupportedError,
 )
-
-
 from youtubesearchpython.__future__ import VideosSearch
 
-from .. import module, util, command
+from .. import command, module, util
 
 yt_result_vid = Optional[Dict[str, str]]
 
 
 def loop_safe(func):
+
     @wraps(func)
     async def wrapper(self, *args: Any, **kwargs: Any) -> Any:
         return await util.run_sync(func, self, *args, **kwargs)
@@ -72,11 +71,11 @@ class YouTube(module.Module):
                     "Uploader",
                     f"<a href={uploader.get('link')}>{uploader.get('name')}</a>",
                 )
-            list_view = (
-                f"<img src={thumb}><b><a href={vid['link']}>"
-                f"{index}. {acc['title'] if acc else 'N/A'}</a></b>"
-            )
-            out.append(dict(msg=msg, thumb=thumb, yt_id=vid["id"], list_view=list_view))
+            list_view = (f"<img src={thumb}><b><a href={vid['link']}>"
+                         f"{index}. {acc['title'] if acc else 'N/A'}</a></b>")
+            out.append(
+                dict(msg=msg, thumb=thumb, yt_id=vid["id"],
+                     list_view=list_view))
         return out
 
     @loop_safe
@@ -92,7 +91,8 @@ class YouTube(module.Module):
             ujson.dump(file, outfile)
         return key
 
-    async def yt_search(self, query: str) -> Optional[Tuple[str, yt_result_vid]]:
+    async def yt_search(self,
+                        query: str) -> Optional[Tuple[str, yt_result_vid]]:
         videosResult = await VideosSearch(query, limit=15).next()
         if videosResult and (resp := videosResult.get("result")):
             search_data = await self.result_formatter(resp)
@@ -101,11 +101,11 @@ class YouTube(module.Module):
 
     async def get_ytthumb(self, yt_id: str) -> str:
         for quality in (
-            "maxresdefault.jpg",
-            "hqdefault.jpg",
-            "sddefault.jpg",
-            "mqdefault.jpg",
-            "default.jpg",
+                "maxresdefault.jpg",
+                "hqdefault.jpg",
+                "sddefault.jpg",
+                "mqdefault.jpg",
+                "default.jpg",
         ):
             link = f"https://i.ytimg.com/vi/{yt_id}/{quality}"
             status = await util.aiorequest(self.bot.http, link, mode="status")
@@ -125,11 +125,9 @@ class YouTube(module.Module):
         elif choice_id == "mp4":
             # Download best Webm / Mp4 format available or any other best if no mp4
             # available
-            choice_str = (
-                "bestvideo[ext=webm]+251/bestvideo[ext=mp4]+"
-                "(258/256/140/bestaudio[ext=m4a])/"
-                "bestvideo[ext=webm]+(250/249)/best"
-            )
+            choice_str = ("bestvideo[ext=webm]+251/bestvideo[ext=mp4]+"
+                          "(258/256/140/bestaudio[ext=m4a])/"
+                          "bestvideo[ext=webm]+(250/249)/best")
             disp_str = "best(video+audio)[webm/mp4]"
         elif choice_id == "mp3":
             choice_str = "320"
@@ -150,31 +148,29 @@ class YouTube(module.Module):
 
     @loop_safe
     def get_download_button(
-        self, yt_id: str, body: bool = False
-    ) -> Union[InlineKeyboardMarkup, Tuple[Optional[str], InlineKeyboardMarkup]]:
-        buttons = [
-            [
-                InlineKeyboardButton(
-                    "⭐️ BEST - 📹 MKV", callback_data=f"ytdl_download_{yt_id}_mkv_v"
-                ),
-                InlineKeyboardButton(
-                    "⭐️ BEST - 📹 WebM/MP4",
-                    callback_data=f"ytdl_download_{yt_id}_mp4_v",
-                ),
-            ]
-        ]
-        best_audio_btn = [
-            [
-                InlineKeyboardButton(
-                    "⭐️ BEST - 🎵 320Kbps - MP3",
-                    callback_data=f"ytdl_download_{yt_id}_mp3_a",
-                )
-            ]
-        ]
-        try:
-            vid_data = youtube_dl.YoutubeDL({"no-playlist": True}).extract_info(
-                f"{self.base_yt_url}{yt_id}", download=False
+        self,
+        yt_id: str,
+        body: bool = False
+    ) -> Union[InlineKeyboardMarkup, Tuple[Optional[str],
+                                           InlineKeyboardMarkup]]:
+        buttons = [[
+            InlineKeyboardButton("⭐️ BEST - 📹 MKV",
+                                 callback_data=f"ytdl_download_{yt_id}_mkv_v"),
+            InlineKeyboardButton(
+                "⭐️ BEST - 📹 WebM/MP4",
+                callback_data=f"ytdl_download_{yt_id}_mp4_v",
+            ),
+        ]]
+        best_audio_btn = [[
+            InlineKeyboardButton(
+                "⭐️ BEST - 🎵 320Kbps - MP3",
+                callback_data=f"ytdl_download_{yt_id}_mp3_a",
             )
+        ]]
+        try:
+            vid_data = youtube_dl.YoutubeDL({
+                "no-playlist": True
+            }).extract_info(f"{self.base_yt_url}{yt_id}", download=False)
         except ExtractorError:
             vid_data = None
             buttons += best_audio_btn
@@ -182,7 +178,8 @@ class YouTube(module.Module):
             humanbytes = util.misc.human_readable_bytes
             # ------------------------------------------------ #
             qual_dict = defaultdict(lambda: defaultdict(int))
-            qual_list = ("144p", "240p", "360p", "480p", "720p", "1080p", "1440p")
+            qual_list = ("144p", "240p", "360p", "480p", "720p", "1080p",
+                         "1440p")
             audio_dict: Dict[int, str] = {}
             # ------------------------------------------------ #
             for video in vid_data["formats"]:
@@ -197,8 +194,7 @@ class YouTube(module.Module):
                     bitrrate = int(video.get("abr", 0))
                     if bitrrate != 0:
                         audio_dict[
-                            bitrrate
-                        ] = f"🎵 {bitrrate}Kbps ({humanbytes(fr_size) or 'N/A'})"
+                            bitrrate] = f"🎵 {bitrrate}Kbps ({humanbytes(fr_size) or 'N/A'})"
             video_btns = []
             for frmt in qual_list:
                 frmt_dict = qual_dict[frmt]
@@ -209,27 +205,23 @@ class YouTube(module.Module):
                         InlineKeyboardButton(
                             f"📹 {frmt} ({frmt_size})",
                             callback_data=f"ytdl_download_{yt_id}_{frmt_id}_v",
-                        )
-                    )
+                        ))
             buttons += util.sublists(video_btns, width=2)
             buttons += best_audio_btn
             buttons += util.sublists(
                 list(
                     map(
                         lambda x: InlineKeyboardButton(
-                            audio_dict[x], callback_data=f"ytdl_download_{yt_id}_{x}_a"
-                        ),
+                            audio_dict[x],
+                            callback_data=f"ytdl_download_{yt_id}_{x}_a"),
                         sorted(audio_dict.keys()),
-                    )
-                ),
+                    )),
                 width=2,
             )
         if body:
             vid_body = (
                 f"<b>[{vid_data.get('title')}]({vid_data.get('webpage_url')})</b>"
-                if vid_data
-                else None
-            )
+                if vid_data else None)
             return vid_body, InlineKeyboardMarkup(buttons)
         return InlineKeyboardMarkup(buttons)
 
@@ -244,7 +236,9 @@ class YouTube(module.Module):
             "writethumbnail": True,
             "prefer_ffmpeg": True,
             "postprocessors": [
-                {"key": "FFmpegMetadata"}
+                {
+                    "key": "FFmpegMetadata"
+                }
                 # ERROR R15: Memory quota vastly exceeded
                 # {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"},
             ],
@@ -268,8 +262,12 @@ class YouTube(module.Module):
                     "preferredcodec": "mp3",
                     "preferredquality": uid,
                 },
-                {"key": "EmbedThumbnail"},  # ERROR: Conversion failed!
-                {"key": "FFmpegMetadata"},
+                {
+                    "key": "EmbedThumbnail"
+                },  # ERROR: Conversion failed!
+                {
+                    "key": "FFmpegMetadata"
+                },
             ],
             "quiet": True,
             "logtostderr": False,
@@ -286,8 +284,7 @@ class YouTube(module.Module):
         except GeoRestrictedError:
             self.log.error(
                 "[GeoRestrictedError] : The uploader has not made this video"
-                " available in your country"
-            )
+                " available in your country")
         except Exception as all_e:
             self.log.exception(f"[{all_e.__class__.__name__}] : {y_e}")
         else:
@@ -303,14 +300,21 @@ class YouTube(module.Module):
     @loop_safe
     def generic_extractor(self, url: str) -> Optional[Dict[str, Any]]:
         try:
-            resp = youtube_dl.YoutubeDL({"no-playlist": True}).extract_info(
-                url, download=False
-            )
+            resp = youtube_dl.YoutubeDL({
+                "no-playlist": True
+            }).extract_info(url, download=False)
         except UnsupportedError:
             return self.log.error(f"{url} is not supported by YouTubeDl !")
         except ExtractorError:
             self.log.warning(f"Failed to extract info from {url}")
-            return dict(msg="[No Information]", thumb=self.default_thumb, buttons=InlineKeyboardMarkup([[InlineKeyboardButton("Best", callback_data="generic_down_best")]]))
+            return dict(
+                msg="[No Information]",
+                thumb=self.default_thumb,
+                buttons=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("Best",
+                                         callback_data="generic_down_best")
+                ]]),
+            )
         msg = f"<b>[{resp.get('title')}]({url})</b>\n"
         if description := resp.get("description"):
             msg += f"<pre>{description}</pre>\n"
@@ -335,19 +339,16 @@ class YouTube(module.Module):
                                                 (
                                                     x.get("format"),
                                                     x.get("ext"),
-                                                    humanbytes(x["filesize"])
-                                                    if x.get("filesize")
-                                                    else None,
+                                                    humanbytes(x["filesize"]) if
+                                                    x.get("filesize") else None,
                                                 ),
-                                            )
-                                        )
-                                    ),
-                                    callback_data=f"generic_down_{x.get('format_id')}",
+                                            ))),
+                                    callback_data=
+                                    f"generic_down_{x.get('format_id')}",
                                 ),
-                                sorted(formats, key=lambda x: int(x.get("tbr") or 0)),
-                            )
-                        ),
+                                sorted(formats,
+                                       key=lambda x: int(x.get("tbr") or 0)),
+                            )),
                         width=2,
-                    ),
-                ),
+                    ),),
             )
