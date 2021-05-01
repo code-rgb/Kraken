@@ -2,6 +2,7 @@ import asyncio
 from typing import ClassVar, Dict, List, Optional, Union, Tuple, Pattern, Any
 from uuid import uuid4
 import youtube_dl
+import re
 import ujson
 from youtubesearchpython.__future__ import VideosSearch
 from collections import defaultdict
