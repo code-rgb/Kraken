@@ -4,7 +4,6 @@ from typing import Optional
 from pyrogram.types import Message
 
 
-# https://github.com/pyrogram/pyrogram/blob/master/pyrogram/methods/messages/download_media.py#L103
 def get_media(msg):
     available_media = (
         "audio",
