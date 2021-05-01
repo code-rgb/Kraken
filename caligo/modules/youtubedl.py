@@ -7,9 +7,9 @@ from uuid import uuid4
 import ujson
 import youtube_dl
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from youtube_dl.utils import ExtractorError
-from youtubesearchpython.__future__ import VideosSearch
 from youtube_dl.utils import DownloadError, ExtractorError, GeoRestrictedError
+from youtubesearchpython.__future__ import VideosSearch
+
 from .. import module, util
 
 yt_result_vid = Optional[Dict[str, str]]
@@ -218,7 +218,6 @@ class YouTube(module.Module):
             return vid_body, InlineKeyboardMarkup(buttons)
         return InlineKeyboardMarkup(buttons)
 
-
     async def video_downloader(self, url: str, starttime, uid: str):
         options = {
             "addmetadata": True,
@@ -230,15 +229,15 @@ class YouTube(module.Module):
             "writethumbnail": True,
             "prefer_ffmpeg": True,
             "postprocessors": [
-                {"key": "FFmpegMetadata"}
+                {
+                    "key": "FFmpegMetadata"
+                }
                 # ERROR R15: Memory quota vastly exceeded
                 # {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"},
             ],
             "quiet": True,
         }
         return await self.ytdownloader(url, options)
-
-
 
     async def audio_downloader(self, url: str, starttime, uid: str):
         options = {
@@ -255,21 +254,25 @@ class YouTube(module.Module):
                     "preferredcodec": "mp3",
                     "preferredquality": uid,
                 },
-                {"key": "EmbedThumbnail"},  # ERROR: Conversion failed!
-                {"key": "FFmpegMetadata"},
+                {
+                    "key": "EmbedThumbnail"
+                },  # ERROR: Conversion failed!
+                {
+                    "key": "FFmpegMetadata"
+                },
             ],
             "quiet": True,
         }
         return await self.ytdownloader(url, options)
-       
-        
+
     @loop_safe
     def ytdownloader(self, url: str, options: Dict):
         try:
             with youtube_dl.YoutubeDL(options) as ytdl:
                 out = ytdl.download([url])
         except DownloadError as d_e:
-            self.log.error(f"{d_e.__class__.__name__}: Failed to Download Video")
+            self.log.error(
+                f"{d_e.__class__.__name__}: Failed to Download Video")
         except GeoRestrictedError as g_e:
             self.log.error(
                 f"{g_e.__class__.__name__}: The uploader has not made this video available in your country"
