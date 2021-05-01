@@ -332,34 +332,34 @@ class YouTube(module.Module):
 """
         if formats := resp.get("formats"):
             humanbytes = util.misc.human_readable_bytes
-
+            best_format += util.sublists(
+                                    list(
+                                        map(
+                                            lambda x: InlineKeyboardButton(
+                                                " | ".join(
+                                                    list(
+                                                        filter(
+                                                            None,
+                                                            (
+                                                                x.get("format"),
+                                                                x.get("ext"),
+                                                                humanbytes(x["filesize"]) if
+                                                                x.get("filesize") else None,
+                                                            ),
+                                                        ))),
+                                                callback_data=
+                                                f"generic_down_{x.get('format_id')}",
+                                            ),
+                                            sorted(formats,
+                                                key=lambda x: int(x.get("tbr") or 0)),
+                                        )),
+                                    width=2,
+                                )
             return dict(
                 msg=msg,
                 thumb=resp.get("thumbnail", self.default_thumb),
-                buttons=InlineKeyboardMarkup(
-                    best_format += util.sublists(
-                        list(
-                            map(
-                                lambda x: InlineKeyboardButton(
-                                    " | ".join(
-                                        list(
-                                            filter(
-                                                None,
-                                                (
-                                                    x.get("format"),
-                                                    x.get("ext"),
-                                                    humanbytes(x["filesize"]) if
-                                                    x.get("filesize") else None,
-                                                ),
-                                            ))),
-                                    callback_data=
-                                    f"generic_down_{x.get('format_id')}",
-                                ),
-                                sorted(formats,
-                                       key=lambda x: int(x.get("tbr") or 0)),
-                            )),
-                        width=2,
-                    ),),
+                buttons=InlineKeyboardMarkup(best_format)
+                    
             )
 
     @listener.pattern(r"^ytdl\s+(.+)")
