@@ -191,8 +191,8 @@ class YouTube(module.Module):
             buttons += util.sublists(video_btns, width=2)
             buttons += best_audio_btn
             buttons += util.sublists(
-                list(map(lambda x: InlineKeyboardButton(audio_dict[x], callback_data=f"ytdl_download_{yt_id}_{x}_a"), sorted(audio_dict.keys())))), 
-                width=2,
+list(map(lambda x: InlineKeyboardButton(audio_dict[x], callback_data=f"ytdl_download_{yt_id}_{x}_a"), sorted(audio_dict.keys())))              
+                ,width=2
             )
         if body:
             vid_body = f"<b>[{vid_data.get('title')}]({vid_data.get('webpage_url')})</b>" if vid_data else None
