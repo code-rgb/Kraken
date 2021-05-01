@@ -6,7 +6,7 @@ from uuid import uuid4
 
 import ujson
 import youtube_dl
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InlineQuery, InlineQueryResultPhoto
 from youtube_dl.utils import (
     DownloadError,
     ExtractorError,
@@ -15,7 +15,7 @@ from youtube_dl.utils import (
 )
 from youtubesearchpython.__future__ import VideosSearch
 
-from .. import command, module, util
+from .. import command, module, util, listener
 
 yt_result_vid = Optional[Dict[str, str]]
 
@@ -35,12 +35,14 @@ class YouTube(module.Module):
     yt_link_regex: Pattern
     base_yt_url: str
     default_thumb: str
+    url_regex: Pattern
 
     async def on_load(self):
         self.yt_datafile = "yt_data.json"
         self.yt_link_regex = re.compile(
             r"(?:youtube\.com|youtu\.be)/(?:[\w-]+\?v=|embed/|v/|shorts/)?([\w-]{11})"
         )
+        self.url_regex = re.compile(r"(?:https?://)?(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
         self.base_yt_url = "https://www.youtube.com/watch?v="
         self.default_thumb = "https://i.imgur.com/4LwPLai.png"
 
@@ -142,6 +144,7 @@ class YouTube(module.Module):
         return choice_str, disp_str
 
     # https://regex101.com/r/c06cbV/1
+    @loop_safe
     def get_yt_video_id(self, url: str) -> Optional[str]:
         if match := self.yt_link_regex.search(url):
             return match.group(1)
@@ -151,8 +154,8 @@ class YouTube(module.Module):
         self,
         yt_id: str,
         body: bool = False
-    ) -> Union[InlineKeyboardMarkup, Tuple[Optional[str],
-                                           InlineKeyboardMarkup]]:
+    ) -> Union[InlineKeyboardMarkup, Dict[str,
+                                           Union[str, InlineKeyboardMarkup, None]]]:
         buttons = [[
             InlineKeyboardButton("⭐️ BEST - 📹 MKV",
                                  callback_data=f"ytdl_download_{yt_id}_mkv_v"),
@@ -222,7 +225,7 @@ class YouTube(module.Module):
             vid_body = (
                 f"<b>[{vid_data.get('title')}]({vid_data.get('webpage_url')})</b>"
                 if vid_data else None)
-            return vid_body, InlineKeyboardMarkup(buttons)
+            return {"msg":vid_body, "buttons":InlineKeyboardMarkup(buttons)}
         return InlineKeyboardMarkup(buttons)
 
     async def video_downloader(self, url: str, uid: str = None):
@@ -299,21 +302,27 @@ class YouTube(module.Module):
 
     @loop_safe
     def generic_extractor(self, url: str) -> Optional[Dict[str, Any]]:
+        best_format = [[
+            InlineKeyboardButton("⭐️ BEST - 📹 Video",
+                                 callback_data=f"generic_down_best_v"),
+            InlineKeyboardButton("⭐️ BEST - 🎧 Audio",
+                                 callback_data=f"generic_down_best_a"),
+        ]]
         try:
             resp = youtube_dl.YoutubeDL({
                 "no-playlist": True
             }).extract_info(url, download=False)
+            print(resp)
         except UnsupportedError:
-            return self.log.error(f"{url} is not supported by YouTubeDl !")
+            return self.log.error(f"[URL -> {url}] - is not NOT SUPPORTED")
+        except DownloadError as d_e:
+            return self.log.error(f"[URL -> {url}] - {d_e}")
         except ExtractorError:
-            self.log.warning(f"Failed to extract info from {url}")
+            self.log.warning(f"[URL -> {url}] - Failed to Extract Info")
             return dict(
                 msg="[No Information]",
                 thumb=self.default_thumb,
-                buttons=InlineKeyboardMarkup([[
-                    InlineKeyboardButton("Best",
-                                         callback_data="generic_down_best")
-                ]]),
+                buttons=InlineKeyboardMarkup(best_format),
             )
         msg = f"<b>[{resp.get('title')}]({url})</b>\n"
         if description := resp.get("description"):
@@ -324,11 +333,12 @@ class YouTube(module.Module):
 """
         if formats := resp.get("formats"):
             humanbytes = util.misc.human_readable_bytes
+
             return dict(
                 msg=msg,
                 thumb=resp.get("thumbnail", self.default_thumb),
                 buttons=InlineKeyboardMarkup(
-                    util.sublists(
+                    best_format += util.sublists(
                         list(
                             map(
                                 lambda x: InlineKeyboardButton(
@@ -352,3 +362,38 @@ class YouTube(module.Module):
                         width=2,
                     ),),
             )
+
+    @listener.pattern(r"^ytdl\s+(.+)")
+    async def on_inline_query(self, query: InlineQuery) -> None:
+        search_query = query.matches[0].group(1).strip()
+        found = False
+        if len(search_query.split()) == 1:
+            if match := self.yt_link_regex.search(search_query):
+                found = True
+                yt_id = match.group(1)
+                if vid_data := await self.get_download_button(yt_id, body=True):
+                    vid_data["thumb"] = await self.get_ytthumb(yt_id)
+            elif match := self.url_regex.search(search_query):
+                found = True
+                vid_data = await self.generic_extractor(search_query)
+        if not found:
+            if not (vid_data := await self.yt_search(search_query)):
+                return
+        if vid_data:
+            await query.answer(
+                results=[
+                    InlineQueryResultPhoto(
+                        photo_url=vid_data["thumb"],
+                        thumb_url=vid_data["thumb"],
+                        caption=vid_data["msg"],
+                        reply_markup=vid_data["buttons"],
+                    )
+                ],
+                cache_time=3,
+                switch_pm_text="⬇️  Click To Download",
+                switch_pm_parameter="inline",
+            )
+
+              
+
+        
