@@ -25,7 +25,7 @@ jobs:
         run: |
           black .
           isort .
-          yapf --style='{based_on_style: google, spaces_before_comment: 2, split_before_logical_operator: true, column_limit=100}' -ir .
+          yapf --style='{based_on_style: google, spaces_before_comment: 2, split_before_logical_operator: true, column_limit=80}' -ir .
       - name: Check lock file
         run: |
           if ! [[ -f "poetry.lock" ]]; then

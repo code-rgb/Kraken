@@ -125,7 +125,7 @@ class YouTube(module.Module):
 
     # https://regex101.com/r/c06cbV/1
     def get_yt_video_id(self, url: str) -> Optional[str]:
-        if match := self.yt_link_regex.search(url)
+        if match := self.yt_link_regex.search(url):
             return match.group(1)
 
     @loop_safe
