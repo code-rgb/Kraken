@@ -1,7 +1,8 @@
 from typing import Any, Callable, Sequence, Tuple
 
 
-def find_prefixed_funcs(obj: Any, prefix: str) -> Sequence[Tuple[str, Callable]]:
+def find_prefixed_funcs(obj: Any,
+                        prefix: str) -> Sequence[Tuple[str, Callable]]:
     """Finds functions with symbol names matching the prefix on the given object."""
 
     results = []
@@ -18,7 +19,10 @@ def find_prefixed_funcs(obj: Any, prefix: str) -> Sequence[Tuple[str, Callable]]
     return results
 
 
-def human_readable_bytes(value: int, digits: int = 2, delim: str = "", postfix: str = "") -> str:
+def human_readable_bytes(value: int,
+                         digits: int = 2,
+                         delim: str = "",
+                         postfix: str = "") -> str:
     chosen_unit = "B"
     for unit in ("KiB", "MiB", "GiB", "TiB"):
         if value > 1000:

@@ -36,7 +36,9 @@ def desc(_desc: str) -> Decorator:
     return desc_decorator
 
 
-def usage(_usage: str, optional: bool = False, reply: bool = False) -> Decorator:
+def usage(_usage: str,
+          optional: bool = False,
+          reply: bool = False) -> Decorator:
     """Sets argument usage help on a command function."""
 
     def usage_decorator(func: CommandFunc) -> CommandFunc:
@@ -138,7 +140,8 @@ class Context:
             return self._get_args()
         if name in ("flags", "filtered_input", "get_user_and_reason"):
             return getattr(self, name)
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'")
 
     # Argument segments
     def _get_args(self) -> Sequence[str]:
@@ -163,7 +166,8 @@ class Context:
             input_arg=self.input,
             mode=mode,
             redact=redact,
-            response=self.response if reuse_response and mode == self.response_mode else None,
+            response=self.response
+            if reuse_response and mode == self.response_mode else None,
             **kwargs,
         )
         self.response_mode = mode
@@ -221,7 +225,8 @@ class Context:
         self._filtered_input = FLAG_ARGUMENT.sub("", self.input).strip()
 
     @property
-    def get_user_and_reason(self) -> Tuple[Optional[Union[str, int]], Optional[str]]:
+    def get_user_and_reason(
+            self) -> Tuple[Optional[Union[str, int]], Optional[str]]:
         user_e: Optional[Union[str, int]] = None
         reason: Optional[str] = None
         # NOTE: This method checks for Input first !

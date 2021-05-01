@@ -64,8 +64,11 @@ class Reddit(module.Module):
     @command.desc("get post from reddit")
     async def cmd_reddit(self, ctx: command.Context):
         await ctx.respond("`Processing ...`")
-        r_api = ("/".join([self.uri, ctx.input.split()[0], "5"]) if ctx.input else f"{self.uri}/5")
-        rjson = await util.aiorequest(session=self.bot.http, url=r_api, mode="json")
+        r_api = ("/".join([self.uri, ctx.input.split()[0], "5"])
+                 if ctx.input else f"{self.uri}/5")
+        rjson = await util.aiorequest(session=self.bot.http,
+                                      url=r_api,
+                                      mode="json")
         if rjson is None:
             return "ERROR : Reddit API is Down !", 5
         if rjson.get("code"):
@@ -73,7 +76,8 @@ class Reddit(module.Module):
         if not rjson.get("memes"):
             return "Coudn't find any reddit post with image or gif, Please try again", 5
         chat_id = ctx.msg.chat.id
-        reply_id = (ctx.msg.reply_to_message.message_id if ctx.msg.reply_to_message else None)
+        reply_id = (ctx.msg.reply_to_message.message_id
+                    if ctx.msg.reply_to_message else None)
         for post in rjson["memes"]:
             try:
                 if await self.send_rpost(ctx, post, chat_id, reply_id):
@@ -89,11 +93,15 @@ class Reddit(module.Module):
         if (res := self.parse_rpost(rjson)) is None:
             return False
         if ctx.client.is_bot:
-            buttons = InlineKeyboardMarkup(
-                [[InlineKeyboardButton(f"Source: r/{res['subreddit']}", url=res["postlink"])]])
+            buttons = InlineKeyboardMarkup([[
+                InlineKeyboardButton(f"Source: r/{res['subreddit']}",
+                                     url=res["postlink"])
+            ]])
             caption = res["caption"]
         else:
-            caption = (f"{res['caption']}\nSource: [r/{res['subreddit']}]({res['postlink']})")
+            caption = (
+                f"{res['caption']}\nSource: [r/{res['subreddit']}]({res['postlink']})"
+            )
             buttons = None
         if res["media_url"].endswith(".gif"):
             await ctx.client.send_animation(
@@ -119,13 +127,16 @@ class Reddit(module.Module):
             r_api = "/".join([self.uri, subreddit, self.max_inline_results])
         else:
             r_api = "/".join([self.uri, self.max_inline_results])
-        rjson = await util.aiorequest(session=self.bot.http, url=r_api, mode="json")
+        rjson = await util.aiorequest(session=self.bot.http,
+                                      url=r_api,
+                                      mode="json")
         if rjson is None:
             results = "Coudn't find any reddit post with image or gif, Please try again"
         elif rjson.get("code"):
             results = f"**ERROR (code: {rjson['code']})** : `{rjson.get('message')}`"
         else:
-            results: List[Union[InlineQueryResultAnimation, InlineQueryResultPhoto]] = []
+            results: List[Union[InlineQueryResultAnimation,
+                                InlineQueryResultPhoto]] = []
             for post in rjson.get("memes"):
                 if p_data := self.parse_rpost(post):
                     thumbnail = self.get_rthumb(p_data)

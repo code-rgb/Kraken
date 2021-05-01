@@ -39,7 +39,10 @@ class Bot(
         self.__aiosession: Optional[aiohttp.ClientSession] = None
 
     @classmethod
-    async def create_and_run(cls, *, loop: Optional[asyncio.AbstractEventLoop] = None) -> "Bot":
+    async def create_and_run(cls,
+                             *,
+                             loop: Optional[asyncio.AbstractEventLoop] = None
+                            ) -> "Bot":
         bot = None
 
         if loop:

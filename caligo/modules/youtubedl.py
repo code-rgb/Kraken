@@ -1,24 +1,28 @@
-import asyncio
-from typing import ClassVar, Dict, List, Optional, Union, Tuple, Pattern, Any
-from uuid import uuid4
-import youtube_dl
 import re
-import ujson
-from youtubesearchpython.__future__ import VideosSearch
 from collections import defaultdict
-from .. import command, listener, module, util
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from functools import wraps
-from youtube_dl.utils import DownloadError, ExtractorError, GeoRestrictedError
+from typing import Any, ClassVar, Dict, List, Optional, Pattern, Tuple, Union
+from uuid import uuid4
+
+import ujson
+import youtube_dl
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from youtube_dl.utils import ExtractorError
+from youtubesearchpython.__future__ import VideosSearch
+
+from .. import module, util
 
 yt_result_vid = Optional[Dict[str, str]]
 
 
 def loop_safe(func):
+
     @wraps(func)
     async def wrapper(self, *args: Any, **kwargs: Any) -> Any:
         return await utils.run_sync(func, self, *args, **kwargs)
+
     return wrapper
+
 
 class YouTube(module.Module):
     name: ClassVar[str] = "YouTube"
@@ -28,9 +32,10 @@ class YouTube(module.Module):
 
     async def on_load(self):
         self.yt_datafile = "yt_data.json"
-        self.yt_link_regex = re.compile(r"(?:youtube\.com|youtu\.be)/(?:[\w-]+\?v=|embed/|v/|shorts/)?([\w-]{11})")
+        self.yt_link_regex = re.compile(
+            r"(?:youtube\.com|youtu\.be)/(?:[\w-]+\?v=|embed/|v/|shorts/)?([\w-]{11})"
+        )
         self.base_yt_url = "https://www.youtube.com/watch?v="
-
 
     @staticmethod
     def format_line(key: str, value: str) -> str:
@@ -59,11 +64,11 @@ class YouTube(module.Module):
                     "Uploader",
                     f"<a href={uploader.get('link')}>{uploader.get('name')}</a>",
                 )
-            list_view = (
-                f"<img src={thumb}><b><a href={vid['link']}>"
-                f"{index}. {acc['title'] if acc else 'N/A'}</a></b>"
-            )
-            out.append(dict(msg=msg, thumb=thumb, yt_id=vid["id"], list_view=list_view))
+            list_view = (f"<img src={thumb}><b><a href={vid['link']}>"
+                         f"{index}. {acc['title'] if acc else 'N/A'}</a></b>")
+            out.append(
+                dict(msg=msg, thumb=thumb, yt_id=vid["id"],
+                     list_view=list_view))
         return out
 
     @loop_safe
@@ -79,16 +84,22 @@ class YouTube(module.Module):
             ujson.dump(file, outfile)
         return key
 
-    async def yt_search(self, query: str) -> Optional[Tuple[str, yt_result_vid]]:
+    async def yt_search(self,
+                        query: str) -> Optional[Tuple[str, yt_result_vid]]:
         videosResult = await VideosSearch(query, limit=15).next()
         if videosResult and (resp := videosResult.get("result")):
             search_data = await self.result_formatter(resp)
-            key  = await self.save_search(search_data)
+            key = await self.save_search(search_data)
             return key, search_data[0]
 
-
     async def get_ytthumb(self, yt_id: str) -> str:
-        for quality in ("maxresdefault.jpg", "hqdefault.jpg", "sddefault.jpg", "mqdefault.jpg", "default.jpg"):
+        for quality in (
+                "maxresdefault.jpg",
+                "hqdefault.jpg",
+                "sddefault.jpg",
+                "mqdefault.jpg",
+                "default.jpg",
+        ):
             link = f"https://i.ytimg.com/vi/{yt_id}/{quality}"
             status = await util.aiorequest(self.bot.http, link, mode="status")
             if status == 200:
@@ -97,7 +108,7 @@ class YouTube(module.Module):
         else:
             thumb_link = "https://i.imgur.com/4LwPLai.png"
         return thumb_link
-    
+
     @staticmethod
     def get_choice_by_id(choice_id: str, media_type: str) -> Tuple[str, str]:
         if choice_id == "mkv":
@@ -108,8 +119,8 @@ class YouTube(module.Module):
             # Download best Webm / Mp4 format available or any other best if no mp4
             # available
             choice_str = ("bestvideo[ext=webm]+251/bestvideo[ext=mp4]+"
-            "(258/256/140/bestaudio[ext=m4a])/"
-            "bestvideo[ext=webm]+(250/249)/best")
+                          "(258/256/140/bestaudio[ext=m4a])/"
+                          "bestvideo[ext=webm]+(250/249)/best")
             disp_str = "best(video+audio)[webm/mp4]"
         elif choice_id == "mp3":
             choice_str = "320"
@@ -129,29 +140,30 @@ class YouTube(module.Module):
             return match.group(1)
 
     @loop_safe
-    def get_download_button(self, yt_id: str, body: bool = False) -> Union[InlineKeyboardMarkup, Tuple[Optional[str], InlineKeyboardMarkup]]:
-        buttons = [
-            [
-                InlineKeyboardButton(
-                    "⭐️ BEST - 📹 MKV", callback_data=f"ytdl_download_{yt_id}_mkv_v"
-                ),
-                InlineKeyboardButton(
-                    "⭐️ BEST - 📹 WebM/MP4",
-                    callback_data=f"ytdl_download_{yt_id}_mp4_v",
-                ),
-            ]
-        ]
-        best_audio_btn = [
-            [
-                InlineKeyboardButton(
-                    "⭐️ BEST - 🎵 320Kbps - MP3", callback_data=f"ytdl_download_{yt_id}_mp3_a"
-                )
-            ]
-        ]
-        try:
-            vid_data = youtube_dl.YoutubeDL({"no-playlist": True}).extract_info(
-                f"{self.base_yt_url}{yt_id}", download=False
+    def get_download_button(
+        self,
+        yt_id: str,
+        body: bool = False
+    ) -> Union[InlineKeyboardMarkup, Tuple[Optional[str],
+                                           InlineKeyboardMarkup]]:
+        buttons = [[
+            InlineKeyboardButton("⭐️ BEST - 📹 MKV",
+                                 callback_data=f"ytdl_download_{yt_id}_mkv_v"),
+            InlineKeyboardButton(
+                "⭐️ BEST - 📹 WebM/MP4",
+                callback_data=f"ytdl_download_{yt_id}_mp4_v",
+            ),
+        ]]
+        best_audio_btn = [[
+            InlineKeyboardButton(
+                "⭐️ BEST - 🎵 320Kbps - MP3",
+                callback_data=f"ytdl_download_{yt_id}_mp3_a",
             )
+        ]]
+        try:
+            vid_data = youtube_dl.YoutubeDL({
+                "no-playlist": True
+            }).extract_info(f"{self.base_yt_url}{yt_id}", download=False)
         except ExtractorError:
             vid_data = None
             buttons += best_audio_btn
@@ -159,8 +171,9 @@ class YouTube(module.Module):
             humanbytes = util.misc.human_readable_bytes
             # ------------------------------------------------ #
             qual_dict = defaultdict(lambda: defaultdict(int))
-            qual_list = ("144p", "240p", "360p", "480p", "720p", "1080p", "1440p")
-            audio_dict : Dict[int, str] = {}
+            qual_list = ("144p", "240p", "360p", "480p", "720p", "1080p",
+                         "1440p")
+            audio_dict: Dict[int, str] = {}
             # ------------------------------------------------ #
             for video in vid_data["formats"]:
                 fr_note = video.get("format_note")
@@ -174,8 +187,7 @@ class YouTube(module.Module):
                     bitrrate = int(video.get("abr", 0))
                     if bitrrate != 0:
                         audio_dict[
-                            bitrrate
-                        ] = f"🎵 {bitrrate}Kbps ({humanbytes(fr_size) or 'N/A'})"
+                            bitrrate] = f"🎵 {bitrrate}Kbps ({humanbytes(fr_size) or 'N/A'})"
             video_btns = []
             for frmt in qual_list:
                 frmt_dict = qual_dict[frmt]
@@ -186,16 +198,22 @@ class YouTube(module.Module):
                         InlineKeyboardButton(
                             f"📹 {frmt} ({frmt_size})",
                             callback_data=f"ytdl_download_{yt_id}_{frmt_id}_v",
-                        )
-                    )
+                        ))
             buttons += util.sublists(video_btns, width=2)
             buttons += best_audio_btn
             buttons += util.sublists(
-list(map(lambda x: InlineKeyboardButton(audio_dict[x], callback_data=f"ytdl_download_{yt_id}_{x}_a"), sorted(audio_dict.keys())))              
-                ,width=2
+                list(
+                    map(
+                        lambda x: InlineKeyboardButton(
+                            audio_dict[x],
+                            callback_data=f"ytdl_download_{yt_id}_{x}_a"),
+                        sorted(audio_dict.keys()),
+                    )),
+                width=2,
             )
         if body:
-            vid_body = f"<b>[{vid_data.get('title')}]({vid_data.get('webpage_url')})</b>" if vid_data else None
+            vid_body = (
+                f"<b>[{vid_data.get('title')}]({vid_data.get('webpage_url')})</b>"
+                if vid_data else None)
             return vid_body, InlineKeyboardMarkup(buttons)
         return InlineKeyboardMarkup(buttons)
-        

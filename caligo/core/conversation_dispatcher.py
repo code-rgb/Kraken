@@ -23,7 +23,8 @@ class ConversationDispatcher(Base):
     def conversation_predicate(self: "Bot") -> Filter:
 
         async def func(_, __, conv: pyrogram.types.Message):
-            return bool(self.CONVERSATION and conv.chat and conv.chat.id in self.CONVERSATION
+            return bool(self.CONVERSATION and conv.chat
+                        and conv.chat.id in self.CONVERSATION
                         and not conv.outgoing)
 
         return create(func)
@@ -50,7 +51,8 @@ class ConversationDispatcher(Base):
             self.CONVERSATION[conv.chat.id].put_nowait(None)
             del self.CONVERSATION[conv.chat.id]
 
-    async def on_conversation(self: "Bot", _: pyrogram.Client, msg: pyrogram.types.Message) -> None:
+    async def on_conversation(self: "Bot", _: pyrogram.Client,
+                              msg: pyrogram.types.Message) -> None:
         cache = self.CONVERSATION[msg.chat.id]
         cache.put_nowait(msg)
         msg.continue_propagation()

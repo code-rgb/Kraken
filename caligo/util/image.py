@@ -10,7 +10,8 @@ FileLike = Union[str, os.PathLike, IO[bytes]]
 FormatMap = Mapping[str, FileLike]
 
 
-async def img_to_png(src: FileLike, dest: Optional[FileLike] = None) -> FileLike:
+async def img_to_png(src: FileLike,
+                     dest: Optional[FileLike] = None) -> FileLike:
     """Coverts the given image to a PNG using Pillow."""
 
     if dest is None:

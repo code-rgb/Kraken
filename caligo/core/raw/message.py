@@ -19,7 +19,8 @@ class Message(types.Message):
     def _parse(cls, msg: types.Message, **kwargs):
         mvars = vars(msg)
         if mvars["reply_to_message"]:
-            mvars["reply_to_message"] = cls._parse(mvars["reply_to_message"], **kwargs)
+            mvars["reply_to_message"] = cls._parse(mvars["reply_to_message"],
+                                                   **kwargs)
         return cls(client=msg._client, mvar=mvars, **kwargs)
 
     async def edit(

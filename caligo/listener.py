@@ -34,7 +34,8 @@ class Listener:
     priority: int
     regex: Filter
 
-    def __init__(self, event: str, func: ListenerFunc, mod: Any, prio: int, regex: Filter) -> None:
+    def __init__(self, event: str, func: ListenerFunc, mod: Any, prio: int,
+                 regex: Filter) -> None:
         self.event = event
         self.func = func
         self.module = mod

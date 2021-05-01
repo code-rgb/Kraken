@@ -16,7 +16,8 @@ async def Session(mode: str) -> None:
             print(await caligo.export_session_string())
             print()
         else:
-            await caligo.send_message("me", f"```{await caligo.export_sessiong_string()}```")
+            await caligo.send_message(
+                "me", f"```{await caligo.export_sessiong_string()}```")
         print("Generated")
 
 

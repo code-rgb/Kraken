@@ -39,7 +39,9 @@ class SystemModule(module.Module):
         await ctx.respond("Collecting system information...")
 
         try:
-            stdout, _, ret = await util.system.run_command("neofetch", "--stdout", timeout=60)
+            stdout, _, ret = await util.system.run_command("neofetch",
+                                                           "--stdout",
+                                                           timeout=60)
         except asyncio.TimeoutError:
             return "🕑 `neofetch` failed to finish within 1 minute."
         except FileNotFoundError:
@@ -99,10 +101,11 @@ class SystemModule(module.Module):
             )
         except FileNotFoundError as E:
             after = util.time.usec()
-            return (f"**CMD:**\n```{snip}```\n\n"
-                    "**Output:**\n"
-                    f"⚠️ Error executing command:\n```{util.error.format_exception(E)}```\n\n"
-                    f"Time: {util.time.format_duration_us(after - before)}")
+            return (
+                f"**CMD:**\n```{snip}```\n\n"
+                "**Output:**\n"
+                f"⚠️ Error executing command:\n```{util.error.format_exception(E)}```\n\n"
+                f"Time: {util.time.format_duration_us(after - before)}")
         except asyncio.TimeoutError:
             after = util.time.usec()
             return (f"**CMD:**\n```{snip}```\n\n"
@@ -188,7 +191,8 @@ class SystemModule(module.Module):
                 first_snip_idx = -1
                 tb = traceback.extract_tb(e.__traceback__)
                 for i, frame in enumerate(tb):
-                    if frame.filename == "<string>" or frame.filename.endswith("ast.py"):
+                    if frame.filename == "<string>" or frame.filename.endswith(
+                            "ast.py"):
                         first_snip_idx = i
                         break
 
@@ -264,7 +268,8 @@ class SystemModule(module.Module):
 
     async def on_start(self, time_us: int) -> None:  # skipcq: PYL-W0613
         # Update restart status message if applicable
-        data: Optional[Dict[Union[str, int]]] = await self.db.find_one({"_id": self.name})
+        data: Optional[Dict[Union[str, int]]] = await self.db.find_one(
+            {"_id": self.name})
         if data is not None:
             restart = data.get("restart")
             # Fetch status message info
@@ -284,7 +289,8 @@ class SystemModule(module.Module):
             updated = "updated and " if rs_reason == "update" else ""
             duration = util.time.format_duration_us(util.time.usec() - rs_time)
             self.log.info(f"Bot {updated}restarted in {duration}")
-            status_msg = await self.bot.client.get_messages(rs_chat_id, rs_message_id)
+            status_msg = await self.bot.client.get_messages(
+                rs_chat_id, rs_message_id)
             await self.bot.respond(status_msg,
                                    f"Bot {updated}restarted in {duration}.",
                                    mode="repost")
@@ -307,7 +313,10 @@ class SystemModule(module.Module):
         uri = "https://api.github.com"
         auth = aiohttp.BasicAuth(user, self.bot.getConfig.github_token)
 
-        async with self.bot.http.post(uri + path, auth=auth, headers=headers, json=payload) as resp:
+        async with self.bot.http.post(uri + path,
+                                      auth=auth,
+                                      headers=headers,
+                                      json=payload) as resp:
             return resp.status
 
     @command.desc("Update this bot from Git and restart")
@@ -338,8 +347,10 @@ class SystemModule(module.Module):
             if not self.bot.getConfig.secret:
                 return "__Deploying only works if your bot is run on container.__"
 
-            if (self.bot.getConfig.github_token and self.bot.getConfig.github_repo) and (
-                    self.bot.getConfig.heroku_api_key and self.bot.getConfig.heroku_app_name):
+            if (self.bot.getConfig.github_token
+                    and self.bot.getConfig.github_repo) and (
+                        self.bot.getConfig.heroku_api_key
+                        and self.bot.getConfig.heroku_app_name):
                 ret = await self.run_workflows()
 
                 resp_msg = await ctx.respond("Deploying bot...")
@@ -377,8 +388,8 @@ class SystemModule(module.Module):
                 pip = str(Path(prefix) / "bin" / "pip")
 
                 await ctx.respond("Updating dependencies...")
-                stdout, _, ret = await util.system.run_command(pip, "install",
-                                                               repo.working_tree_dir)
+                stdout, _, ret = await util.system.run_command(
+                    pip, "install", repo.working_tree_dir)
                 if ret != 0:
                     return f"""⚠️ Error updating dependencies:
 

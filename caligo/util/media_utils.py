@@ -23,7 +23,8 @@ def get_media(msg):
                 break
         else:
             return logging.debug(
-                f" {__name__} - This message doesn't contain any downloadable media")
+                f" {__name__} - This message doesn't contain any downloadable media"
+            )
         return media
 
 

@@ -62,13 +62,15 @@ class Misc(module.Module):
                 bullets = bullets.replace("○", "")
 
             space = "    " * (10 - len(bullets))
-            progress = (f"`{file_path.name}`\n"
-                        f"Status: **Uploading**\n"
-                        f"Progress: [{bullets + space}] {round(percent * 100)}%\n"
-                        f"__{human(current)} of {human(total)} @ "
-                        f"{human(speed, postfix='/s')}\neta - {time(eta)}__\n\n")
+            progress = (
+                f"`{file_path.name}`\n"
+                f"Status: **Uploading**\n"
+                f"Progress: [{bullets + space}] {round(percent * 100)}%\n"
+                f"__{human(current)} of {human(total)} @ "
+                f"{human(speed, postfix='/s')}\neta - {time(eta)}__\n\n")
             # Only edit message once every 5 seconds to avoid ratelimits
-            if (last_update_time is None or (now - last_update_time).total_seconds() >= 5):
+            if (last_update_time is None
+                    or (now - last_update_time).total_seconds() >= 5):
                 self.bot.loop.create_task(ctx.respond(progress))
 
                 last_update_time = now
