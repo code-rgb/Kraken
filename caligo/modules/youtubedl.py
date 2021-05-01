@@ -107,7 +107,7 @@ class YouTube(module.Module):
         elif choice_id == "mp4":
             # Download best Webm / Mp4 format available or any other best if no mp4
             # available
-            choice_str = ("bestvideo[ext=webm]+251/bestvideo[ext=mp4]+
+            choice_str = ("bestvideo[ext=webm]+251/bestvideo[ext=mp4]+"
             "(258/256/140/bestaudio[ext=m4a])/"
             "bestvideo[ext=webm]+(250/249)/best")
             disp_str = "best(video+audio)[webm/mp4]"
