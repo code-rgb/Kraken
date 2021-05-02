@@ -339,7 +339,7 @@ class YouTube(module.Module):
 """
         if formats := resp.get("formats"):
             humanbytes = util.misc.human_readable_bytes
-            buttons +=  util.sublists(
+            buttons += util.sublists(
                 list(
                     map(
                         lambda x: InlineKeyboardButton(
@@ -368,16 +368,23 @@ class YouTube(module.Module):
 
     def filter_generic_formats(self, raw_formats: Dict) -> Dict:
         widthset = set()
+
         def qual_filter(frmt) -> bool:
-            if frmt.get("tbr") and frmt.get("acodec") and (width := frmt.get("width")):
+            if frmt.get("tbr") and frmt.get("acodec") and (width :=
+                                                           frmt.get("width")):
                 if not (width in widthset):
                     widthset.add(width)
                     return True
             return False
-        frmt_list = list(filter(qual_filter, sorted(raw_formats, key=lambda x: int(x.get("tbr") or 0), reverse=True)))[:25]
+
+        frmt_list = list(
+            filter(
+                qual_filter,
+                sorted(raw_formats,
+                       key=lambda x: int(x.get("tbr") or 0),
+                       reverse=True),
+            ))[:25]
         return frmt_list if len(frmt_list) > 1 else raw_formats
-
-
 
     async def parse_ytquery(
         self, search_query: str
@@ -401,7 +408,8 @@ class YouTube(module.Module):
     @listener.pattern(r"^ytdl\s+(.+)")
     async def on_inline_query(self, query: InlineQuery) -> None:
         if vid_data := await self.parse_ytquery(query.matches[0].group(1)):
-            photo = self.default_thumb if vid_data["thumb"].endswith(".html") else vid_data["thumb"]
+            photo = (self.default_thumb if vid_data["thumb"].endswith(".html")
+                     else vid_data["thumb"])
             await query.answer(
                 results=[
                     InlineQueryResultPhoto(
