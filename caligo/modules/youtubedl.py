@@ -510,7 +510,7 @@ class YouTube(module.Module):
                 elif isinstance(msg, CallbackQuery):
                     edit_func = msg.edit_message_text(progress)
                 else:
-                    return
+                    raise TypeError(f"Unsupported msg type '{type(msg)}'")
                 self.bot.loop.create_task(edit_func)
                 last_update_time = now
 
