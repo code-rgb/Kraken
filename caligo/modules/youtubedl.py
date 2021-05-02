@@ -3,7 +3,10 @@ from collections import defaultdict
 from functools import wraps
 from typing import Any, ClassVar, Dict, List, Optional, Pattern, Tuple, Union
 from uuid import uuid4
-
+import os
+from math import floor
+from datetime import datetime
+from glob import glob
 import ujson
 import youtube_dl
 from pyrogram.types import (
@@ -11,6 +14,9 @@ from pyrogram.types import (
     InlineKeyboardMarkup,
     InlineQuery,
     InlineQueryResultPhoto,
+    ChosenInlineResult,
+    Message,
+    CallbackQuery
 )
 from youtube_dl.utils import (
     DownloadError,
@@ -235,14 +241,15 @@ class YouTube(module.Module):
             return {"msg": vid_body, "buttons": InlineKeyboardMarkup(buttons)}
         return InlineKeyboardMarkup(buttons)
 
-    async def video_downloader(self, url: str, uid: str = None):
+    async def video_downloader(self, url: str, uid: str, rnd_key: str, prog_func):
         options = {
             "addmetadata": True,
             "geo_bypass": True,
             "nocheckcertificate": True,
-            "outtmpl": "video.mp4" or "%(title)s-%(format)s.%(ext)s",
+            "outtmpl": os.path.join(self.bot.getConfig.downloadPath, rnd_key, "%(title)s-%(format)s.%(ext)s"),
             "logger": self.log,
-            "format": uid or self.get_choice_by_id("mp4", "v")[0],
+            'progress_hooks': [prog_func],
+            "format": uid,
             "writethumbnail": True,
             "prefer_ffmpeg": True,
             "postprocessors": [
@@ -257,10 +264,11 @@ class YouTube(module.Module):
         }
         return await self.ytdownloader(url, options)
 
-    async def audio_downloader(self, url: str, uid: str):
+    async def audio_downloader(self, url: str, uid: str, rnd_key: str, prog_func):
         options = {
-            "outtmpl": "%(title)s-%(format)s.%(ext)s",
+            "outtmpl": os.path.join(self.bot.getConfig.downloadPath, rnd_key, "%(title)s-%(format)s.%(ext)s"),
             "logger": self.log,
+            'progress_hooks': [prog_func],
             "writethumbnail": True,
             "prefer_ffmpeg": True,
             "format": "bestaudio/best",
@@ -284,6 +292,7 @@ class YouTube(module.Module):
         }
         return await self.ytdownloader(url, options)
 
+
     @loop_safe
     def ytdownloader(self, url: str, options: Dict):
         try:
@@ -296,16 +305,12 @@ class YouTube(module.Module):
                 "[GeoRestrictedError] : The uploader has not made this video"
                 " available in your country")
         except Exception as all_e:
-            self.log.exception(f"[{all_e.__class__.__name__}] - {y_e}")
+            self.log.exception(f"[{all_e.__class__.__name__}] - {all_e}")
         else:
             return out
 
-    @command.usage("[Download from youtube]")
-    async def cmd_ytdl(self, ctx: command.Context) -> str:
-        await ctx.respond("Downloading ...")
-        video_link = ctx.msg.reply_to_message.text.strip()
-        await self.video_downloader(video_link)
-        await ctx.respond("Done")
+
+        
 
     @loop_safe
     def generic_extractor(self, url: str) -> Optional[Dict[str, Any]]:
@@ -423,3 +428,70 @@ class YouTube(module.Module):
                 switch_pm_text="⬇️ Click to Download",
                 switch_pm_parameter="inline",
             )
+
+    @command.usage("[Download from youtube]")
+    async def cmd_ytdl(self, ctx: command.Context) -> str:
+        video_link = ctx.msg.reply_to_message.text.strip()
+        rnd_id = str(uuid4())[:8]
+        uid = self.get_choice_by_id("mp4", "v")
+        await self.download_progress(video_link, uid[0], rnd_id, msg=ctx.msg, downtype="video")
+        await ctx.respond("Done. Uploading ...")
+        video, thumb_pic = None, None
+        for file in glob(os.path.join(self.bot.getConfig.downloadPath, rnd_id, "*")):
+            if file.lower().endswith((".jpg", ".png", ".webp")):
+                thumb_pic = file
+            else:
+                video = file
+        await ctx.msg.reply_video(video=video, thumb=thumb_pic)
+        await ctx.msg.delete()
+
+
+    async def download_progress(self, *args, msg: Union[Message, CallbackQuery], downtype: str):
+        last_update_time = None
+        humanbytes = util.misc.human_readable_bytes
+        time_formater = util.time.format_duration_td
+        before = util.time.sec()
+        def prog_func(prog_data: Dict) -> None:
+            nonlocal last_update_time
+            now = datetime.now()
+            if prog_data.get('status') == "finished":
+                progress = "🔄  Download Finished Now Converting."
+            else:
+                # ------------ Progress Info ------------ #
+                eta = prog_data.get("eta")
+                speed = prog_data.get("speed")
+                if not (eta and speed):
+                    return
+                current = prog_data.get("downloaded_bytes")
+                total = prog_data.get("total_bytes")
+                filename = prog_data.get("filename")
+                # ---------------------------------------- #
+                after = util.time.sec() - before
+                percentage = round(current / total * 100)
+                progress_bar = (
+                    f"[{'█' * floor(15 * percentage / 100)}"
+                    f"{'░' * floor(15 * (1 - percentage / 100))}]"
+                )
+                progress = f"""
+<i>Downloading:</i>  <code>{filename}</code>
+<b>Completed:</b>  <code>{humanbytes(current)} / {humanbytes(total)}</code>
+<b>Progress:</b>  <code>{progress_bar} {percentage} %</code>
+<b>Speed:</b>  <code>{humanbytes(speed, postfix='/s')}</code>
+<b>ETA:</b>  <code>{time_formater(eta)}</code>
+"""
+            # Only edit message once every 8 seconds to avoid ratelimits
+            if (last_update_time is None
+                    or (now - last_update_time).total_seconds() >= 8):
+                if isinstance(msg, Message):
+                    edit_func = msg.edit(progress)
+                elif isinstance(msg, CallbackQuery):
+                    edit_func = msg.edit_message_text(progress)
+                else:
+                    return
+                self.bot.loop.create_task(edit_func)
+                last_update_time = now
+
+        if downtype == "video":
+            return await self.video_downloader(*args, prog_func=prog_func)
+        if downtype == "audio":
+            return await self.audio_downloader(*args, prog_func=prog_func)

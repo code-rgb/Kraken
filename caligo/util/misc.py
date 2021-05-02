@@ -30,4 +30,4 @@ def human_readable_bytes(value: int,
             chosen_unit = unit
         else:
             break
-    return f"{value:.{digits}f}" + delim + chosen_unit + postfix
+    return f"{value:.{digits}f}" + delim + f" {chosen_unit}" + postfix

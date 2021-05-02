@@ -53,9 +53,10 @@ def format_duration_us(t_us: Union[int, float]) -> str:
     return "%d μs" % t_us
 
 
-def format_duration_td(value: timedelta, precision: int = 0) -> str:
+def format_duration_td(value: Union[timedelta, int], precision: int = 0) -> str:
     pieces = []
-
+    if isinstance(value, int):
+        value = timedelta(seconds=value)
     if value.days:
         pieces.append(f"{value.days}d")
 
@@ -75,6 +76,6 @@ def format_duration_td(value: timedelta, precision: int = 0) -> str:
         pieces.append(f"{seconds}s")
 
     if precision == 0:
-        return "".join(pieces)
+        return " ".join(pieces)
 
-    return "".join(pieces[:precision])
+    return " ".join(pieces[:precision])
