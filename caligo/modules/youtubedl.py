@@ -188,8 +188,7 @@ class YouTube(module.Module):
             humanbytes = util.misc.human_readable_bytes
             # ------------------------------------------------ #
             qual_dict = defaultdict(lambda: defaultdict(int))
-            qual_list = ("144p", "240p", "360p", "480p", "720p", "1080p",
-                         "1440p")
+            qual_list = ('1440p', '1080p', '720p', '480p', '360p', '240p', '144p')
             audio_dict: Dict[int, str] = {}
             # ------------------------------------------------ #
             for video in vid_data["formats"]:
@@ -224,7 +223,7 @@ class YouTube(module.Module):
                         lambda x: InlineKeyboardButton(
                             audio_dict[x],
                             callback_data=f"ytdl_download_{yt_id}_{x}_a"),
-                        sorted(audio_dict.keys()),
+                        sorted(audio_dict.keys(), reverse=True),
                     )),
                 width=2,
             )
@@ -296,7 +295,7 @@ class YouTube(module.Module):
                 "[GeoRestrictedError] : The uploader has not made this video"
                 " available in your country")
         except Exception as all_e:
-            self.log.exception(f"[{all_e.__class__.__name__}] : {y_e}")
+            self.log.exception(f"[{all_e.__class__.__name__}] - {y_e}")
         else:
             return out
 
@@ -309,7 +308,7 @@ class YouTube(module.Module):
 
     @loop_safe
     def generic_extractor(self, url: str) -> Optional[Dict[str, Any]]:
-        best_format = [[
+        buttons = [[
             InlineKeyboardButton("⭐️ BEST - 📹 Video",
                                  callback_data=f"generic_down_best_v"),
             InlineKeyboardButton("⭐️ BEST - 🎧 Audio",
@@ -328,7 +327,7 @@ class YouTube(module.Module):
             return dict(
                 msg="[No Information]",
                 thumb=self.default_thumb,
-                buttons=InlineKeyboardMarkup(best_format),
+                buttons=InlineKeyboardMarkup(buttons),
             )
         msg = f"<b>[{resp.get('title')}]({url})</b>\n"
         if description := resp.get("description"):
@@ -339,7 +338,7 @@ class YouTube(module.Module):
 """
         if formats := resp.get("formats"):
             humanbytes = util.misc.human_readable_bytes
-            best_format += util.sublists(
+            buttons += util.sublists(
                 list(
                     map(
                         lambda x: InlineKeyboardButton(
@@ -363,26 +362,30 @@ class YouTube(module.Module):
             return dict(
                 msg=msg,
                 thumb=resp.get("thumbnail", self.default_thumb),
-                buttons=InlineKeyboardMarkup(best_format),
+                buttons=InlineKeyboardMarkup(buttons),
             )
+
+    async def parse_ytquery(self, search_query: str) -> Optional[Dict[str, Union[str, InlineKeyboardMarkup]]]:
+        query_split = search_query.split()
+        if len(query_split) == 1:
+            # can be some text or an URL
+            if match := self.yt_link_regex.search(query_split[0]):
+                # youtube link
+                yt_id = match.group(1)
+                if vid_data := await self.get_download_button(yt_id, body=True):
+                    # Add Thumbnail
+                    vid_data["thumb"] = await self.get_ytthumb(yt_id)
+                    return vid_data
+            if self.url_regex.search(query_split[0]):
+                # Matches URL regex (doesn't mean it's supported by YoutubeDL)
+                return await self.generic_extractor(query_split[0])
+        # YT Search if query didn't matched earlier or is of multiple words
+        return await self.yt_search(search_query.strip())
+  
 
     @listener.pattern(r"^ytdl\s+(.+)")
     async def on_inline_query(self, query: InlineQuery) -> None:
-        search_query = query.matches[0].group(1).strip()
-        found = False
-        if len(search_query.split()) == 1:
-            if match := self.yt_link_regex.search(search_query):
-                found = True
-                yt_id = match.group(1)
-                if vid_data := await self.get_download_button(yt_id, body=True):
-                    vid_data["thumb"] = await self.get_ytthumb(yt_id)
-            elif match := self.url_regex.search(search_query):
-                found = True
-                vid_data = await self.generic_extractor(search_query)
-        if not found:
-            if not (vid_data := await self.yt_search(search_query)):
-                return
-        if vid_data:
+        if vid_data := await self.parse_ytquery(query.matches[0].group(1):
             await query.answer(
                 results=[
                     InlineQueryResultPhoto(
