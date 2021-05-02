@@ -9,7 +9,6 @@ from html import escape
 from typing import ClassVar, Dict, Optional, Tuple
 from urllib.parse import quote
 
-import aiohttp
 from pyrogram.types import Message
 
 from .. import command, module, util
@@ -21,8 +20,6 @@ class SongLink(module.Module):
 
     async def on_load(self) -> None:
         self.uri = "https://api.song.link/v1-alpha.1/links?url="
-
-    
 
     @staticmethod
     async def find_url_from_msg(
@@ -95,6 +92,7 @@ class SongLink(module.Module):
         link = link[0]
         await ctx.respond(f'🔎 Searching for `"{link}"`')
 
-        if not (resp := await util.aiorequest(self.bot.http, self.uri + quote(link), mode="json")):
+        if not (resp := await util.aiorequest(
+                self.bot.http, self.uri + quote(link), mode="json")):
             return "Oops something went wrong! Please try again later."
         await ctx.respond(self.get_data(resp) or "404 Not Found")
