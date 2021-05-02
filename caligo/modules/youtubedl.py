@@ -188,7 +188,8 @@ class YouTube(module.Module):
             humanbytes = util.misc.human_readable_bytes
             # ------------------------------------------------ #
             qual_dict = defaultdict(lambda: defaultdict(int))
-            qual_list = ('1440p', '1080p', '720p', '480p', '360p', '240p', '144p')
+            qual_list = ("1440p", "1080p", "720p", "480p", "360p", "240p",
+                         "144p")
             audio_dict: Dict[int, str] = {}
             # ------------------------------------------------ #
             for video in vid_data["formats"]:
@@ -365,7 +366,9 @@ class YouTube(module.Module):
                 buttons=InlineKeyboardMarkup(buttons),
             )
 
-    async def parse_ytquery(self, search_query: str) -> Optional[Dict[str, Union[str, InlineKeyboardMarkup]]]:
+    async def parse_ytquery(
+        self, search_query: str
+    ) -> Optional[Dict[str, Union[str, InlineKeyboardMarkup]]]:
         query_split = search_query.split()
         if len(query_split) == 1:
             # can be some text or an URL
@@ -381,7 +384,6 @@ class YouTube(module.Module):
                 return await self.generic_extractor(query_split[0])
         # YT Search if query didn't matched earlier or is of multiple words
         return await self.yt_search(search_query.strip())
-  
 
     @listener.pattern(r"^ytdl\s+(.+)")
     async def on_inline_query(self, query: InlineQuery) -> None:
