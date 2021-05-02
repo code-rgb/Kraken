@@ -1,22 +1,22 @@
+import os
 import re
 from collections import defaultdict
+from datetime import datetime
 from functools import wraps
+from glob import glob
+from math import floor
 from typing import Any, ClassVar, Dict, List, Optional, Pattern, Tuple, Union
 from uuid import uuid4
-import os
-from math import floor
-from datetime import datetime
-from glob import glob
+
 import ujson
 import youtube_dl
 from pyrogram.types import (
+    CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     InlineQuery,
     InlineQueryResultPhoto,
-    ChosenInlineResult,
     Message,
-    CallbackQuery
 )
 from youtube_dl.utils import (
     DownloadError,
@@ -241,17 +241,27 @@ class YouTube(module.Module):
             return {"msg": vid_body, "buttons": InlineKeyboardMarkup(buttons)}
         return InlineKeyboardMarkup(buttons)
 
-    async def video_downloader(self, url: str, uid: str, rnd_key: str, prog_func):
+    async def video_downloader(self, url: str, uid: str, rnd_key: str,
+                               prog_func):
         options = {
-            "addmetadata": True,
-            "geo_bypass": True,
-            "nocheckcertificate": True,
-            "outtmpl": os.path.join(self.bot.getConfig.downloadPath, rnd_key, "%(title)s-%(format)s.%(ext)s"),
-            "logger": self.log,
-            'progress_hooks': [prog_func],
-            "format": uid,
-            "writethumbnail": True,
-            "prefer_ffmpeg": True,
+            "addmetadata":
+                True,
+            "geo_bypass":
+                True,
+            "nocheckcertificate":
+                True,
+            "outtmpl":
+                os.path.join(self.bot.getConfig.downloadPath, rnd_key,
+                             "%(title)s-%(format)s.%(ext)s"),
+            "logger":
+                self.log,
+            "progress_hooks": [prog_func],
+            "format":
+                uid,
+            "writethumbnail":
+                True,
+            "prefer_ffmpeg":
+                True,
             "postprocessors": [
                 {
                     "key": "FFmpegMetadata"
@@ -259,21 +269,32 @@ class YouTube(module.Module):
                 # ERROR R15: Memory quota vastly exceeded
                 # {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"},
             ],
-            "quiet": True,
-            "logtostderr": False,
+            "quiet":
+                True,
+            "logtostderr":
+                False,
         }
         return await self.ytdownloader(url, options)
 
-    async def audio_downloader(self, url: str, uid: str, rnd_key: str, prog_func):
+    async def audio_downloader(self, url: str, uid: str, rnd_key: str,
+                               prog_func):
         options = {
-            "outtmpl": os.path.join(self.bot.getConfig.downloadPath, rnd_key, "%(title)s-%(format)s.%(ext)s"),
-            "logger": self.log,
-            'progress_hooks': [prog_func],
-            "writethumbnail": True,
-            "prefer_ffmpeg": True,
-            "format": "bestaudio/best",
-            "geo_bypass": True,
-            "nocheckcertificate": True,
+            "outtmpl":
+                os.path.join(self.bot.getConfig.downloadPath, rnd_key,
+                             "%(title)s-%(format)s.%(ext)s"),
+            "logger":
+                self.log,
+            "progress_hooks": [prog_func],
+            "writethumbnail":
+                True,
+            "prefer_ffmpeg":
+                True,
+            "format":
+                "bestaudio/best",
+            "geo_bypass":
+                True,
+            "nocheckcertificate":
+                True,
             "postprocessors": [
                 {
                     "key": "FFmpegExtractAudio",
@@ -287,11 +308,12 @@ class YouTube(module.Module):
                     "key": "FFmpegMetadata"
                 },
             ],
-            "quiet": True,
-            "logtostderr": False,
+            "quiet":
+                True,
+            "logtostderr":
+                False,
         }
         return await self.ytdownloader(url, options)
-
 
     @loop_safe
     def ytdownloader(self, url: str, options: Dict):
@@ -308,9 +330,6 @@ class YouTube(module.Module):
             self.log.exception(f"[{all_e.__class__.__name__}] - {all_e}")
         else:
             return out
-
-
-        
 
     @loop_safe
     def generic_extractor(self, url: str) -> Optional[Dict[str, Any]]:
@@ -434,10 +453,15 @@ class YouTube(module.Module):
         video_link = ctx.msg.reply_to_message.text.strip()
         rnd_id = str(uuid4())[:8]
         uid = self.get_choice_by_id("mp4", "v")
-        await self.download_progress(video_link, uid[0], rnd_id, msg=ctx.msg, downtype="video")
+        await self.download_progress(video_link,
+                                     uid[0],
+                                     rnd_id,
+                                     msg=ctx.msg,
+                                     downtype="video")
         await ctx.respond("Done. Uploading ...")
         video, thumb_pic = None, None
-        for file in glob(os.path.join(self.bot.getConfig.downloadPath, rnd_id, "*")):
+        for file in glob(
+                os.path.join(self.bot.getConfig.downloadPath, rnd_id, "*")):
             if file.lower().endswith((".jpg", ".png", ".webp")):
                 thumb_pic = file
             else:
@@ -445,16 +469,17 @@ class YouTube(module.Module):
         await ctx.msg.reply_video(video=video, thumb=thumb_pic)
         await ctx.msg.delete()
 
-
-    async def download_progress(self, *args, msg: Union[Message, CallbackQuery], downtype: str):
+    async def download_progress(self, *args, msg: Union[Message, CallbackQuery],
+                                downtype: str):
         last_update_time = None
         humanbytes = util.misc.human_readable_bytes
         time_formater = util.time.format_duration_td
         before = util.time.sec()
+
         def prog_func(prog_data: Dict) -> None:
             nonlocal last_update_time
             now = datetime.now()
-            if prog_data.get('status') == "finished":
+            if prog_data.get("status") == "finished":
                 progress = "🔄  Download Finished Now Converting."
             else:
                 # ------------ Progress Info ------------ #
@@ -468,10 +493,8 @@ class YouTube(module.Module):
                 # ---------------------------------------- #
                 after = util.time.sec() - before
                 percentage = round(current / total * 100)
-                progress_bar = (
-                    f"[{'█' * floor(15 * percentage / 100)}"
-                    f"{'░' * floor(15 * (1 - percentage / 100))}]"
-                )
+                progress_bar = (f"[{'█' * floor(15 * percentage / 100)}"
+                                f"{'░' * floor(15 * (1 - percentage / 100))}]")
                 progress = f"""
 <i>Downloading:</i>  <code>{filename}</code>
 <b>Completed:</b>  <code>{humanbytes(current)} / {humanbytes(total)}</code>
