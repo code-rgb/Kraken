@@ -381,7 +381,7 @@ class YouTube(module.Module):
             filter(
                 qual_filter,
                 sorted(raw_formats,
-                       key=lambda x: int(x.get("tbr") or 0),
+                       key=lambda x: float(x.get("tbr") or 0),
                        reverse=True),
             ))[:25]
         return frmt_list if len(frmt_list) > 1 else raw_formats
@@ -420,6 +420,6 @@ class YouTube(module.Module):
                     )
                 ],
                 cache_time=3,
-                switch_pm_text="⬇️  Click To Download",
+                switch_pm_text="⬇️ Click to Download",
                 switch_pm_parameter="inline",
             )
