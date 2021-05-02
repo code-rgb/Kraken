@@ -385,7 +385,7 @@ class YouTube(module.Module):
 
     @listener.pattern(r"^ytdl\s+(.+)")
     async def on_inline_query(self, query: InlineQuery) -> None:
-        if vid_data := await self.parse_ytquery(query.matches[0].group(1):
+        if vid_data := await self.parse_ytquery(query.matches[0].group(1)):
             await query.answer(
                 results=[
                     InlineQueryResultPhoto(
