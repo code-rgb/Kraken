@@ -12,22 +12,17 @@ from urllib.parse import quote
 import aiohttp
 from pyrogram.types import Message
 
-from .. import command, module
+from .. import command, module, util
 
 
 class SongLink(module.Module):
     name: ClassVar[str] = "SongLink"
-    http: aiohttp.ClientSession
     uri: str
 
     async def on_load(self) -> None:
-        self.http = self.bot.http
         self.uri = "https://api.song.link/v1-alpha.1/links?url="
 
-    async def request(self, link: str) -> Optional[Dict]:
-        async with self.http.get(self.uri + quote(link)) as resp:
-            if resp.status == 200:
-                return await resp.json()
+    
 
     @staticmethod
     async def find_url_from_msg(
@@ -96,9 +91,10 @@ class SongLink(module.Module):
     @command.desc("link to a song on any supported music streaming platform")
     async def cmd_songlink(self, ctx: command.Context):
         if not (link := (await self.find_url_from_msg(ctx))):
-            return "__No Valid URL Found !__"
+            return "__No Valid URL Found !__", 5
         link = link[0]
-        await ctx.respond(f'🔎 Searching for `"{link}"`', mode="edit")
-        if (resp := await self.request(link)) is None:
+        await ctx.respond(f'🔎 Searching for `"{link}"`')
+
+        if not (resp := await util.aiorequest(self.bot.http, self.uri + quote(link), mode="json")):
             return "Oops something went wrong! Please try again later."
-        await ctx.respond(self.get_data(resp) or "404 Not Found", mode="edit")
+        await ctx.respond(self.get_data(resp) or "404 Not Found")
