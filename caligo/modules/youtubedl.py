@@ -1,7 +1,6 @@
 import os
 import re
 from collections import defaultdict
-from datetime import datetime
 from functools import wraps
 from glob import glob
 from math import floor
@@ -491,20 +490,23 @@ class YouTube(module.Module):
             nonlocal last_update_time
             now = util.time.sec()
             # Only edit message once every 8 seconds to avoid ratelimits
-            if (last_update_time is None or (now - last_update_time).total_seconds() >= 8):
+            if (last_update_time is None
+                    or (now - last_update_time).total_seconds() >= 8):
                 if prog_data.get("status") == "finished":
                     progress = "🔄  Download Finished Now Converting."
                 else:
                     # ------------ Progress Info ------------ #
-                    if not ((eta := prog_data.get("eta")) and (speed := prog_data.get("speed"))):
+                    if not ((eta := prog_data.get("eta")) and
+                            (speed := prog_data.get("speed"))):
                         return
                     current = prog_data.get("downloaded_bytes")
                     total = prog_data.get("total_bytes")
                     filename = prog_data.get("filename")
                     # ---------------------------------------- #
                     percentage = round(current / total * 100)
-                    progress_bar = (f"[{'█' * floor(15 * percentage / 100)}"
-                                    f"{'░' * floor(15 * (1 - percentage / 100))}]")
+                    progress_bar = (
+                        f"[{'█' * floor(15 * percentage / 100)}"
+                        f"{'░' * floor(15 * (1 - percentage / 100))}]")
                     progress = f"""
 <i>Downloading:</i>  <code>{filename}</code>
 <b>Completed:</b>  <code>{humanbytes(current)} / {humanbytes(total)}</code>
