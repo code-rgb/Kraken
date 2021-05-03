@@ -1,16 +1,17 @@
-import logging
-from typing import Optional, Union, Dict, Tuple
-import time
-from math import floor
-from pyrogram.types import CallbackQuery
-from pyrogram.errors import FloodWait
 import asyncio
+import logging
+from math import floor
+from typing import Dict, Optional, Tuple
+
+from pyrogram.errors import FloodWait
+from pyrogram.types import CallbackQuery
+
 from ..core.raw import Message
-from ..module import Module
-from .time import format_duration_td as time_formater, sec as time_now
 from .misc import human_readable_bytes as humanbytes
-    
-_PROCESS : Dict[str, Tuple[int, int]] = {}
+from .time import format_duration_td as time_formater
+from .time import sec as time_now
+
+_PROCESS: Dict[str, Tuple[int, int]] = {}
 
 
 def get_media(msg):
@@ -43,7 +44,14 @@ def get_file_id(msg) -> Optional[str]:
         return media.file_id
 
 
-async def progress(current: int, total: int, message: Message, mode: str, filename: str = "", c_q: CallbackQuery = None):
+async def progress(
+    current: int,
+    total: int,
+    message: Message,
+    mode: str,
+    filename: str = "",
+    c_q: CallbackQuery = None,
+):
     if message.process_is_canceled:
         # Cancel Process
         return await message._client.stop_transmission()
@@ -86,4 +94,3 @@ async def progress(current: int, total: int, message: Message, mode: str, filena
             await edit_func(progress)
         except FloodWait as f_w:
             await asyncio.sleep(f_w.x + 5)
-

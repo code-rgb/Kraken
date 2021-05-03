@@ -7,6 +7,7 @@ from glob import glob
 from math import floor
 from typing import Any, ClassVar, Dict, List, Optional, Pattern, Tuple, Union
 from uuid import uuid4
+
 import ujson
 import youtube_dl
 from pyrogram.types import (
@@ -25,7 +26,7 @@ from youtube_dl.utils import (
 )
 from youtubesearchpython.__future__ import VideosSearch
 
-from .. import command, listener, module, util, core
+from .. import command, listener, module, util
 
 yt_result_vid = Optional[Dict[str, str]]
 
@@ -466,7 +467,12 @@ class YouTube(module.Module):
                 break
         else:
             await ctx.respond("No Media Found", mode="error", delete_after=8)
-        await ctx.msg.reply_video(video=media_file, progress=util.progress, supports_streaming=True, progress_args=(ctx.msg, "Uploading", "video.mp4"))
+        await ctx.msg.reply_video(
+            video=media_file,
+            progress=util.progress,
+            supports_streaming=True,
+            progress_args=(ctx.msg, "Uploading", "video.mp4"),
+        )
         await ctx.msg.delete()
 
     async def download_progress(self, *args, msg: Union[Message, CallbackQuery],

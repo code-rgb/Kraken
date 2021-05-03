@@ -1,14 +1,22 @@
-from typing import Dict, List, Optional, Union, Set
+from typing import Dict, List, Optional, Set, Union
 
 from pyrogram import Client, types
-from pyrogram.errors import MessageDeleteForbidden, MessageAuthorRequired, MessageIdInvalid, MessageNotModified
+from pyrogram.errors import (
+    MessageAuthorRequired,
+    MessageDeleteForbidden,
+    MessageIdInvalid,
+    MessageNotModified,
+)
 
-_CANCEL_SET : Set[int] = set()
+_CANCEL_SET: Set[int] = set()
 
 # Inspired from Userge
+
+
 class Message(types.Message):
 
-    def __init__(self, client: Client, segments: List[Optional[str]], mvars: Dict[str, object], **kwargs):
+    def __init__(self, client: Client, segments: List[Optional[str]],
+                 mvars: Dict[str, object], **kwargs):
         self._process_canceled = False
         self._kwargs = kwargs
         self._client = client
@@ -30,17 +38,15 @@ class Message(types.Message):
 
     @property
     def process_is_canceled(self) -> bool:
-        """ Returns True if process canceled """
+        """Returns True if process canceled"""
         if self.message_id in _CANCEL_SET:
             _CANCEL_SET.remove(self.message_id)
             self._process_canceled = True
         return self._process_canceled
 
-
     def cancel_the_process(self) -> None:
-        """ Set True to the self.process_is_canceled """
+        """Set True to the self.process_is_canceled"""
         _CANCEL_SET.add(self.message_id)
-
 
     async def edit(
         self,

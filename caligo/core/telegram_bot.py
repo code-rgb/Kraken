@@ -86,11 +86,13 @@ class TelegramBot(Base):
             except KeyError:
                 # Default prefix we can change later
                 setattr(self, p_fix, ("." if p_fix == "prefix" else "!"))
-                await db.find_one_and_update({"_id": "Core"},
-                                             {"$set": {
-                                                 p_fix: getattr(self, p_fix)
-                                             }},
-                                             upsert=True)
+                await db.find_one_and_update(
+                    {"_id": "Core"},
+                    {"$set": {
+                        p_fix: getattr(self, p_fix)
+                    }},
+                    upsert=True,
+                )
 
         self.client.add_handler(
             MessageHandler(

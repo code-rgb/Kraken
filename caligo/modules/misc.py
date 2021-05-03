@@ -140,7 +140,6 @@ class Misc(module.Module):
 
         return ret
 
-
     @command.desc("Cancel Uploads or Downloads")
     async def cmd_cancel(self, ctx: command.Context) -> Tuple[str, int]:
         reply = ctx.msg.reply_to_message
