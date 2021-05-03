@@ -75,7 +75,7 @@ async def progress(
     start, last_update_time = _PROCESS[task_id]
     # ------------------------------------ #
     if (now - last_update_time) >= 8:
-        _PROCESS[task_id] = (start, now)
+        _PROCESS[process_id] = (start, now)
         # Only edit message once every 8 seconds to avoid ratelimits
         after = now - start
         speed = current / after
