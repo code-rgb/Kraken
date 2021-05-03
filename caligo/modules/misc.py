@@ -93,7 +93,7 @@ class Misc(module.Module):
 
     @command.desc("Abort transmission of upload or download")
     @command.usage("[file gid]", reply=True)
-    async def cmd_abort(self, ctx) -> Optional[str]:
+    async def cmd_abort(self, ctx: command.Context) -> Optional[str]:
         if not ctx.input and not ctx.msg.reply_to_message:
             return "__Pass GID or reply to message of task to abort transmission.__"
         if ctx.msg.reply_to_message and ctx.input:
@@ -139,3 +139,12 @@ class Misc(module.Module):
             await ctx.msg.delete()
 
         return ret
+
+
+    @command.desc("Cancel Uploads or Downloads")
+    async def cmd_cancel(self, ctx: command.Context) -> Tuple[str, int]:
+        reply = ctx.msg.reply_to_message
+        if reply:
+            reply.cancel_the_process()
+            return "`added your request to the cancel list`", 5
+        return "`reply to the message you want to cancel`", 5

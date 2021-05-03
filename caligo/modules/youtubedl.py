@@ -7,7 +7,6 @@ from glob import glob
 from math import floor
 from typing import Any, ClassVar, Dict, List, Optional, Pattern, Tuple, Union
 from uuid import uuid4
-
 import ujson
 import youtube_dl
 from pyrogram.types import (
@@ -26,7 +25,7 @@ from youtube_dl.utils import (
 )
 from youtubesearchpython.__future__ import VideosSearch
 
-from .. import command, listener, module, util
+from .. import command, listener, module, util, core
 
 yt_result_vid = Optional[Dict[str, str]]
 
@@ -459,14 +458,15 @@ class YouTube(module.Module):
                                      msg=ctx.msg,
                                      downtype="video")
         await ctx.respond("Done. Uploading ...")
-        video, thumb_pic = None, None
         for file in glob(
                 os.path.join(self.bot.getConfig.downloadPath, rnd_id, "*")):
-            if file.lower().endswith((".jpg", ".png", ".webp")):
-                thumb_pic = file
-            else:
-                video = file
-        await ctx.msg.reply_video(video=video, thumb=thumb_pic)
+            # Exclude incomplete files and thumb
+            if not file.lower().endswith((".jpg", ".png", ".webp", ".part")):
+                media_file = file
+                break
+        else:
+            await ctx.respond("No Media Found", mode="error", delete_after=8)
+        await ctx.msg.reply_video(video=media_file, progress=util.progress, supports_streaming=True, progress_args=(ctx.msg, "Uploading", "video.mp4"))
         await ctx.msg.delete()
 
     async def download_progress(self, *args, msg: Union[Message, CallbackQuery],
@@ -475,6 +475,12 @@ class YouTube(module.Module):
         humanbytes = util.misc.human_readable_bytes
         time_formater = util.time.format_duration_td
         before = util.time.sec()
+        if isinstance(msg, Message):
+            edit_func = msg.edit
+        elif isinstance(msg, CallbackQuery):
+            edit_func = msg.edit_message_text
+        else:
+            raise TypeError(f"Unsupported msg type '{type(msg)}'")
 
         def prog_func(prog_data: Dict) -> None:
             nonlocal last_update_time
@@ -505,16 +511,11 @@ class YouTube(module.Module):
             # Only edit message once every 8 seconds to avoid ratelimits
             if (last_update_time is None
                     or (now - last_update_time).total_seconds() >= 8):
-                if isinstance(msg, Message):
-                    edit_func = msg.edit(progress)
-                elif isinstance(msg, CallbackQuery):
-                    edit_func = msg.edit_message_text(progress)
-                else:
-                    raise TypeError(f"Unsupported msg type '{type(msg)}'")
-                self.bot.loop.create_task(edit_func)
+
+                self.bot.loop.create_task(edit_func(progress))
                 last_update_time = now
 
         if downtype == "video":
-            return await self.video_downloader(*args, prog_func=prog_func)
+            return await self.video_downloader(*args, prog_func)
         if downtype == "audio":
-            return await self.audio_downloader(*args, prog_func=prog_func)
+            return await self.audio_downloader(*args, prog_func)

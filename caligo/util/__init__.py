@@ -16,7 +16,7 @@ from . import (
     version,
 )
 from .buttons import sublists
-from .media_utils import get_file_id, get_media
+from .media_utils import get_file_id, get_media, progress
 
 BotConfig = config.BotConfig
 File = file.File

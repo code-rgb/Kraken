@@ -80,15 +80,15 @@ class TelegramBot(Base):
         db = self.get_db("core")
 
         prefix_data = await db.find_one({"_id": "Core"})
-        for p in ["prefix", "sudoprefix"]:
+        for p_fix in ("prefix", "sudoprefix"):
             try:
-                setattr(self, p, prefix_data[p])
-            except (TypeError, KeyError):
+                setattr(self, p_fix, prefix_data[p_fix])
+            except KeyError:
                 # Default prefix we can change later
-                setattr(self, p, ("." if p == "prefix" else "!"))
+                setattr(self, p_fix, ("." if p_fix == "prefix" else "!"))
                 await db.find_one_and_update({"_id": "Core"},
                                              {"$set": {
-                                                 p: getattr(self, p)
+                                                 p_fix: getattr(self, p_fix)
                                              }},
                                              upsert=True)
 

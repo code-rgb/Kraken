@@ -1,27 +1,46 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Set
 
-from pyrogram import Client, errors, types
+from pyrogram import Client, types
+from pyrogram.errors import MessageDeleteForbidden, MessageAuthorRequired, MessageIdInvalid, MessageNotModified
 
+_CANCEL_SET : Set[int] = set()
 
 # Inspired from Userge
 class Message(types.Message):
 
-    def __init__(self, client: Client, mvar: Dict, **kwargs):
-        self.is_kraken = True
-        if mvar.get("segments"):
-            self.segments = mvar["segments"]
-            del mvar["segments"]
+    def __init__(self, client: Client, segments: List[Optional[str]], mvars: Dict[str, object], **kwargs):
+        self._process_canceled = False
+        self._kwargs = kwargs
         self._client = client
-        del mvar["_client"]
-        super().__init__(client=client, **mvar)
+        self.segments = segments
+        super().__init__(client=client, **mvars)
 
     @classmethod
     def _parse(cls, msg: types.Message, **kwargs):
         mvars = vars(msg)
+        segments = mvars.get("segments")
+        client = msg._client
+        for _key in ["segments", "_client", "_process_canceled", "_kwargs"]:
+            mvars.pop(_key, None)
+
         if mvars["reply_to_message"]:
             mvars["reply_to_message"] = cls._parse(mvars["reply_to_message"],
                                                    **kwargs)
-        return cls(client=msg._client, mvar=mvars, **kwargs)
+        return cls(client=client, segments=segments, mvars=mvars, **kwargs)
+
+    @property
+    def process_is_canceled(self) -> bool:
+        """ Returns True if process canceled """
+        if self.message_id in _CANCEL_SET:
+            _CANCEL_SET.remove(self.message_id)
+            self._process_canceled = True
+        return self._process_canceled
+
+
+    def cancel_the_process(self) -> None:
+        """ Set True to the self.process_is_canceled """
+        _CANCEL_SET.add(self.message_id)
+
 
     async def edit(
         self,
@@ -42,9 +61,9 @@ class Message(types.Message):
                 disable_web_page_preview=disable_web_page_preview,
                 reply_markup=reply_markup,
             )
-        except errors.MessageNotModified:
+        except MessageNotModified:
             return self
-        except (errors.MessageAuthorRequired, errors.MessageIdInvalid):
+        except (MessageAuthorRequired, MessageIdInvalid):
             if sudo:
                 msg = await self.reply(
                     text=text,
@@ -87,7 +106,7 @@ class Message(types.Message):
     async def delete(self, revoke: bool = True, sudo: bool = True) -> bool:
         try:
             return bool(await super().delete(revoke=revoke))
-        except errors.MessageDeleteForbidden as m_e:
+        except MessageDeleteForbidden as m_e:
             if not sudo:
                 raise m_e
             return False
