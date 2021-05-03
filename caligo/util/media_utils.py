@@ -72,7 +72,7 @@ async def progress(
     now = time_now()
     if process_id not in _PROCESS:
         _PROCESS[process_id] = (now, now)
-    start, last_update_time = _PROCESS[task_id]
+    start, last_update_time = _PROCESS[process_id]
     # ------------------------------------ #
     if (now - last_update_time) >= 8:
         _PROCESS[process_id] = (start, now)

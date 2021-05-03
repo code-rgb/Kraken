@@ -480,7 +480,6 @@ class YouTube(module.Module):
         last_update_time = None
         humanbytes = util.misc.human_readable_bytes
         time_formater = util.time.format_duration_td
-        before = util.time.sec()
         if isinstance(msg, Message):
             edit_func = msg.edit
         elif isinstance(msg, CallbackQuery):
@@ -490,34 +489,29 @@ class YouTube(module.Module):
 
         def prog_func(prog_data: Dict) -> None:
             nonlocal last_update_time
-            now = datetime.now()
-            if prog_data.get("status") == "finished":
-                progress = "🔄  Download Finished Now Converting."
-            else:
-                # ------------ Progress Info ------------ #
-                eta = prog_data.get("eta")
-                speed = prog_data.get("speed")
-                if not (eta and speed):
-                    return
-                current = prog_data.get("downloaded_bytes")
-                total = prog_data.get("total_bytes")
-                filename = prog_data.get("filename")
-                # ---------------------------------------- #
-                after = util.time.sec() - before
-                percentage = round(current / total * 100)
-                progress_bar = (f"[{'█' * floor(15 * percentage / 100)}"
-                                f"{'░' * floor(15 * (1 - percentage / 100))}]")
-                progress = f"""
+            now = util.time.sec()
+            # Only edit message once every 8 seconds to avoid ratelimits
+            if (last_update_time is None or (now - last_update_time).total_seconds() >= 8):
+                if prog_data.get("status") == "finished":
+                    progress = "🔄  Download Finished Now Converting."
+                else:
+                    # ------------ Progress Info ------------ #
+                    if not ((eta := prog_data.get("eta")) and (speed := prog_data.get("speed"))):
+                        return
+                    current = prog_data.get("downloaded_bytes")
+                    total = prog_data.get("total_bytes")
+                    filename = prog_data.get("filename")
+                    # ---------------------------------------- #
+                    percentage = round(current / total * 100)
+                    progress_bar = (f"[{'█' * floor(15 * percentage / 100)}"
+                                    f"{'░' * floor(15 * (1 - percentage / 100))}]")
+                    progress = f"""
 <i>Downloading:</i>  <code>{filename}</code>
 <b>Completed:</b>  <code>{humanbytes(current)} / {humanbytes(total)}</code>
 <b>Progress:</b>  <code>{progress_bar} {percentage} %</code>
 <b>Speed:</b>  <code>{humanbytes(speed, postfix='/s')}</code>
 <b>ETA:</b>  <code>{time_formater(eta)}</code>
 """
-            # Only edit message once every 8 seconds to avoid ratelimits
-            if (last_update_time is None
-                    or (now - last_update_time).total_seconds() >= 8):
-
                 self.bot.loop.create_task(edit_func(progress))
                 last_update_time = now
 
