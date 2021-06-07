@@ -69,7 +69,7 @@ Pillow = "^8.2.0"
 async-property = "^0.2.1"
 tenacity = "^7.0.0"
 toml = "^0.10.2"
-youtube_dl = "^2021.4.17"
+youtube_dl = "^2021.6.6"
 youtube-search-python = "^1.4.5"
 cloudscraper = "^1.2.58"
 
