@@ -40,7 +40,7 @@ colorlog = "^5.0.1"
 motor = "^2.4.0"
 Pyrogram = "^1.2.9"
 #Pyrogram = { git = "https://github.com/code-rgb/pyrogram.git", branch = "x21" }
-python-dotenv = "^0.17.1"
+python-dotenv = "^0.19.1"
 TgCrypto = "^1.2.2"
 
 # Core Extra
