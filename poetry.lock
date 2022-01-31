@@ -652,7 +652,7 @@ requests = ">=2.0.1,<3.0.0"
 
 [[package]]
 name = "rfc3986"
-version = "1.4.0"
+version = "1.5.0"
 description = "Validating URI References per RFC 3986"
 category = "main"
 optional = false
@@ -812,19 +812,19 @@ python-versions = "*"
 
 [[package]]
 name = "youtube-search-python"
-version = "1.4.5"
+version = "1.6.2"
 description = "Search for YouTube videos, channels & playlists & get video information using link WITHOUT YouTube Data API v3"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-httpx = "*"
+httpx = ">=0.14.2"
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b552e6a44de5ce70ae189a19b47d7fb6f4002ef79f8f9aee3480d3a90423a18b"
+content-hash = "d32b883ae4c412409198f01b892afca4f85c2a205d08120ff0f45bb1a35611d8"
 
 [metadata.files]
 aioaria2 = [
@@ -1119,6 +1119,7 @@ pillow = [
     {file = "Pillow-8.2.0-pp37-pypy37_pp73-manylinux2010_i686.whl", hash = "sha256:aac00e4bc94d1b7813fe882c28990c1bc2f9d0e1aa765a5f2b516e8a6a16a9e4"},
     {file = "Pillow-8.2.0-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:22fd0f42ad15dfdde6c581347eaa4adb9a6fc4b865f90b23378aa7914895e120"},
     {file = "Pillow-8.2.0-pp37-pypy37_pp73-win32.whl", hash = "sha256:e98eca29a05913e82177b3ba3d198b1728e164869c613d76d0de4bde6768a50e"},
+    {file = "Pillow-8.2.0-pp37-pypy37_pp73-win_amd64.whl", hash = "sha256:8b56553c0345ad6dcb2e9b433ae47d67f95fc23fe28a0bde15a120f25257e291"},
     {file = "Pillow-8.2.0.tar.gz", hash = "sha256:a787ab10d7bb5494e5f76536ac460741788f1fbce851068d73a87ca7c35fc3e1"},
 ]
 protobuf = [
@@ -1281,8 +1282,8 @@ requests-toolbelt = [
     {file = "requests_toolbelt-0.9.1-py2.py3-none-any.whl", hash = "sha256:380606e1d10dc85c3bd47bf5a6095f815ec007be7a8b69c878507068df059e6f"},
 ]
 rfc3986 = [
-    {file = "rfc3986-1.4.0-py2.py3-none-any.whl", hash = "sha256:af9147e9aceda37c91a05f4deb128d4b4b49d6b199775fd2d2927768abdc8f50"},
-    {file = "rfc3986-1.4.0.tar.gz", hash = "sha256:112398da31a3344dc25dbf477d8df6cb34f9278a94fee2625d89e4514be8bb9d"},
+    {file = "rfc3986-1.5.0-py2.py3-none-any.whl", hash = "sha256:a86d6e1f5b1dc238b218b012df0aa79409667bb209e58da56d0b94704e712a97"},
+    {file = "rfc3986-1.5.0.tar.gz", hash = "sha256:270aaf10d87d0d4e095063c65bf3ddbc6ee3d0b226328ce21e036f946e421835"},
 ]
 rsa = [
     {file = "rsa-4.7.2-py3-none-any.whl", hash = "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2"},
@@ -1463,6 +1464,6 @@ youtube-dl = [
     {file = "youtube_dl-2021.4.26.tar.gz", hash = "sha256:6f311ffaf8b88cdcf27a2301a2272455e213bdb780aa447246933a3da4532879"},
 ]
 youtube-search-python = [
-    {file = "youtube-search-python-1.4.5.tar.gz", hash = "sha256:3397adee4b2ee4407abdedf1a19c1886cc0fa51071f0b4bd9b4bf16a48ae05b8"},
-    {file = "youtube_search_python-1.4.5-py3-none-any.whl", hash = "sha256:57e02dd88f747be9d60cc20fcbc46edde93703c5812164e91ce21e593db46044"},
+    {file = "youtube-search-python-1.6.2.tar.gz", hash = "sha256:3de5a2d5eca05128145d9ebc6d4278e08a1f7cd0e67b4e89351f67b3a9e3a8c5"},
+    {file = "youtube_search_python-1.6.2-py3-none-any.whl", hash = "sha256:189cc644970c9c8827a12900b13aa29249ded7d3309412fb2a8ec50ce4106533"},
 ]
