@@ -70,7 +70,7 @@ async-property = "^0.2.1"
 tenacity = "^7.0.0"
 toml = "^0.10.2"
 youtube_dl = "^2021.4.17"
-youtube-search-python = "^1.4.5"
+youtube-search-python = "^1.6.3"
 cloudscraper = "^1.2.58"
 
 
