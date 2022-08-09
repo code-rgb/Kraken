@@ -13,17 +13,17 @@ typing-extensions = "*"
 
 [[package]]
 name = "aiofile"
-version = "3.5.0"
+version = "3.8.1"
 description = "Asynchronous file operations."
 category = "main"
 optional = false
-python-versions = ">3.4.*, <4"
+python-versions = ">=3.7, <4"
 
 [package.dependencies]
-caio = ">=0.8.0,<0.9.0"
+caio = ">=0.9.0,<0.10.0"
 
 [package.extras]
-develop = ["aiomisc", "asynctest", "pytest", "pytest-cov"]
+develop = ["aiomisc", "pytest", "pytest-cov"]
 
 [[package]]
 name = "aiofiles"
@@ -130,11 +130,11 @@ python-versions = "~=3.5"
 
 [[package]]
 name = "caio"
-version = "0.8.0"
-description = "Asynchronous file IO for Linux Posix and Windows."
+version = "0.9.6"
+description = "Asynchronous file IO for Linux MacOS or Windows."
 category = "main"
 optional = false
-python-versions = ">=3.5.*, <4"
+python-versions = ">=3.5, <4"
 
 [package.extras]
 develop = ["aiomisc", "pytest", "pytest-cov"]
@@ -196,11 +196,11 @@ optional = false
 python-versions = ">=3.6"
 
 [package.extras]
-dnssec = ["cryptography (>=2.6)"]
-doh = ["requests", "requests-toolbelt"]
+trio = ["sniffio (>=1.1)", "trio (>=0.14.0)"]
+curio = ["sniffio (>=1.1)", "curio (>=1.2)"]
 idna = ["idna (>=2.1)"]
-curio = ["curio (>=1.2)", "sniffio (>=1.1)"]
-trio = ["trio (>=0.14.0)", "sniffio (>=1.1)"]
+doh = ["requests-toolbelt", "requests"]
+dnssec = ["cryptography (>=2.6)"]
 
 [[package]]
 name = "emoji"
@@ -211,7 +211,7 @@ optional = false
 python-versions = "*"
 
 [package.extras]
-dev = ["pytest", "coverage", "coveralls"]
+dev = ["coveralls", "coverage", "pytest"]
 
 [[package]]
 name = "gitdb"
@@ -471,9 +471,9 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.extras]
-rsa = ["cryptography"]
+signedtoken = ["pyjwt (>=1.0.0)", "cryptography"]
 signals = ["blinker"]
-signedtoken = ["cryptography", "pyjwt (>=1.0.0)"]
+rsa = ["cryptography"]
 
 [[package]]
 name = "packaging"
@@ -652,7 +652,7 @@ requests = ">=2.0.1,<3.0.0"
 
 [[package]]
 name = "rfc3986"
-version = "1.4.0"
+version = "1.5.0"
 description = "Validating URI References per RFC 3986"
 category = "main"
 optional = false
@@ -824,7 +824,7 @@ httpx = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b552e6a44de5ce70ae189a19b47d7fb6f4002ef79f8f9aee3480d3a90423a18b"
+content-hash = "dd9e65c1e7bf647e3125c454f7866256de7ee24ffa5486ef21a9680e143f6cb3"
 
 [metadata.files]
 aioaria2 = [
@@ -832,8 +832,7 @@ aioaria2 = [
     {file = "aioaria2-1.3.2.tar.gz", hash = "sha256:669e42e64bab764ae58844e7e44f057379e1c56f1fb2389664131dd19b7c6157"},
 ]
 aiofile = [
-    {file = "aiofile-3.5.0-py3-none-any.whl", hash = "sha256:5e7287a33b498bfa418aac1caa0be7b2ad32ec49680ec22f537335d95002de0a"},
-    {file = "aiofile-3.5.0.tar.gz", hash = "sha256:cc9fb394e8c0ad1d2b9014a9b4bdaa3535f098c5881bd3ba220350b198c12727"},
+    {file = "aiofile-3.8.1.tar.gz", hash = "sha256:1623b98d88fbd16bbd2808d010de4e185a700e950ed3f17455dd851aa2455f40"},
 ]
 aiofiles = [
     {file = "aiofiles-0.6.0-py3-none-any.whl", hash = "sha256:bd3019af67f83b739f8e4053c6c0512a7f545b9a8d91aaeab55e6e0f9d123c27"},
@@ -908,16 +907,17 @@ cachetools = [
     {file = "cachetools-4.2.2.tar.gz", hash = "sha256:61b5ed1e22a0924aed1d23b478f37e8d52549ff8a961de2909c69bf950020cff"},
 ]
 caio = [
-    {file = "caio-0.8.0-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:12c9354954cced5c86eda101685d3d0b5656bbd50b9293604b68150ce32fb5db"},
-    {file = "caio-0.8.0-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:86dd1076008afa2665e30cf6be3fee3d53b88601abfd7e730b5954b4e64fac40"},
-    {file = "caio-0.8.0-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:d35b423f178daddff2481594b94d66b1e06afd9f26629eec034f3ae0c950b312"},
-    {file = "caio-0.8.0-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:1f1d2a41ad67fb6e9af4d89c40056df370b338f0cc6ca1b3d2f7a85675beaab7"},
-    {file = "caio-0.8.0-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:c302fe7c417ce2cc1c6c34ebb4b46220592068a14a1e324c8016f19d74b4d7ed"},
-    {file = "caio-0.8.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:d45361b84edc74868e46d5bf34a2879f69b1d278e60922f9b98ab2962a593f03"},
-    {file = "caio-0.8.0-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:601b219fe167c2aeb74bf91f1ca7a4d0fc0ba63767cee79f9a1c14c679e11fdf"},
-    {file = "caio-0.8.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:b1b163d2603a7001ac39f00c2dfaf0e9fff56d3fa2553b708e9bb0fc39ac9432"},
-    {file = "caio-0.8.0-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:ae54d0e409732882448ae9a730151acba9ac4cb536d03cbfd77114587cb858f7"},
-    {file = "caio-0.8.0.tar.gz", hash = "sha256:87655ee2510ef6f0e9bf0b5cd77fc04a79236ac0259a9739e75622fa2fd1b674"},
+    {file = "caio-0.9.6-cp310-cp310-macosx_10_15_universal2.whl", hash = "sha256:68507b23b2e0927a600e304ee455d5a4890ba7abcc8da9c169c1ff76667d73d4"},
+    {file = "caio-0.9.6-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:c702e86c7f446d69353e335de6c11ae9291b4408a1a510b3a7150e67576b0943"},
+    {file = "caio-0.9.6-cp36-cp36m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:fb499c23e03894a0f6d055d393087785b4b1578fe883f5da56d95ecf737365e6"},
+    {file = "caio-0.9.6-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:1e4adf1eb501f9b11c64bf92714c3b85f4f5fa7b804ddb48bd5cb5263b7bd168"},
+    {file = "caio-0.9.6-cp37-cp37m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:2d9f74792606c0210ac81cb08451bcd4fa8f5857cef01eec1c7fa748f4283cd5"},
+    {file = "caio-0.9.6-cp38-cp38-macosx_10_15_x86_64.whl", hash = "sha256:3c6f233dd3a6072c19738650fb11cfb0b02ed675fea4631ab8ae9e214fe2259d"},
+    {file = "caio-0.9.6-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:ea0e87d1206acd8954ac08eb24fef8b0e3475fd12f9b521325561bda723a324e"},
+    {file = "caio-0.9.6-cp39-cp39-macosx_10_15_x86_64.whl", hash = "sha256:c10e9b8dca38b262b536b421c2036d55c382497d85ac57426df6c86934b4e479"},
+    {file = "caio-0.9.6-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:395c56a052157453144e39f71e39120c48975b9b810779145c4c961c1f2776b5"},
+    {file = "caio-0.9.6-py3-none-any.whl", hash = "sha256:3e78159be5ccd070a0d7bcb4f0d60bbe5dd4970aa928218f6899f6e112cc963e"},
+    {file = "caio-0.9.6.tar.gz", hash = "sha256:a0c2111ec0fe94f8ed873d36d33344b765cd047855408faa9513e549070d3cf4"},
 ]
 certifi = [
     {file = "certifi-2020.12.5-py2.py3-none-any.whl", hash = "sha256:719a74fb9e33b9bd44cc7f3a8d94bc35e4049deebe19ba7d8e108280cfd59830"},
@@ -1119,6 +1119,7 @@ pillow = [
     {file = "Pillow-8.2.0-pp37-pypy37_pp73-manylinux2010_i686.whl", hash = "sha256:aac00e4bc94d1b7813fe882c28990c1bc2f9d0e1aa765a5f2b516e8a6a16a9e4"},
     {file = "Pillow-8.2.0-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:22fd0f42ad15dfdde6c581347eaa4adb9a6fc4b865f90b23378aa7914895e120"},
     {file = "Pillow-8.2.0-pp37-pypy37_pp73-win32.whl", hash = "sha256:e98eca29a05913e82177b3ba3d198b1728e164869c613d76d0de4bde6768a50e"},
+    {file = "Pillow-8.2.0-pp37-pypy37_pp73-win_amd64.whl", hash = "sha256:8b56553c0345ad6dcb2e9b433ae47d67f95fc23fe28a0bde15a120f25257e291"},
     {file = "Pillow-8.2.0.tar.gz", hash = "sha256:a787ab10d7bb5494e5f76536ac460741788f1fbce851068d73a87ca7c35fc3e1"},
 ]
 protobuf = [
@@ -1281,8 +1282,8 @@ requests-toolbelt = [
     {file = "requests_toolbelt-0.9.1-py2.py3-none-any.whl", hash = "sha256:380606e1d10dc85c3bd47bf5a6095f815ec007be7a8b69c878507068df059e6f"},
 ]
 rfc3986 = [
-    {file = "rfc3986-1.4.0-py2.py3-none-any.whl", hash = "sha256:af9147e9aceda37c91a05f4deb128d4b4b49d6b199775fd2d2927768abdc8f50"},
-    {file = "rfc3986-1.4.0.tar.gz", hash = "sha256:112398da31a3344dc25dbf477d8df6cb34f9278a94fee2625d89e4514be8bb9d"},
+    {file = "rfc3986-1.5.0-py2.py3-none-any.whl", hash = "sha256:a86d6e1f5b1dc238b218b012df0aa79409667bb209e58da56d0b94704e712a97"},
+    {file = "rfc3986-1.5.0.tar.gz", hash = "sha256:270aaf10d87d0d4e095063c65bf3ddbc6ee3d0b226328ce21e036f946e421835"},
 ]
 rsa = [
     {file = "rsa-4.7.2-py3-none-any.whl", hash = "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2"},
